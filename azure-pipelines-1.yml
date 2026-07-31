@@ -1,0 +1,60 @@
+trigger:
+  - main
+
+pool:
+  name: 'local_agent' # Matches your Agent Pool name
+
+variables:
+  # Path to denodo-db-tools folder on Machine C
+  denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
+  pipelineTmpPath: 'C:\Users\hariharan.d\denodo\pipeline_files'
+  
+  # Machine A Details (Dev VDP Server)
+  vdpServer: 'devdenodo-9.iqzsystems.io:9999/admin'  # Replace with Machine A IP/Hostname
+  
+  # Machine B Details (Solution Manager Server)
+  smHost: 'denodosm-9.iqzsystems.io'               # Replace with Machine B IP/Hostname
+  smPort: '10090'                     
+  targetEnvId: 7                                # Replace with Target Environment ID in SM
+
+jobs:
+- job: DenodoCICDJob
+  steps:
+  
+  # 1. Initialize Pipeline Temp Folder
+  - powershell: |
+      if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
+    displayName: 'Initialize Pipeline Folder'
+
+  # 2. Extract Incremental VQL Revision from Machine A
+  - script: |
+      cd $(denodoPath)
+      export.bat --revision -l $(USER) -p $(PASSWORD) -h $(vdpServer) ^
+      -f $(pipelineTmpPath)/$(REVISION_NAME) ^
+      -fc HEAD~1 ^
+      -tc $(Build.SourceVersion) ^
+      -P includeprivileges=yes
+    displayName: 'Extract Incremental VQL Revision from Dev VDP'
+    env:
+      PASSWORD: $(PASSWORD)
+
+  # 3. Publish VQL Artifact
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(pipelineTmpPath)/$(REVISION_NAME)'
+      ArtifactName: 'VQL_Revision'
+      publishLocation: 'Container'
+
+  # 4. Deploy to Machine B via Solution Manager REST API
+  - script: |
+      cd $(pipelineTmpPath)
+      python base64revision.py -s $(smHost) -p $(smPort) -v $(pipelineTmpPath)/$(REVISION_NAME) -n "Auto_Build_$(Build.BuildId)" -d "Automated build from Git commit $(Build.SourceVersion)" -e $(targetEnvId) -u $(USER) -a $(PASSWORD)
+    displayName: 'Deploy via Solution Manager API'
+    env:
+      PASSWORD: $(PASSWORD)
+
+  # 5. Cleanup Temporary Files
+  - script: |
+      if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
+    displayName: 'Cleanup Temp Files'
+    condition: always()
