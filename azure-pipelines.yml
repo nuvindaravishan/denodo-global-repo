@@ -29,13 +29,9 @@ jobs:
     displayName: 'Initialize Pipeline Folder'
 
   # 2. Extract Incremental VQL Revision from Machine A
-  - script: |
-      cd $(denodoPath)
-      export.bat --revision -l $(USER) -p $(PASSWORD) -h $(vdpServer) ^
-      -f $(pipelineTmpPath)/$(REVISION_NAME) ^
-      -fc HEAD~1 ^
-      -tc $(Build.SourceVersion) ^
-      -P includeprivileges=yes
+  - powershell: |
+      Set-Location "$(denodoPath)"
+      .\export.bat --revision -l "$(USER)" -p "$(PASSWORD)" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc "$(Build.SourceVersion)" -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       PASSWORD: $(PASSWORD)
