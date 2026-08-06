@@ -33,7 +33,7 @@ jobs:
       
       # Generate Incremental Workspace Revision directly from Git history
       Write-Host "Generating incremental workspace VQL revision..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "//devdenodo-9.iqzsystems.io:9999/admin" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "//devdenodo-9.iqzsystems.io:9999/admin" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDP_USER: $(VDP_USER)
