@@ -25,23 +25,23 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental VQL Revision from Dev VDP
+  # 2. Extract Incremental Workspace VQL Revision from Dev VDP
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 2a: Create VQL file with DVCSPULL <database_name>
+      # Step 2a: Create VQL file to pull Git changes
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Sync Dev VDP database with Git
+      # Step 2b: Sync Dev VDP with Git repository (Downloads PR merge commit into VDP)
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental VQL Revision between HEAD~1 and HEAD
-      Write-Host "Generating incremental VQL revision..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+      # Step 2c: Generate Incremental Workspace Revision connected to /admin
+      Write-Host "Generating incremental workspace VQL revision for PR commit $(Build.SourceVersion)..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "//devdenodo-9.iqzsystems.io:9999/admin" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc "$(Build.SourceVersion)" -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
