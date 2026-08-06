@@ -36,9 +36,9 @@ jobs:
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Sync Dev VDP database with Git repository
-      Write-Host "Syncing Dev VDP database '$(vdbName)' with Git..."
-      .\import.bat --singleuser --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
+      # Step 2b: Sync Dev VDP database with Git (Without singleuser warning)
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
+      .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
       # Step 2c: Generate Incremental VQL Revision between HEAD~1 and latest commit
       Write-Host "Generating incremental VQL revision..."
