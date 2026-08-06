@@ -24,25 +24,24 @@ jobs:
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
-# Generate Incremental Revision (Denodo Official Pattern)
+# 2. Extract Incremental Workspace VQL Revision from Dev VDP
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 1: Pull latest Git changes into Dev VDP so HEAD updates
+      # Step 2a: Create VQL file to pull Git changes for database resort360
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
+      
       Set-Location "$(denodoPath)"
-      Write-Host "Syncing Dev VDP with Git repository..."
+      
+      # Step 2b: Sync Dev VDP database 'resort360' with Git
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2: Denodo Official Incremental Revision Command using -tc HEAD
-      Write-Host "Generating incremental VQL revision from HEAD~1 to HEAD..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" `
-      -f "$(pipelineTmpPath)/$(REVISION_NAME)" `
-      -fc HEAD~1 `
-      -tc HEAD `
-      -P includeprivileges=yes
-    displayName: 'Generate Incremental Revision (Denodo Official)'
+      # Step 2c: Generate Incremental Revision connected to /admin (Workspace Root)
+      Write-Host "Generating incremental workspace VQL revision..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "//devdenodo-9.iqzsystems.io:9999/admin" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+    displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
