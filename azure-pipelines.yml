@@ -9,7 +9,7 @@ variables:
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
   
   # Machine A Details (Dev VDP)
-  vdpServer: 'devdenodo-9.iqzsystems.io:9999/admin'
+  vdpServer: 'devdenodo-9.iqzsystems.io:9999/resort360'
   
   # Machine B Details (Solution Manager)
   smHost: 'denodosm-9.iqzsystems.io'  # Replace with Machine B IP/Hostname
