@@ -25,12 +25,12 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental VQL Revision from Dev VDP
+# 2. Extract Incremental VQL Revision from Dev VDP
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 2a: Create VQL file to pull Git changes
+      # Step 2a: Create VQL file to pull Git changes for database resort360
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
       Set-Location "$(denodoPath)"
@@ -39,22 +39,15 @@ jobs:
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision from HEAD~1 to HEAD
-      Write-Host "Generating incremental VQL revision..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
-      
-      # Step 2d: Verify that revision contains VQL elements
-      $vqlContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
-      if ($vqlContent -like "*# No diff elements between commits*") {
-          Write-Host "##[warning] No VQL view changes detected in the latest Git commit. Skipping deployment."
-      } else {
-          Write-Host "Incremental VQL revision successfully generated!"
-      }
+      # Step 2c: Generate Incremental Revision using exact Azure DevOps PR commit hashes
+      Write-Host "Generating incremental VQL revision for commit range $env:BUILD_SOURCEVERSION~1 to $env:BUILD_SOURCEVERSION ..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc "$env:BUILD_SOURCEVERSION~1" -tc "$env:BUILD_SOURCEVERSION" -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
+      BUILD_SOURCEVERSION: $(Build.SourceVersion)
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
