@@ -25,13 +25,24 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract VQL Revision from Dev VDP (Using VDP Credentials)
+# 2. Extract Incremental VQL Revision from Dev VDP
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
+      
+      # Step 2a: Create VQL file to force VDP to pull latest Git commits
+      "DVCSPULL;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
+      
       Set-Location "$(denodoPath)"
-      .\export.bat -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -P replaceExistingElements=yes -P includejars=yes
-    displayName: 'Extract VQL Revision from Dev VDP'
+      
+      # Step 2b: Sync Dev VDP with remote Git repo
+      Write-Host "Syncing Dev VDP with Git repository..."
+      .\import.bat --singleuser --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
+      
+      # Step 2c: Generate Incremental VQL Revision between HEAD~1 and latest commit
+      Write-Host "Generating incremental VQL revision..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc "$(Build.SourceVersion)" -P includeprivileges=yes
+    displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
