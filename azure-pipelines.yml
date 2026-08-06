@@ -25,7 +25,7 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-# 2. Extract Incremental VQL Revision from Dev VDP
+# 2. Extract VQL Revision from Dev VDP (Database VCS Workflow)
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
@@ -39,15 +39,14 @@ jobs:
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision using exact Azure DevOps PR commit hashes
-      Write-Host "Generating incremental VQL revision for commit range $env:BUILD_SOURCEVERSION~1 to $env:BUILD_SOURCEVERSION ..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc "$env:BUILD_SOURCEVERSION~1" -tc "$env:BUILD_SOURCEVERSION" -P includeprivileges=yes
-    displayName: 'Extract Incremental VQL Revision from Dev VDP'
+      # Step 2c: Export VQL Revision for Solution Manager Deployment
+      Write-Host "Exporting VQL metadata revision..."
+      .\export.bat -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -P replaceExistingElements=yes -P includejars=yes
+    displayName: 'Extract VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-      BUILD_SOURCEVERSION: $(Build.SourceVersion)
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
