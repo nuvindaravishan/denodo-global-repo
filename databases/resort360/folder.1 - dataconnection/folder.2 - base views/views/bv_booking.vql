@@ -69,7 +69,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_booking
     INDEX 'IX_Booking_Status' OTHER ( 'Booking_Status' );
 
 CREATE OR REPLACE TABLE bv_booking I18N us_est (
-        booking_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each booking record in the system.') TAGS (booking),
+        booking_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each booking record in the systems.') TAGS (booking),
         resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Denotes the identifier of the resort associated with the booking.') TAGS (resort),
         booking_date:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Indicates the date and time when the booking was created.') TAGS (booking_date),
         booking_type_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Refers to the type or category of the booking.'),
@@ -105,7 +105,6 @@ CREATE OR REPLACE TABLE bv_booking I18N us_est (
     )
     FOLDER = '/1 - dataconnection/2 - base views'
     CONSTRAINT 'PK_Booking' PRIMARY KEY ( 'booking_id' , 'resort_id' )
-    TAGS (booking, booking_date, check_in_list, customer_domain, reservation_details, resort, sales)
     CACHE OFF
     TIMETOLIVEINCACHE DEFAULT
     ADD SEARCHMETHOD bv_booking(
