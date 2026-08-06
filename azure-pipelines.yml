@@ -24,26 +24,18 @@ jobs:
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
-# 2. Extract Incremental Workspace VQL Revision from Dev VDP
+# 2. Extract Incremental Workspace VQL Revision from Dev VDP (Option A)
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 2a: Create VQL file to pull Git changes for database resort360
-      "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
-      
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Sync Dev VDP database 'resort360' with Git
-      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
-      .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
-      
-      # Step 2c: Generate Incremental Revision connected to /admin (Workspace Root)
+      # Generate Incremental Workspace Revision directly from Git history
       Write-Host "Generating incremental workspace VQL revision..."
       .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "//devdenodo-9.iqzsystems.io:9999/admin" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
-      VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
 
