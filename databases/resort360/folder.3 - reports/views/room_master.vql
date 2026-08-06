@@ -1,0 +1,7 @@
+﻿CREATE OR REPLACE VIEW room_master FOLDER = '/3 - reports' DESCRIPTION = 'The "room_master" view represents detailed information about rooms within a resort system. It includes fields such as the resort identifier, room master identifier (unique identifier for each room), room category identifier (indicating the type or category of the room), room number (unique code or number for each room), and room status (such as "Occupied" or "Available"). Additionally, the view associates directly with other views like "room_category" (mapping room categories to rooms) and "customer_booking" (connecting room bookings to customer information). This view could be used as a centralized reference for managing room-related data within a resort''s system. It may help track room availability, categorize rooms by type, and facilitate the integration of room data with booking and customer-related information. This view could serve as a critical component for operational management, reporting, and decision-making within a hospitality context.' 
+    PRIMARY KEY ( 'room_master_identifier' )
+    TAGS (mcp, room_category, room_status) AS SELECT f_bv_room_master.resort_id AS resort_identifier, f_bv_room_master.room_master_id AS room_master_identifier, f_bv_room_master.room_category_id AS room_category_identifier, f_bv_room_master.room_no AS room_number, f_bv_room_master.room_status_id AS room_status FROM f_bv_room_master;
+
+ALTER VIEW room_master
+ LAYOUT (f_bv_room_master = [20, 20, 200, 200]);
+

@@ -1,0 +1,6 @@
+﻿CREATE OR REPLACE VIEW iv_dp_customer_longest_stay_summary FOLDER = '/2 - integration/integration_dp' AS
+    SELECT guest_name,
+           max(stay_duration_days) AS longest_stay_duration
+    FROM customer_longest_stay
+    GROUP BY guest_name CONTEXT ('formatted' = 'yes');
+

@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_confirmed_booking_summary FOLDER = '/2 - integration/integration_dp' AS SELECT resort_title, count(enquiry_identifier) AS confirmed_booking_count FROM confirmed_bookings GROUP BY resort_title;
+

@@ -1,0 +1,23 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE DATASOURCE JSON ds_ataccama_resort360
+    FOLDER = '/1 - dataconnection/1 - data sources'
+    ROUTE HTTP 'http.ApacheHttpClientConnection,120000' POST '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.URL}'
+    POSTBODY '\{{
+    "query": "query getCatalogItemDQPayload($$gid: GID!) \{{ catalogItem(gid: $$gid) \{{ gid publishedVersion \{{ name _ancestors(depth: 4) \{{ type gid storedVersion \{{ _displayName \}} \}} validityAggr \{{ publishedVersion \{{ validCount invalidCount validColor invalidColor overallQuality \}} \}} dqProcessings(size: 1) \{{ processingId startedAt \}} \}} \}} \}}",
+    "variables": \{{ "gid": "4295e57c-0000-7000-0000-000000340037" \}}
+\}}'
+    MIME 'application/json'
+    GENERATE_OUTPUT_ON_EMPTY_CONTENT
+ AUTHENTICATION OAUTH20 ( 
+      TOKEN_TYPE = ACCESS_TOKEN
+      ACCESSTOKEN = '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.ACCESSTOKEN}' ${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.ACCESSTOKEN.ENCRYPTED}
+      REQUESTSIGNINGMETHOD = ${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.REQUESTSIGNINGMETHOD}
+      AUTHENTICATION_GRANT = ${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.AUTHENTICATION.GRANT}
+      TOKENENDPOINTURL = '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.TOKENENDPOINTURL}'
+      CLIENTIDENTIFIER = '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.CLIENTIDENTIFIER}'
+      CLIENTSECRET = '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.CLIENTSECRET}' ${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.CLIENTSECRET.ENCRYPTED}
+      ACCESSTOKENEXPIRESIN = ${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.json.ds_ataccama_resort360.ROUTE.HTTP.ACCESSTOKENEXPIRESIN}
+    )
+    PROXY OFF
+    CHARSET = 'UTF-8';
+

@@ -1,0 +1,67 @@
+﻿CREATE OR REPLACE REST WEBSERVICE ws_bookings_details
+    CONNECTION (
+        CHUNKSIZE = 1000
+        CHUNKTIMEOUT = 1000
+        QUERYTIMEOUT = 900000
+        POOLENABLED = true
+        POOLINITSIZE = 0
+        POOLMAXACTIVE = 30
+    )
+    DEFAULTREPRESENTATION = HTML
+    SUPPORTEDREPRESENTATIONS (HTML, XML, JSON)    AUTHENTICATION (BASIC
+    USER 'admin'
+    PASSWORD 'EIsV+67QkK8ZV3WqiCULV83bcOZbyg2GoFAwwo9fBEKg0JHC/YGSivdCdoV/gbO7WNlIDuiehqw7ltQoGov7p4ZpBL54w411lFuTdlnb/xkvTtCgVORHG3mCkVe59Tar' ENCRYPTED )
+
+    RESOURCES (
+        VIEW iv_customer_resort_bookings_details FIELDS (
+            booking_id : 'long', 
+            booking_date : 'timestamp', 
+            resort_id : 'long', 
+            resort_name : 'text', 
+            booking_type : 'text', 
+            customer_name : 'text', 
+            gender : 'text', 
+            customer_email : 'text', 
+            tour_operator_id : 'long', 
+            customer_mobile : 'text', 
+            customer_address : 'text', 
+            tour_operator_contract_id : 'long', 
+            customer_id : 'long', 
+            arrival_date : 'localdate', 
+            arrival_time : 'time', 
+            no_of_pax : 'long', 
+            reservation_start_date : 'localdate', 
+            reservation_end_date : 'localdate', 
+            tour_operator_name : 'text', 
+            tour_operator_address : 'text', 
+            tour_operator_email : 'text', 
+            tour_operator_mobile : 'text', 
+            no_of_days : 'long', 
+            is_checked_in : 'boolean', 
+            room_fare : 'double', 
+            departure_date : 'localdate', 
+            departure_time : 'time', 
+            is_checked_out : 'boolean', 
+            room_no : 'text', 
+            room_type : 'text', 
+            customer_nationality : 'text', 
+            amount_before_discount : 'decimal', 
+            percentagediscount : 'decimal', 
+            final_amount : 'decimal', 
+            "Booking_Status" : 'text' UNESCAPED, 
+            "ModifiedDate" : 'timestamp' UNESCAPED, 
+            "ModifiedBy" : 'long' UNESCAPED, 
+            "Currency_ID" : 'long' UNESCAPED, 
+            "Tax_Amount" : 'decimal' UNESCAPED, 
+            "Special_Requests" : 'text' UNESCAPED, 
+            "Cancellation_Reason" : 'text' UNESCAPED, 
+            "Cancelled_By" : 'long' UNESCAPED, 
+            "Cancelled_Date" : 'timestamp' UNESCAPED
+        )
+    )
+    OPTIONS ( NULLVALUESASEMPTYXMLELEMENTS = false
+        ALLOW_CORS_ORIGINS (*) DISABLED
+        PROCESS_FUNCTIONS_IN_SELECT_PARAMETER = true ) 
+    OPENAPI2 ( API_VERSION = '1.0.0' ) 
+    FOLDER = '/5 - data services';
+

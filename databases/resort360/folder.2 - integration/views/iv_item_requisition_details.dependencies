@@ -1,0 +1,41 @@
+﻿1/databases/resort360/folder.2 - integration/2 - integration.vql
+1/tags/amenities.vql
+1/tags/address.vql
+1/tags/city.vql
+1/tags/requisition_date.vql
+1/tags/item_name.vql
+1/tags/inventory.vql
+1/tags/sales.vql
+1/tags/requisition_amount.vql
+1/tags/restricted.vql
+1/tags/supplier.vql
+1/tags/resort.vql
+1/tags/region.vql
+1/tags/item_quantity.vql
+1/tags/email.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/tags/region.vql
+*/tags/resort.vql
+*/tags/requisition_date.vql
+*/tags/supplier.vql
+*/tags/requisition_amount.vql
+*/tags/sales.vql
+*/tags/address.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition.vql
+*/tags/item_quantity.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition_details.vql
+*/tags/city.vql
+*/tags/restricted.vql
+*/tags/email.vql
+*/tags/amenities.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_resorts.vql
+*/tags/inventory.vql
+*/tags/item_name.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_product.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_resorts.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition_details.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_product.vql

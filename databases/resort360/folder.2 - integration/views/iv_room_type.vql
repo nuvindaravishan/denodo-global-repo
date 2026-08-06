@@ -1,0 +1,8 @@
+﻿CREATE OR REPLACE VIEW iv_room_type FOLDER = '/2 - integration' DESCRIPTION = 'The iv_room_type view contains information about different classifications or types of rooms, reflecting their unique features or intended use. It includes a single column, "room_type," which is of type text and can have values like "King," "Penthouse," "Suite," and "Apartment." This column is not a primary key and is nullable, meaning it may contain missing values.'  (
+    room_type TAGS (room_category)
+ )
+ AS SELECT DISTINCT f_bv_room_category.room_type AS room_type FROM f_bv_room_category;
+
+ALTER VIEW iv_room_type
+ LAYOUT (f_bv_room_category = [20, 20, 200, 200]);
+

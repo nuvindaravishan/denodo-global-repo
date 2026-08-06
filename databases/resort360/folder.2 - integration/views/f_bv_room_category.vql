@@ -1,0 +1,15 @@
+﻿CREATE OR REPLACE VIEW f_bv_room_category FOLDER = '/2 - integration' DESCRIPTION = 'The f_bv_room_category view contains information about various room categories in a structured format. It includes a unique numeric identifier for each room category (room_category_id), the classification or type of the room (room_type), and a descriptive label summarizing its unique attributes (room_category_desc).' 
+    PRIMARY KEY ( 'room_category_id' ) (
+    room_category_id (description = 'Uniquely identifies each room category, providing a distinct numeric identifier for classification purposes.'),
+    room_type (description = 'Represents the type or classification of the room, reflecting its unique features or intended use. It includes values like "King", "Penthouse", "Suite", and "Apartment".') TAGS (room_category),
+    room_category_desc (description = 'Provides a descriptive label for each room category, summarizing its characteristics or unique attributes. It includes values like "Standard Room", "Deluxe Room", "Executive Suite", and "Family Room".')
+ )
+ AS
+    SELECT room_category_id AS room_category_id,
+           room_type AS room_type,
+           room_category_description AS room_category_desc
+    FROM bv_room_category CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW f_bv_room_category
+ LAYOUT (bv_room_category = [20, 20, 200, 200]);
+

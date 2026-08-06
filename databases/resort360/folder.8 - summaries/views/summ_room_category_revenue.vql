@@ -1,0 +1,32 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC summ_room_category_revenue
+    FOLDER = '/8 - summaries'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.8 - summaries.views.jdbc.summ_room_category_revenue.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.8 - summaries.views.jdbc.summ_room_category_revenue.SCHEMANAME}' 
+    RELATIONNAME='summ_room_category_revenue' 
+    OUTPUTSCHEMA (
+        resort_title = 'resort_title' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        room_category = 'room_category' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        sum = 'field_0' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='20', sourcetyperadix='10', sourcetypesize='38', sourcetypeid='2', sourcetypename='numeric')  SORTABLE
+    );
+
+CREATE OR REPLACE SUMMARY VIEW summ_room_category_revenue (
+        resort_title:text (sourcetypeid = '-9', sourcetypesize = '100'),
+        room_category:text (sourcetypeid = '12', sourcetypesize = '100'),
+        sum:decimal (sourcetypeid = '2', sourcetyperadix = '10', sourcetypedecimals = '20', sourcetypesize = '38')
+    )
+    FOLDER = '/8 - summaries'
+    ADD SEARCHMETHOD summ_room_category_revenue(
+        I18N us_est
+        CONSTRAINTS (
+             ADD resort_title (any) OPT ANY
+             ADD room_category (any) OPT ANY
+             ADD sum (any) OPT ANY
+        )
+        OUTPUTLIST (resort_title, room_category, sum
+        )
+        WRAPPER (jdbc summ_room_category_revenue)
+    )
+AS SELECT room_category_revenue.resort_title AS resort_title, room_category_revenue.room_category AS room_category, sum AS sum FROM (SELECT resort_title, room_category, sum(booking_revenue) AS sum FROM room_category_revenue GROUP BY resort_title, room_category);
+

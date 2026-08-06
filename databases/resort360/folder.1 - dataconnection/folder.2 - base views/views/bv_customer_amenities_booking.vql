@@ -1,0 +1,59 @@
+﻿CREATE OR REPLACE WRAPPER JDBC bv_customer_amenities_booking
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    RELATIONNAME='Customer_Amenities_Booking' 
+    OUTPUTSCHEMA (
+        customer_amenities_booking_id = 'Customer_Amenities_Booking_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        resort_id = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        booking_id = 'Booking_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        amenities_id = 'Amenities_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        customer_id = 'Customer_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        booking_date = 'Booking_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  NOT NULL SORTABLE,
+        booking_time = 'Booking_Time' :'java.time.LocalTime' (OPT) (sourcetypedecimals='7', sourcetypesize='16', sourcetypeid='92', sourcetypename='time')  NOT NULL SORTABLE,
+        slot_booked = 'Slot_Booked' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='9', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        no_of_hours = 'No_of_Hours' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        amount = 'Amount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        status = 'Status' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    );
+
+CREATE OR REPLACE TABLE bv_customer_amenities_booking I18N us_est (
+        customer_amenities_booking_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Serves as a unique identifier for each customer amenities booking entry, ensuring distinct records in the view.'),
+        resort_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier of the resort linked to the amenities booking, enabling identification of the associated resort.'),
+        booking_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Denotes the unique identifier for each booking transaction, allowing differentiation between individual bookings.') TAGS (booking),
+        amenities_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Specifies the identifier of the amenity tied to the booking, facilitating recognition of the specific amenity utilized.'),
+        customer_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the customer who made the booking, ensuring customer-specific bookings can be tracked effectively.') TAGS (customer_domain),
+        booking_date:localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Captures the date when the booking was made, serving as an essential detail for record-keeping and scheduling.') TAGS (booking_date),
+        booking_time:time (notnull, sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16', description = 'Indicates the time the booking was confirmed, with examples such as "20:45", "07:04", "20:09", and "08:31".'),
+        slot_booked:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '9', description = 'Refers to the reserved time slot for the booking, including values like "Evening", "Morning", "Afternoon", and "Evening".'),
+        no_of_hours:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Indicates the duration of the booking in hours, supporting time management and resource allocation.'),
+        amount:decimal (sourcetypeid = '3', sourcetypedecimals = '4', sourcetypesize = '19'),
+        status:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '20'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Represents the timestamp when the record was created, ensuring traceability and auditability of the booking data.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    PRIMARY KEY ( 'customer_amenities_booking_id' )
+    TAGS (amenities, booking, booking_date, customer_domain)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_customer_amenities_booking(
+        I18N us_est
+        CONSTRAINTS (
+             ADD customer_amenities_booking_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD booking_id (any) OPT ANY
+             ADD amenities_id (any) OPT ANY
+             ADD customer_id (any) OPT ANY
+             ADD booking_date (any) OPT ANY
+             ADD booking_time (any) OPT ANY
+             ADD slot_booked (any) OPT ANY
+             ADD no_of_hours (any) OPT ANY
+             ADD amount (any) OPT ANY
+             ADD status (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (amenities_id, amount, booking_date, booking_id, booking_time, createddate, customer_amenities_booking_id, customer_id, no_of_hours, resort_id, slot_booked, status
+        )
+        WRAPPER (jdbc bv_customer_amenities_booking)
+    );
+

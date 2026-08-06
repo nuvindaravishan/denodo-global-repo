@@ -1,0 +1,69 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JSON "ds_ataccama_resort360_6b4f4d11-1461-4880-8a02-23a34d2e505c"
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_ataccama_resort360
+    TUPLEROOT '/JSONFile'
+    ROUTE HTTP 'http.ApacheHttpClientConnection,120000' POST '${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.json.ds_ataccama_resort360_6b4f4d11-1461-4880-8a02-23a34d2e505c.ROUTE.HTTP.URL}'
+    POSTBODY '\{{
+    "query": "query getCatalogItemDQScore($$gid: GID!) \{{ catalogItem(gid: $$gid) \{{ gid publishedVersion \{{ name validityAggr \{{ publishedVersion \{{ overallQuality \}} \}} \}} \}} \}}",
+    "variables": \{{ "gid": "4295e57c-0000-7000-0000-000000340037" \}}
+\}}'
+    MIME 'application/json'
+    OUTPUTSCHEMA ("JSONFile" = 'JSONFile' : REGISTER OF (
+        data = 'data' : REGISTER OF (
+            "catalogItem" = 'catalogItem' : REGISTER OF (
+                gid = 'gid' : 'java.lang.String',
+                "publishedVersion" = 'publishedVersion' : REGISTER OF (
+                    name = 'name' : 'java.lang.String',
+                    "validityAggr" = 'validityAggr' : REGISTER OF (
+                        "publishedVersion" = 'publishedVersion' : REGISTER OF (
+                            "overallQuality" = 'overallQuality' : 'java.lang.Double'
+                        )
+                    )
+                )
+            )
+        ),
+        extensions = 'extensions' : REGISTER OF (
+            "__$$r" = '__$$r' : 'java.lang.String'
+        )
+    )
+    );
+
+CREATE OR REPLACE TYPE "ds_ataccama_resort360_data_catalogItem_publishedVersion_validityea63a2ee-6642-42d2-9b71-ed92b2102a39" AS REGISTER OF ("overallQuality":double);
+
+CREATE OR REPLACE TYPE "ds_ataccama_resort360_data_catalogItem_publishedVersion_validity784a8869-cbce-4b48-842a-06328638b925" AS REGISTER OF ("publishedVersion":"ds_ataccama_resort360_data_catalogItem_publishedVersion_validityea63a2ee-6642-42d2-9b71-ed92b2102a39");
+
+CREATE OR REPLACE TYPE "ds_ataccama_resort360_data_catalogItem_publishedVersion_e4eb8ac1-aa4c-4039-8193-badc32b61dc9" AS REGISTER OF (name:text, "validityAggr":"ds_ataccama_resort360_data_catalogItem_publishedVersion_validity784a8869-cbce-4b48-842a-06328638b925");
+
+CREATE OR REPLACE TYPE "ds_ataccama_resort360_data_catalogItem_490269de-ae0b-4d3f-b386-c7cf188944aa" AS REGISTER OF (gid:text, "publishedVersion":"ds_ataccama_resort360_data_catalogItem_publishedVersion_e4eb8ac1-aa4c-4039-8193-badc32b61dc9");
+
+CREATE OR REPLACE TYPE "ds_ataccama_resort360_data_78f5701e-d2be-46cf-bb3b-3d61d27ae259" AS REGISTER OF ("catalogItem":"ds_ataccama_resort360_data_catalogItem_490269de-ae0b-4d3f-b386-c7cf188944aa");
+
+CREATE OR REPLACE TYPE ds_ataccama_resort360_extensions AS REGISTER OF ("__$$r":text);
+
+CREATE OR REPLACE TABLE ds_ataccama_resort360 I18N us_est (
+        data:"ds_ataccama_resort360_data_78f5701e-d2be-46cf-bb3b-3d61d27ae259",
+        extensions:ds_ataccama_resort360_extensions
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD ds_ataccama_resort360(
+        I18N us_est
+        CONSTRAINTS (
+             ADD data NOS ZERO ()
+             ADD data."catalogItem" NOS ZERO ()
+             ADD data."catalogItem".gid NOS ZERO ()
+             ADD data."catalogItem"."publishedVersion" NOS ZERO ()
+             ADD data."catalogItem"."publishedVersion".name NOS ZERO ()
+             ADD data."catalogItem"."publishedVersion"."validityAggr" NOS ZERO ()
+             ADD data."catalogItem"."publishedVersion"."validityAggr"."publishedVersion" NOS ZERO ()
+             ADD data."catalogItem"."publishedVersion"."validityAggr"."publishedVersion"."overallQuality" NOS ZERO ()
+             ADD extensions NOS ZERO ()
+             ADD extensions."__$$r" NOS ZERO ()
+        )
+        OUTPUTLIST (data, extensions
+        )
+        WRAPPER (json "ds_ataccama_resort360_6b4f4d11-1461-4880-8a02-23a34d2e505c")
+    );
+

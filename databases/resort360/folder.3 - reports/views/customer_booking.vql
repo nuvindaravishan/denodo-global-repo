@@ -1,0 +1,22 @@
+﻿CREATE OR REPLACE VIEW customer_booking FOLDER = '/3 - reports' DESCRIPTION = 'The customer_booking view represents a comprehensive dataset of booking records in a resort or hotel reservation system. It includes details such as the resort identifier, booking timestamp, customer identifier, number of guests, reservation start and end dates, duration in days, room identifier, total payment, and related enquiry and booking type identifiers. This view provides granular information about each booking made by customers, including the formatted booking date and payment details. This view could be used to manage and analyze booking activities, track reservations and payments, evaluate customer preferences, and assist in operational planning by integrating booking and resort data. The associations with other views such as resorts_with_states, room_master, and customer suggest its utility in maintaining relationships between bookings and respective resorts, rooms, and customers.' 
+    PRIMARY KEY ( 'resort_identifier' , 'booking_identifier' )
+    TAGS (booking, mcp, payment, reservation_details) (
+    resort_identifier (description = 'Denotes the identifier of the resort associated with the booking.'),
+    booking_identifier (description = 'Represents a unique identifier for each booking record in the system.'),
+    booking_timestamp (description = 'Indicates the date and time when the booking was created.'),
+    customer_identifier (description = 'Identifies the customer who made the booking.'),
+    number_of_guests (description = 'Represents the number of people included in the booking.'),
+    reservation_start (description = 'Denotes the start date of the reservation period for the booking.') TAGS (reservation_details),
+    reservation_end (description = 'Denotes the end date of the reservation period for the booking.') TAGS (reservation_details),
+    duration_in_days (description = 'Specifies the total number of days for which the reservation is made.'),
+    room_identifier (description = 'Refers to the identifier of the room assigned for the booking.'),
+    total_payment (description = 'Indicates the total amount to be paid after applying discounts.'),
+    enquiry_identifier (description = 'Refers to the identifier of the customer enquiry related to the booking.'),
+    booking_type_identifier (description = 'Refers to the type or category of the booking.'),
+    formatted_booking_date (description = 'Represents the formatted date of the booking.')
+ )
+ AS SELECT bv_booking.resort_id AS resort_identifier, bv_booking.booking_id AS booking_identifier, bv_booking.booking_date AS booking_timestamp, bv_booking.customer_id AS customer_identifier, bv_booking.no_of_pax AS number_of_guests, bv_booking.reservation_start_date AS reservation_start, bv_booking.reservation_end_date AS reservation_end, bv_booking.no_of_days AS duration_in_days, bv_booking.room_master_id AS room_identifier, bv_booking.final_amount AS total_payment, bv_booking.customer_enquiry_id AS enquiry_identifier, booking_type_id AS booking_type_identifier, trunc(booking_date) AS formatted_booking_date, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM bv_booking;
+
+ALTER VIEW customer_booking
+ LAYOUT (bv_booking = [20, 20, 200, 200]);
+

@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW room_category_revenue FOLDER = '/3 - reports' DESCRIPTION = 'The "room_category_revenue" view contains data related to resorts and their associated booking revenues categorized by room types. It includes fields such as the resort identifier (resort_identifier), the name of the resort (resort_title), the category of the room (room_category), and the revenue generated through bookings (booking_revenue). This view could be used for analyzing financial performance across various room categories in different resorts. Such analysis might help resort management in understanding revenue contributions, identifying trends in room category preferences, and making data-driven decisions to optimize revenue strategies.' 
+    TAGS (mcp, resort, room_category, sales) (
+    resort_title TAGS (resort),
+    room_category TAGS (room_category),
+    booking_revenue TAGS (sales)
+ )
+ AS SELECT iv_room_category_revenue.resort_id AS resort_identifier, iv_room_category_revenue.resort_name AS resort_title, iv_room_category_revenue.room_type AS room_category, iv_room_category_revenue.revenue AS booking_revenue, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_room_category_revenue;
+
+ALTER VIEW room_category_revenue
+ LAYOUT (iv_room_category_revenue = [20, 20, 200, 200]);
+

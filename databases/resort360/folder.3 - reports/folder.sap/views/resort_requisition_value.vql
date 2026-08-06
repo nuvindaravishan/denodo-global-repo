@@ -1,0 +1,13 @@
+﻿CREATE OR REPLACE VIEW resort_requisition_value FOLDER = '/3 - reports/sap' (
+    resort_identifier (description = 'Uniquely identifies each resort, serving as a distinct reference for resort-related information.'),
+    resort_name (description = 'Represents the name of the resort, offering clarity and identity within the context of accommodations.') TAGS (resort),
+    state (description = 'Indicates the state where the resort is located, contributing to its geographic identification.'),
+    country (description = 'Specifies the country where the resort is situated, aiding in its international classification.'),
+    total_requests (description = 'Represents the total number of requests associated with the resort.'),
+    total_request_value (description = 'Denotes the aggregated value of all requests related to the resort.')
+ )
+ AS SELECT iv_resort_requisition_value.resort_id AS resort_identifier, iv_resort_requisition_value.resort_name AS resort_name, iv_resort_requisition_value.state_name AS state, iv_resort_requisition_value.country_name AS country, iv_resort_requisition_value.total_requistions AS total_requests, iv_resort_requisition_value.total_requistion_value AS total_request_value FROM iv_resort_requisition_value;
+
+ALTER VIEW resort_requisition_value
+ LAYOUT (iv_resort_requisition_value = [20, 20, 200, 200]);
+

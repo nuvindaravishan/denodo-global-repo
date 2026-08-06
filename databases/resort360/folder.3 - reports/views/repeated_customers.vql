@@ -1,0 +1,15 @@
+﻿CREATE OR REPLACE VIEW repeated_customers FOLDER = '/3 - reports' DESCRIPTION = 'The repeated_customers view contains information about customers who have made bookings. It provides details including a unique identifier for each customer, their full name, and the total number of bookings made by them. This view could be used for analyzing customer engagement or identifying frequent customers based on the number of bookings they have made.' 
+    TAGS (customer_domain) (
+    customer_identifier (description = 'Represents a unique identifier for each customer who has made a booking.'),
+    customer_full_name (description = 'Contains the full name of the customer, providing a detailed identification of individuals. It includes values like "Zulma Jacobs", "Zulma Gordon", "Zulma Best", and "Zulema Wheeler".') TAGS (customer_domain),
+    number_of_bookings (description = 'Indicates the total number of bookings made by the customer, reflecting their engagement level.')
+ )
+ AS
+    SELECT iv_repeated_customers.customer_id AS customer_identifier,
+           iv_repeated_customers.customer_name AS customer_full_name,
+           iv_repeated_customers.no_of_bookings AS number_of_bookings
+    FROM iv_repeated_customers CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW repeated_customers
+ LAYOUT (iv_repeated_customers = [20, 20, 200, 200]);
+

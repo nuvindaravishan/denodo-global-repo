@@ -1,0 +1,122 @@
+﻿CREATE OR REPLACE WRAPPER JDBC ai_booking
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    RELATIONNAME='Booking' 
+    OUTPUTSCHEMA (
+        booking_id = 'Booking_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        resort_id = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        booking_date = 'Booking_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE,
+        booking_type_id = 'Booking_Type_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        tour_operator_id = 'Tour_Operator_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        tour_operator_contract_id = 'Tour_Operator_Contract_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        customer_id = 'Customer_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        arrival_date = 'Arrival_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  NOT NULL SORTABLE,
+        arrival_time = 'Arrival_Time' :'java.time.LocalTime' (OPT) (sourcetypedecimals='7', sourcetypesize='16', sourcetypeid='92', sourcetypename='time')  SORTABLE,
+        no_of_pax = 'No_of_Pax' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        reservation_start_date = 'Reservation_Start_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  NOT NULL SORTABLE,
+        reservation_end_date = 'Reservation_End_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  NOT NULL SORTABLE,
+        no_of_days = 'No_Of_Days' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        is_checked_in = 'Is_Checked_in' :'java.lang.Boolean' (OPT) (sourcetypedecimals='0', sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        room_master_id = 'Room_Master_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        room_fare = 'Room_Fare' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        amount_before_discount = 'Amount_Before_Discount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        percentagediscount = 'PercentageDiscount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='2', sourcetypesize='5', sourcetypeid='3', sourcetypename='decimal')  SORTABLE,
+        final_amount = 'Final_Amount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        departure_date = 'Departure_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        departure_time = 'Departure_Time' :'java.time.LocalTime' (OPT) (sourcetypedecimals='7', sourcetypesize='16', sourcetypeid='92', sourcetypename='time')  SORTABLE,
+        is_checked_out = 'Is_Checked_Out' :'java.lang.Boolean' (OPT) (sourcetypedecimals='0', sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        customer_enquiry_id = 'Customer_Enquiry_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        booking_status = 'Booking_Status' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE,
+        modifieddate = 'ModifiedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        modifiedby = 'ModifiedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        currency_id = 'Currency_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        tax_amount = 'Tax_Amount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        special_requests = 'Special_Requests' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='1073741823', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        cancellation_reason = 'Cancellation_Reason' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='500', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        cancelled_by = 'Cancelled_By' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        cancelled_date = 'Cancelled_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE
+    );
+
+CREATE OR REPLACE TABLE ai_booking I18N us_est (
+        booking_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each booking records') TAGS (booking),
+        resort_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the specific resort linked to the booking.') TAGS (resort),
+        booking_date:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Indicates the date and time when the booking was made.') TAGS (booking_date),
+        booking_type_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Specifies the type or category of the booking.') TAGS (booking_category),
+        tour_operator_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the tour operator associated with the booking.') TAGS (tour_operator),
+        tour_operator_contract_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Refers to the contract of the tour operator related to the booking.') TAGS (tour_operator),
+        customer_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier of the customer making the booking.'),
+        arrival_date:localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the scheduled arrival date of the customer at the resort.') TAGS (arrival_details),
+        arrival_time:time (sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16', description = 'Indicates the scheduled arrival time of the customer at the resort.') TAGS (arrival_details),
+        no_of_pax:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the total number of persons included in the booking.'),
+        reservation_start_date:localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the start date of the reservation period.') TAGS (reservation_details),
+        reservation_end_date:localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the end date of the reservation period.') TAGS (reservation_details),
+        no_of_days:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Specifies the total duration of the reservation in days.'),
+        is_checked_in:boolean (notnull, sourcetypeid = '-7', sourcetypedecimals = '0', sourcetypesize = '1', description = 'Indicates whether the customer has checked into the resort.') TAGS (check_in_list),
+        room_master_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the specific room assigned for the booking.'),
+        room_fare:decimal (notnull, sourcetypeid = '3', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the fare or cost for the booked room.') TAGS (sales),
+        amount_before_discount:decimal (notnull, sourcetypeid = '3', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Indicates the total cost of the booking before applying any discounts.') TAGS (sales),
+        percentagediscount:decimal (sourcetypeid = '3', sourcetypedecimals = '2', sourcetypesize = '5', description = 'Specifies the percentage discount applied to the booking.'),
+        final_amount:decimal (notnull, sourcetypeid = '3', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Represents the final amount payable after discounts and adjustments.'),
+        departure_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the scheduled departure date of the customer from the resort.') TAGS (departure_details),
+        departure_time:time (sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16', description = 'Indicates the scheduled departure time of the customer from the resort.') TAGS (departure_details),
+        is_checked_out:boolean (notnull, sourcetypeid = '-7', sourcetypedecimals = '0', sourcetypesize = '1', description = 'Indicates whether the customer has checked out from the resort.'),
+        customer_enquiry_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier for any customer enquiry linked to the booking.'),
+        booking_status:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '20', description = 'Indicates the current status of the booking, such as confirmed or cancelled.'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Specifies the date and time when the booking record was created.'),
+        modifieddate:timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27', description = 'Indicates the date and time when the booking record was last modified.'),
+        modifiedby:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier of the user who last modified the booking record.'),
+        currency_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the currency associated with the booking transaction.'),
+        tax_amount:decimal (sourcetypeid = '3', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the amount of tax applied to the booking.') TAGS (sales),
+        special_requests:text (sourcetypeid = '-9', sourcetypedecimals = '0', sourcetypesize = '1073741823', description = 'Contains any special requests or preferences made by the customer during the booking.'),
+        cancellation_reason:text (sourcetypeid = '-9', sourcetypedecimals = '0', sourcetypesize = '500', description = 'Provides the reason for the cancellation of the booking, if applicable.'),
+        cancelled_by:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier of the person responsible for cancelling the booking.'),
+        cancelled_date:timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27', description = 'Indicates the date and time when the booking was cancelled.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'Test Desc'
+    PRIMARY KEY ( 'booking_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD ai_booking(
+        I18N us_est
+        CONSTRAINTS (
+             ADD booking_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD booking_date (any) OPT ANY
+             ADD booking_type_id (any) OPT ANY
+             ADD tour_operator_id (any) OPT ANY
+             ADD tour_operator_contract_id (any) OPT ANY
+             ADD customer_id (any) OPT ANY
+             ADD arrival_date (any) OPT ANY
+             ADD arrival_time (any) OPT ANY
+             ADD no_of_pax (any) OPT ANY
+             ADD reservation_start_date (any) OPT ANY
+             ADD reservation_end_date (any) OPT ANY
+             ADD no_of_days (any) OPT ANY
+             ADD is_checked_in (any) OPT ANY
+             ADD room_master_id (any) OPT ANY
+             ADD room_fare (any) OPT ANY
+             ADD amount_before_discount (any) OPT ANY
+             ADD percentagediscount (any) OPT ANY
+             ADD final_amount (any) OPT ANY
+             ADD departure_date (any) OPT ANY
+             ADD departure_time (any) OPT ANY
+             ADD is_checked_out (any) OPT ANY
+             ADD customer_enquiry_id (any) OPT ANY
+             ADD booking_status (any) OPT ANY
+             ADD createddate (any) OPT ANY
+             ADD modifieddate (any) OPT ANY
+             ADD modifiedby (any) OPT ANY
+             ADD currency_id (any) OPT ANY
+             ADD tax_amount (any) OPT ANY
+             ADD special_requests (any) OPT ANY
+             ADD cancellation_reason (any) OPT ANY
+             ADD cancelled_by (any) OPT ANY
+             ADD cancelled_date (any) OPT ANY
+        )
+        OUTPUTLIST (amount_before_discount, arrival_date, arrival_time, booking_date, booking_id, booking_status, booking_type_id, cancellation_reason, cancelled_by, cancelled_date, createddate, currency_id, customer_enquiry_id, customer_id, departure_date, departure_time, final_amount, is_checked_in, is_checked_out, modifiedby, modifieddate, no_of_days, no_of_pax, percentagediscount, reservation_end_date, reservation_start_date, resort_id, room_fare, room_master_id, special_requests, tax_amount, tour_operator_contract_id, tour_operator_id
+        )
+        WRAPPER (jdbc ai_booking)
+    );
+

@@ -1,0 +1,23 @@
+﻿*/databases/resort360/folder.3 - reports/3 - reports.vql
+1/databases/resort360/folder.3 - reports/folder.sap/sap.vql
+1/tags/item_quantity.vql
+*/databases/resort360/folder.2 - integration/2 - integration.vql
+*/databases/resort360/folder.2 - integration/folder.sap/sap.vql
+*/tags/item_name.vql
+*/tags/resort.vql
+*/tags/inventory.vql
+*/tags/item_quantity.vql
+*/tags/sales.vql
+*/databases/resort360/folder.2 - integration/folder.sap/folder.optimization/optimization.vql
+*/databases/resort360/folder.2 - integration/folder.sap/folder.optimization/folder.join reordering/join reordering.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition_details.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/custom/ds_sap_item_requisition_details.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition_details_sap.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_product.vql
+*/databases/resort360/folder.2 - integration/folder.sap/folder.optimization/folder.join reordering/views/iv_item_requisition_details_sap.vql
+1/databases/resort360/folder.2 - integration/folder.sap/views/iv_most_requested_items.vql
+*/databases/resort360/folder.2 - integration/folder.sap/views/iv_most_requested_items.vql

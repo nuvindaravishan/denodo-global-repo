@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_bv_denied_reason_resort360_bv_customer_enquiry REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT bv_customer_enquiry bv_denied_reason PRINCIPAL (1)
+    ENDPOINT bv_denied_reason bv_customer_enquiry (0,*)
+    ADD MAPPING denied_reason_id=denied_reason_id;
+
+ALTER ASSOCIATION a_bv_denied_reason_resort360_bv_customer_enquiry
+ LAYOUT (bv_denied_reason = [223, 78, 200, 200], bv_customer_enquiry = [879, 43, 200, 200]);
+

@@ -1,0 +1,80 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_customer_enquiry
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_customer_enquiry.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_customer_enquiry.SCHEMANAME}' 
+    RELATIONNAME='Customer_Enquiry' 
+    OUTPUTSCHEMA (
+        customer_enquiry_id = 'Customer_Enquiry_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        resort_id = 'Resort_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        enquiry_date = 'Enquiry_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  SORTABLE,
+        first_name = 'First_Name' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        last_name = 'Last_Name' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        check_in_date = 'Check_In_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        check_out_date = 'Check_Out_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        nationality = 'Nationality' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        mobile = 'Mobile' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        email = 'Email' :'java.lang.String' (OPT) (sourcetypesize='40', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        is_confirmed = 'Is_Confirmed' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  SORTABLE,
+        confirmed_on = 'Confirmed_On' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        booking_id = 'Booking_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        is_denied = 'Is_Denied' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  SORTABLE,
+        denied_on = 'Denied_On' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        denied_reason_id = 'Denied_Reason_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK__Customer__DF3A79649F4C4B0A' PRIMARY KEY ( 'Customer_Enquiry_Id' )
+    INDEX 'PK__Customer__DF3A79649F4C4B0A' CLUSTER UNIQUE PRIMARY ( 'Customer_Enquiry_Id' );
+
+CREATE OR REPLACE TABLE bv_customer_enquiry I18N us_est (
+        customer_enquiry_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each customer enquiry record.'),
+        resort_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Indicates the identification of the resort associated with the customer enquiry.'),
+        enquiry_date:timestamp (sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Specifies the date and time when the customer enquiry was created.'),
+        first_name:text (sourcetypeid = '12', sourcetypesize = '30', description = 'Captures the first name of the individual making the enquiry. It includes values like "Marvella", "Kareem", "Randa", and "Tiesha".'),
+        last_name:text (sourcetypeid = '12', sourcetypesize = '30', description = 'Captures the last name of the individual making the enquiry. It includes values like "Robinson", "Flynn", "Berger", and "Dodson".'),
+        check_in_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Defines the expected date of arrival for the customer at the resort.'),
+        check_out_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Defines the expected date of departure for the customer from the resort.'),
+        nationality:text (sourcetypeid = '12', sourcetypesize = '100', description = 'Represents the nationality of the individual making the enquiry. It includes values like "Black or African...", "Russian", "Polish", and "Mexican".'),
+        mobile:text (sourcetypeid = '12', sourcetypesize = '20', description = 'Stores the mobile phone number of the individual making the enquiry. It includes values like "128-200-8772", "071-800-4528", "563-045-4919", and "284-447-6917".') TAGS (restricted),
+        email:text (sourcetypeid = '12', sourcetypesize = '40', description = 'Records the email address of the individual making the enquiry. It includes values like "robinsonm27@protonmail.com", "flynnk96@outlook.com", "randaberger@icloud.com", and "tiesha_dodson@hotmail.com".'),
+        is_confirmed:boolean (sourcetypeid = '-7', sourcetypesize = '1', description = 'Indicates whether the customer enquiry has been confirmed.'),
+        confirmed_on:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the date on which the customer enquiry was confirmed.'),
+        booking_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'References the unique booking identification associated with the confirmation of the enquiry.'),
+        is_denied:boolean (sourcetypeid = '-7', sourcetypesize = '1', description = 'Indicates whether the customer enquiry was denied.'),
+        denied_on:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the date on which the enquiry was denied.'),
+        denied_reason_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identification code explaining the reason for denial of the enquiry.'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Indicates the creation timestamp of the customer enquiry record.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_customer_enquiry view represents customer enquiries made to resorts. It contains detailed information related to each enquiry, including unique identifiers, personal details of the enquirer, details about the enquiry itself, and associated booking or denial status. It features fields such as customer enquiry ID, resort ID, enquiry date, check-in and check-out dates, nationality, mobile number, email address, confirmation and denial statuses, associated booking ID, and timestamps. It is directly associated with the bv_resorts view (linking enquiries to specific resorts) and bv_denied_reason view (providing reasons for denied enquiries). This view could be used for managing and tracking customer enquiries to resorts. It helps in organizing and analyzing customer data, monitoring enquiry statuses, and facilitating the booking process. Additionally, it serves as a reference for denied enquiries and their associated reasons, which could be useful for improving customer service and operational processes.'
+    CONSTRAINT 'PK__Customer__DF3A79649F4C4B0A' PRIMARY KEY ( 'customer_enquiry_id' )
+    TAGS (customer_domain, restricted)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_customer_enquiry(
+        I18N us_est
+        CONSTRAINTS (
+             ADD customer_enquiry_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD enquiry_date (any) OPT ANY
+             ADD first_name (any) OPT ANY
+             ADD last_name (any) OPT ANY
+             ADD check_in_date (any) OPT ANY
+             ADD check_out_date (any) OPT ANY
+             ADD nationality (any) OPT ANY
+             ADD mobile (any) OPT ANY
+             ADD email (any) OPT ANY
+             ADD is_confirmed (any) OPT ANY
+             ADD confirmed_on (any) OPT ANY
+             ADD booking_id (any) OPT ANY
+             ADD is_denied (any) OPT ANY
+             ADD denied_on (any) OPT ANY
+             ADD denied_reason_id (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (booking_id, check_in_date, check_out_date, confirmed_on, createddate, customer_enquiry_id, denied_on, denied_reason_id, email, enquiry_date, first_name, is_confirmed, is_denied, last_name, mobile, nationality, resort_id
+        )
+        WRAPPER (jdbc bv_customer_enquiry)
+    );
+

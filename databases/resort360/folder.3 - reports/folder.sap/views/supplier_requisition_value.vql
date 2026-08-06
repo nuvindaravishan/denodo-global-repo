@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW supplier_requisition_value FOLDER = '/3 - reports/sap' DESCRIPTION = 'The supplier_requisition_value view contains information related to suppliers and their activity. It includes data fields such as supplier_identifier, which uniquely identifies each supplier; supplier_full_name, which provides the supplier''s name for clear identification; total_requests, which reflects the total number of requests made to the supplier; and total_supplied_value, which represents the total value of goods or services provided by the supplier.'  (
+    supplier_identifier (description = 'Represents a unique identifier for each supplier, ensuring distinctness and traceability.'),
+    supplier_full_name (description = 'Captures the name of the supplier, enabling clear identification and reference.') TAGS (supplier),
+    total_requests (description = 'Indicates the aggregate count of requests made to a supplier, reflecting their engagement level.'),
+    total_supplied_value (description = 'Represents the total value of goods or services provided by the supplier, demonstrating their contribution.') TAGS (sales)
+ )
+ AS SELECT iv_supplier_requisition_value.supplier_id AS supplier_identifier, iv_supplier_requisition_value.supplier_name AS supplier_full_name, iv_supplier_requisition_value.total_requistions AS total_requests, iv_supplier_requisition_value.total_value_supplied AS total_supplied_value FROM iv_supplier_requisition_value;
+
+ALTER VIEW supplier_requisition_value
+ LAYOUT (iv_supplier_requisition_value = [20, 20, 200, 200]);
+

@@ -1,0 +1,61 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_tour_operator_transaction
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_tour_operator_transaction.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_tour_operator_transaction.SCHEMANAME}' 
+    RELATIONNAME='Tour_Operator_Transaction' 
+    OUTPUTSCHEMA (
+        resort_id = 'Resort_ID' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        tour_operator_id = 'Tour_Operator_ID' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        tour_operator_contract_id = 'Tour_Operator_Contract_ID' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        booking_id = 'Booking_ID' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        tour_operator_transaction_id = 'Tour_Operator_Transaction_ID' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        transaction_date = 'Transaction_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        transaction_time = 'Transaction_Time' :'java.time.LocalTime' (OPT) (sourcetypedecimals='7', sourcetypesize='16', sourcetypeid='92', sourcetypename='time')  SORTABLE,
+        total_amount = 'Total_Amount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        paid = 'Paid' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        balance = 'Balance' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE
+    )
+    CONSTRAINT 'PK__Tour_Ope__E62843654B2ED9F6' PRIMARY KEY ( 'Tour_Operator_Transaction_ID' )
+    INDEX 'PK__Tour_Ope__E62843654B2ED9F6' CLUSTER UNIQUE PRIMARY ( 'Tour_Operator_Transaction_ID' );
+
+CREATE OR REPLACE TABLE bv_tour_operator_transaction I18N us_est (
+        resort_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Serves as a unique identifier representing a specific resort in the database. It includes values like "4", "6", "1", and "9".'),
+        tour_operator_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the identifier for a tour operator associated with transactions. It includes values like "2", "12", "19", and "20".'),
+        tour_operator_contract_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Denotes the identifier of a contract between the tour operator and the resort. It includes values like "2", "12", "19", and "20".'),
+        booking_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the unique identifier for a customer booking. This field does not currently have sample data available.'),
+        tour_operator_transaction_id:int (notnull, autoincrement, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the unique identifier for a transaction initiated by the tour operator. It includes values like "2", "6", "8", and "9".'),
+        transaction_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Records the date on which the transaction occurred. It includes values like "2023-11-09", "2023-11-08", "2023-11-05", and "2023-11-02".'),
+        transaction_time:time (sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16', description = 'Indicates the specific time the transaction was processed. It includes values like "04:59:22", "15:09:55", "23:17:52", and "17:54:48".'),
+        total_amount:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Represents the total monetary value of the transaction. It includes values like "1305.8350", "5006.2200", "1011.4620", and "1255.9920".'),
+        paid:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Indicates the amount that has already been paid for the transaction. It includes values like "1305.8350", "5006.2200", "1011.4620", and "1255.9920".'),
+        balance:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Shows the remaining balance due for the transaction after payments have been made. It includes values like "0.0000", "158.7600", "406.8285", and "81.0432".')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_tour_operator_transaction view contains detailed data related to transactions initiated by tour operators. It includes key fields such as resort_id (unique identifier for resorts), tour_operator_id (identifier for the tour operator), tour_operator_contract_id (reference to contracts between operators and resorts), booking_id (unique identifier for customer bookings), and tour_operator_transaction_id (primary key for transactions). Additionally, transaction_date and transaction_time provide temporal details about when the transaction occurred. Financial details are captured via fields like total_amount (monetary value of transactions), paid (amount already paid), and balance (remaining amount due). This view provides structured data for tracking transactions between resorts and tour operators. 
+
+This view could be used for financial tracking, reconciliation of payments, and the management of transactions between tour operators and resorts. It may also assist in generating reports related to financial performance, identifying payment balances, and managing contractual agreements.'
+    CONSTRAINT 'PK__Tour_Ope__E62843654B2ED9F6' PRIMARY KEY ( 'tour_operator_transaction_id' )
+    TAGS (tour_operator)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_tour_operator_transaction(
+        I18N us_est
+        CONSTRAINTS (
+             ADD resort_id (any) OPT ANY
+             ADD tour_operator_id (any) OPT ANY
+             ADD tour_operator_contract_id (any) OPT ANY
+             ADD booking_id (any) OPT ANY
+             ADD tour_operator_transaction_id (any) OPT ANY
+             ADD transaction_date (any) OPT ANY
+             ADD transaction_time (any) OPT ANY
+             ADD total_amount (any) OPT ANY
+             ADD paid (any) OPT ANY
+             ADD balance (any) OPT ANY
+        )
+        OUTPUTLIST (balance, booking_id, paid, resort_id, total_amount, tour_operator_contract_id, tour_operator_id, tour_operator_transaction_id, transaction_date, transaction_time
+        )
+        WRAPPER (jdbc bv_tour_operator_transaction)
+    );
+

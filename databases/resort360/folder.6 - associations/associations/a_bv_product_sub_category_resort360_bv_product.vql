@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_bv_product_sub_category_resort360_bv_product REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT bv_product bv_product_sub_category PRINCIPAL (1)
+    ENDPOINT bv_product_sub_category bv_product (0,*)
+    ADD MAPPING product_sub_category_id=item_sub_category_id;
+
+ALTER ASSOCIATION a_bv_product_sub_category_resort360_bv_product
+ LAYOUT (bv_product_sub_category = [386, 65, 200, 200], bv_product = [801, 39, 200, 200]);
+

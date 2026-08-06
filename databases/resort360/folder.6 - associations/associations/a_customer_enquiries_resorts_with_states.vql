@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_customer_enquiries_resorts_with_states REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT resorts customer_enquiries (0,*)
+    ENDPOINT enquiries resorts_with_states PRINCIPAL (1)
+    ADD MAPPING resort_identifier=resort_id;
+
+ALTER ASSOCIATION a_customer_enquiries_resorts_with_states
+ LAYOUT (customer_enquiries = [139, 22, 200, 200], resorts_with_states = [431, 73, 200, 200]);
+

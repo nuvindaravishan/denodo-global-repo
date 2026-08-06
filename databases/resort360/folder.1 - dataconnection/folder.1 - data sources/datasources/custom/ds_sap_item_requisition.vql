@@ -1,0 +1,16 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE DATASOURCE CUSTOM ds_sap_item_requisition
+    FOLDER = '/1 - dataconnection/1 - data sources'
+    CLASSNAME='com.denodo.connect.odata.wrapper.ODataWrapper'
+    CLASSPATH='../lib/extensions/custom-wrappers/odata2/denodo-odata2-wrapper.jar'
+    PARAMETERS (
+      'Service Endpoint *' = ROUTE HTTP 'http.ApacheHttpClientConnection,120000' GET '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.custom.ds_sap_item_requisition.Service Endpoint *.ROUTE.HTTP.URL}'
+        CHECKCERTIFICATES
+     AUTHENTICATION BASIC ( 
+          USER '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.custom.ds_sap_item_requisition.Service Endpoint *.ROUTE.HTTP.USER}'
+          PASSWORD '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.custom.ds_sap_item_requisition.Service Endpoint *.ROUTE.HTTP.PASSWORD}' ${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.custom.ds_sap_item_requisition.Service Endpoint *.ROUTE.HTTP.PASSWORD.ENCRYPTED} )
+        PROXY OFF,
+      'Service Format *' = '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.custom.ds_sap_item_requisition.Service Format *}',
+      'Service Version' = '${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.datasources.custom.ds_sap_item_requisition.Service Version}'
+    );
+

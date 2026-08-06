@@ -1,0 +1,59 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_customer_pax
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_customer_pax.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_customer_pax.SCHEMANAME}' 
+    RELATIONNAME='Customer_Pax' 
+    OUTPUTSCHEMA (
+        customer_pax_id = 'Customer_Pax_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        customer_id = 'Customer_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        first_name = 'First_Name' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        last_name = 'Last_Name' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        dob = 'DOB' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        nationality = 'Nationality' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        gender = 'Gender' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        relation = 'Relation' :'java.lang.String' (OPT) (sourcetypesize='8', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        passportno = 'PassportNo' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Customer_PaxL' PRIMARY KEY ( 'Customer_Pax_ID' )
+    INDEX 'PK_Customer_PaxL' CLUSTER UNIQUE PRIMARY ( 'Customer_Pax_ID' );
+
+CREATE OR REPLACE TABLE bv_customer_pax I18N us_est (
+        customer_pax_id:long (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypesize = '10', description = 'Uniquely identifies each individual record in the view.'),
+        customer_id:long (sourcetypeid = '4', sourcetyperadix = '10', sourcetypesize = '10', description = 'Serves as an identifier linking the record to a specific customer.') TAGS (customer_domain),
+        first_name:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Represents the first name of the customer. It includes values like "John", "Emily", "Alexander", and "Sophia".') TAGS (customer_domain),
+        last_name:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Represents the last name of the customer. It includes values like "Doe", "Smith", "Johnson", and "Brown".') TAGS (customer_domain),
+        dob:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the date of birth of the customer, reflecting their birthdate.'),
+        nationality:text (sourcetypeid = '12', sourcetypesize = '100', description = 'Indicates the nationality of the customer. It includes values like "American", "British", "Indian", and "Canadian".'),
+        gender:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Denotes the gender of the customer. It includes values like "Male", "Female", "Non-Binary", and "Other".'),
+        relation:text (sourcetypeid = '12', sourcetypesize = '8', description = 'Describes the relationship type between the record holder and the associated customer. It includes values like "Spouse", "Child", "Parent", and "Sibling".'),
+        passportno:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Contains the passport number of the customer for identification purposes. It includes values like "A123456789", "B987654321", "C135792468", and "D246813579".'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Records the timestamp when the entry was created in the system.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_customer_pax view contains detailed customer-related records, including personal, demographic, and identification details. Each record is uniquely identified by the field ''customer_pax_id'', which serves as the primary key. The schema includes fields such as ''customer_id'' (linking the record to a specific customer), ''first_name'' and ''last_name'' (representing the customer''s full name), ''dob'' (the customer''s date of birth), ''nationality'' (indicating the customer''s nationality), ''gender'' (denoting the customer''s gender), and ''relation'' (describing the relationship type between the record holder and the associated customer). Additionally, it includes a ''passportno'' field for identification, along with a ''createddate'' field to track when the record was added to the system. This view could be used for managing customer-related data, such as tracking relationships between individuals and customers, storing demographic information for reporting purposes, or integrating personal details into systems requiring customer identification. Its structured fields, including unique identifiers and timestamps, make it suitable for applications like CRM systems, travel booking platforms, or identity verification processes.'
+    PRIMARY KEY ( 'customer_pax_id' )
+    TAGS (customer_domain, nationality, restricted)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_customer_pax(
+        I18N us_est
+        CONSTRAINTS (
+             ADD customer_pax_id (any) OPT ANY
+             ADD customer_id (any) OPT ANY
+             ADD first_name (any) OPT ANY
+             ADD last_name (any) OPT ANY
+             ADD dob (any) OPT ANY
+             ADD nationality (any) OPT ANY
+             ADD gender (any) OPT ANY
+             ADD relation (any) OPT ANY
+             ADD passportno (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (createddate, customer_id, customer_pax_id, dob, first_name, gender, last_name, nationality, passportno, relation
+        )
+        WRAPPER (jdbc bv_customer_pax)
+    );
+

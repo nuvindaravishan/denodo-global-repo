@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_amenity_revenue_summary FOLDER = '/2 - integration/integration_dp' AS SELECT resort_name, amenity_name, count(booking_identifier) AS amenity_booking_count, sum(total_cost) AS total_amenity_revenue, avg(total_cost) AS avg_amenity_revenue FROM amenities_bookings GROUP BY resort_name, amenity_name;
+

@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_daily_conversion_rate_resorts_with_states REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT resorts daily_conversion_rate (0,*)
+    ENDPOINT daily_conversion_rate resorts_with_states PRINCIPAL (1)
+    ADD MAPPING resort_identifier=resort_id;
+
+ALTER ASSOCIATION a_daily_conversion_rate_resorts_with_states
+ LAYOUT (daily_conversion_rate = [252, 51, 200, 200], resorts_with_states = [454, 44, 200, 200]);
+

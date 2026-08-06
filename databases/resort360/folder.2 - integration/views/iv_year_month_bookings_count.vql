@@ -1,0 +1,19 @@
+﻿CREATE OR REPLACE VIEW iv_year_month_bookings_count FOLDER = '/2 - integration' DESCRIPTION = 'The iv_year_month_bookings_count view contains data organized by year and month, allowing a structured understanding of booking trends over time. It includes fields for the calendar year (e.g., "2023", "2025") and the calendar month (e.g., "Nov", "Oct"), as well as a numeric field that represents the total number of bookings recorded for each specific year and month. This data can be utilized for analyzing booking trends, identifying peak periods, aiding in forecasting and planning, and generating reports to track changes and patterns in bookings over time.' 
+    TAGS (booking) (
+    year (description = 'Indicates the calendar year related to the data, such as "2023", "2025", "2024", and "2023".'),
+    month (description = 'Represents the calendar month corresponding to the data, including values like "Nov", "Oct", "Jul", and "Jun".'),
+    total_bookings (description = 'Represents the total number of bookings recorded for a specific year and month.')
+ )
+ AS
+    SELECT formatdate('yyyy', reservation_start_date) AS year,
+           formatdate('MMM', reservation_start_date) AS month,
+           count(*) AS total_bookings
+    FROM iv_customer_resort_bookings_details
+    GROUP BY formatdate('MMM', reservation_start_date),
+             formatdate('yyyy', reservation_start_date),
+             createddate,
+             createddate CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW iv_year_month_bookings_count
+ LAYOUT (iv_customer_resort_bookings_details = [20, 20, 200, 200]);
+

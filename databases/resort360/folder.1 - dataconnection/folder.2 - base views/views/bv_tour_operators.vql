@@ -1,0 +1,57 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_tour_operators
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_tour_operators.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_tour_operators.SCHEMANAME}' 
+    RELATIONNAME='Tour_Operator' 
+    OUTPUTSCHEMA (
+        tour_operator_id = 'Tour_Operator_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        name = 'Name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        state = 'State' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        contact_address = 'Contact_Address' :'java.lang.String' (OPT) (sourcetypesize='255', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        email = 'Email' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        mobile = 'Mobile' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        registration_details = 'Registration_Details' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Tour_Operator' PRIMARY KEY ( 'Tour_Operator_ID' )
+    CONSTRAINT 'FK_Tour_Operator_State' FOREIGN KEY ( 'State' ) 
+    REFERENCES 'resort360'.'dbo'.'State'( 'State_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Tour_Operator' CLUSTER UNIQUE PRIMARY ( 'Tour_Operator_ID' )
+    INDEX 'UQ_Tour_Operator_Email' OTHER UNIQUE ( 'Email' );
+
+CREATE OR REPLACE TABLE bv_tour_operators I18N au_cst (
+        tour_operator_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each tour operator.') TAGS (tour_operator),
+        name:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Denotes the official name of the tour operator.') TAGS (tour_operator),
+        state:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Indicates the administrative region or state associated with the tour operator.'),
+        contact_address:text (notnull, sourcetypeid = '-9', sourcetypesize = '255', description = 'Provides the physical address or location used for communication with the tour operator.') TAGS (address),
+        email:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Specifies the email address used for official correspondence with the tour operator.') TAGS (email),
+        mobile:text (notnull, sourcetypeid = '-9', sourcetypesize = '20', description = 'Lists the mobile phone number for direct communication with the tour operator.') TAGS (restricted),
+        registration_details:text (notnull, sourcetypeid = '-9', sourcetypesize = '50', description = 'Contains information regarding the registration or licensing of the tour operator.'),
+        is_active:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1', description = 'Indicates whether the tour operator is currently active and operating.'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Specifies the date and time when the tour operator record was created.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_Tour_Operator' PRIMARY KEY ( 'tour_operator_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_tour_operators(
+        I18N au_cst
+        CONSTRAINTS (
+             ADD tour_operator_id (any) OPT ANY
+             ADD name (any) OPT ANY
+             ADD state (any) OPT ANY
+             ADD contact_address (any) OPT ANY
+             ADD email (any) OPT ANY
+             ADD mobile (any) OPT ANY
+             ADD registration_details (any) OPT ANY
+             ADD is_active (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (contact_address, createddate, email, is_active, mobile, name, registration_details, state, tour_operator_id
+        )
+        WRAPPER (jdbc bv_tour_operators)
+    );
+

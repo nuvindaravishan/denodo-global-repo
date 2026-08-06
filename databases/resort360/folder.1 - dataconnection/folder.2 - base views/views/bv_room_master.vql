@@ -1,0 +1,61 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_room_master
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_room_master.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_room_master.SCHEMANAME}' 
+    RELATIONNAME='Room_Master' 
+    OUTPUTSCHEMA (
+        room_master_id = 'Room_Master_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        room_category_id = 'Room_Category_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        resort_id = 'Resort_id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        room_no = 'Room_No' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        room_category = 'Room_Category' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        per_night_charges = 'Per_Night_Charges' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        floor_number = 'Floor_Number' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        status = 'Status' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE
+    )
+    CONSTRAINT 'PK_Room_Master' PRIMARY KEY ( 'Room_Master_ID' )
+    CONSTRAINT 'FK_Room_Master_Resort' FOREIGN KEY ( 'Resort_id' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Room_Master_Room_Category' FOREIGN KEY ( 'Room_Category_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Room_Category'( 'Room_Category_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Room_Master' CLUSTER UNIQUE PRIMARY ( 'Room_Master_ID' )
+    INDEX 'UQ_Room_Master_Resort_RoomNo' OTHER UNIQUE ( 'Resort_id' , 'Room_No' )
+    INDEX 'IX_Room_Master_Resort_Category' OTHER ( 'Resort_id' , 'Room_Category_ID' )
+    INDEX 'IX_Room_Master_Status' OTHER ( 'Status' );
+
+CREATE OR REPLACE TABLE bv_room_master I18N au_cst (
+        room_master_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each room entry in the master record.'),
+        room_category_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Denotes the unique identifier for the category associated with the room.') TAGS (room_category),
+        resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the resort to which the room is associated.') TAGS (resort),
+        room_no:text (notnull, sourcetypeid = '12', sourcetypesize = '10', description = 'Specifies the room number assigned to each room.'),
+        room_category:text (sourcetypeid = '12', sourcetypesize = '100', description = 'Contains the name or type of the category that defines the characteristics of the room.') TAGS (room_category),
+        per_night_charges:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Defines the cost incurred for a single night stay in the room.') TAGS (sales),
+        floor_number:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the floor on which the room is located within the resort.'),
+        is_active:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1', description = 'States whether the room is currently active and available.'),
+        status:text (sourcetypeid = '12', sourcetypesize = '20', description = 'Defines the current operational status of the room.') TAGS (room_status)
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_Room_Master' PRIMARY KEY ( 'room_master_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_room_master(
+        I18N au_cst
+        CONSTRAINTS (
+             ADD room_master_id (any) OPT ANY
+             ADD room_category_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD room_no (any) OPT ANY
+             ADD room_category (any) OPT ANY
+             ADD per_night_charges (any) OPT ANY
+             ADD floor_number (any) OPT ANY
+             ADD is_active (any) OPT ANY
+             ADD status (any) OPT ANY
+        )
+        OUTPUTLIST (floor_number, is_active, per_night_charges, resort_id, room_category, room_category_id, room_master_id, room_no, status
+        )
+        WRAPPER (jdbc bv_room_master)
+    );
+

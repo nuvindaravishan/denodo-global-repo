@@ -1,0 +1,36 @@
+﻿CREATE OR REPLACE REST WEBSERVICE ws_arrival_pax
+    CONNECTION (
+        CHUNKSIZE = 1000
+        CHUNKTIMEOUT = 1000
+        QUERYTIMEOUT = 900000
+        POOLENABLED = true
+        POOLINITSIZE = 0
+        POOLMAXACTIVE = 30
+    )
+    DEFAULTREPRESENTATION = JSON
+    SUPPORTEDREPRESENTATIONS (HTML, XML, JSON)    AUTHENTICATION (BASIC VDP
+    VDPACCEPTEDUSERS 'anitha.s@iqzsystems.com, denodo_vdp_admin,ws_test_user'
+ )
+
+    RESOURCES (
+        VIEW arrival_pax FIELDS (
+            arrival_date : 'localdate', 
+            arrival_passenger_count : 'long', 
+            record_creation_timestamp : 'timestamp', 
+            "Booking_Status" : 'text' UNESCAPED, 
+            "ModifiedDate" : 'timestamp' UNESCAPED, 
+            "ModifiedBy" : 'long' UNESCAPED, 
+            "Currency_ID" : 'long' UNESCAPED, 
+            "Tax_Amount" : 'decimal' UNESCAPED, 
+            "Special_Requests" : 'text' UNESCAPED, 
+            "Cancellation_Reason" : 'text' UNESCAPED, 
+            "Cancelled_By" : 'long' UNESCAPED, 
+            "Cancelled_Date" : 'timestamp' UNESCAPED
+        )
+    )
+    OPTIONS ( NULLVALUESASEMPTYXMLELEMENTS = false
+        ALLOW_CORS_ORIGINS (*) DISABLED
+        PROCESS_FUNCTIONS_IN_SELECT_PARAMETER = true ) 
+    OPENAPI2 ( API_VERSION = '1.0.0' ) 
+    FOLDER = '/5 - data services';
+

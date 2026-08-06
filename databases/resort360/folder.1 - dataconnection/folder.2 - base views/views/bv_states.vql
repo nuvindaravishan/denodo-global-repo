@@ -1,0 +1,50 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_states
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_states.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_states.SCHEMANAME}' 
+    RELATIONNAME='State' 
+    OUTPUTSCHEMA (
+        state_id = 'State_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        state_name = 'State_Name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        state_code = 'State_Code' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        country_name = 'Country_Name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        region = 'Region' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        population = 'Population' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        area_sqmiles = 'Area_SqMiles' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE
+    )
+    CONSTRAINT 'PK_State' PRIMARY KEY ( 'State_ID' )
+    INDEX 'PK_State' CLUSTER UNIQUE PRIMARY ( 'State_ID' )
+    INDEX 'UQ_State_Code' OTHER UNIQUE ( 'State_Code' );
+
+CREATE OR REPLACE TABLE bv_states I18N au_cst (
+        state_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each state.'),
+        state_name:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Provides the official name of the state.'),
+        state_code:text (sourcetypeid = '-9', sourcetypesize = '10', description = 'Indicates the abbreviated code or designation for the state.'),
+        country_name:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Specifies the name of the country to which the state belongs.') TAGS (country),
+        region:text (sourcetypeid = '-9', sourcetypesize = '50', description = 'Defines the geographical or administrative region associated with the state.'),
+        population:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Indicates the total number of people residing in the state.'),
+        area_sqmiles:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the total land area of the state measured in square miles.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_State' PRIMARY KEY ( 'state_id' )
+    TAGS (state)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_states(
+        I18N au_cst
+        CONSTRAINTS (
+             ADD state_id (any) OPT ANY
+             ADD state_name (any) OPT ANY
+             ADD state_code (any) OPT ANY
+             ADD country_name (any) OPT ANY
+             ADD region (any) OPT ANY
+             ADD population (any) OPT ANY
+             ADD area_sqmiles (any) OPT ANY
+        )
+        OUTPUTLIST (area_sqmiles, country_name, population, region, state_code, state_id, state_name
+        )
+        WRAPPER (jdbc bv_states)
+    );
+

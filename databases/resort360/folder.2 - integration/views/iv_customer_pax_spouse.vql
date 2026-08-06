@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW iv_customer_pax_spouse FOLDER = '/2 - integration' (
+    first_name TAGS (customer_domain),
+    last_name TAGS (customer_domain),
+    nationality TAGS (nationality),
+    passportno TAGS (restricted)
+ )
+ AS SELECT bv_customer_pax.customer_pax_id AS customer_pax_id, bv_customer_pax.customer_id AS customer_id, bv_customer_pax.first_name AS first_name, bv_customer_pax.last_name AS last_name, bv_customer_pax.dob AS dob, bv_customer_pax.nationality AS nationality, bv_customer_pax.gender AS gender, bv_customer_pax.relation AS relation, bv_customer_pax.passportno AS passportno, bv_customer_pax.createddate AS createddate FROM bv_customer_pax WHERE relation = 'spouse';
+
+ALTER VIEW iv_customer_pax_spouse
+ LAYOUT (bv_customer_pax = [338, 109, 200, 200]);
+

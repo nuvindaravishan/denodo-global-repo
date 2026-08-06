@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE VIEW amenities_revenue FOLDER = '/3 - reports' DESCRIPTION = 'The amenities_revenue view contains information about amenities offered and their corresponding revenue. It includes fields such as amenity_name, which represents the name of the amenity; amenity_revenue, which indicates the revenue generated from each amenity; and creation_timestamp, which tracks when the record was created. This view could be used to analyze the financial performance of various amenities, understand their contribution to overall revenue, and track the timing of transactions or activities related to these amenities.' 
+    TAGS (amenities, mcp, sales) (
+    creation_timestamp (description = 'Represents the timestamp when the record was created, helping to track the timing of transactions or activities.')
+ )
+ AS SELECT amenity_name AS amenity_name, sum(cost) AS amenity_revenue, createddate AS creation_timestamp, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_amenities_booking_details GROUP BY amenity_name, createddate, "Booking_Status", "ModifiedDate", "ModifiedBy", "Currency_ID", "Tax_Amount", "Special_Requests", "Cancellation_Reason", "Cancelled_By", "Cancelled_Date";
+
+ALTER VIEW amenities_revenue
+ LAYOUT (iv_amenities_booking_details = [20, 20, 200, 200]);
+

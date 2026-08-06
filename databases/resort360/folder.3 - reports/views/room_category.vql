@@ -1,0 +1,20 @@
+﻿CREATE OR REPLACE VIEW room_category FOLDER = '/3 - reports' DESCRIPTION = 'The room_category view provides detailed information about various categories of rooms. It includes three fields: room_category_identifier, which uniquely identifies each room category; room_classification, which represents the classification or type of the room, such as "King", "Penthouse", "Suite", and "Apartment"; and room_category_description, which summarizes the characteristics or unique attributes of each room category, with examples like "Standard Room", "Deluxe Room", "Executive Suite", and "Family Room". This view is connected to the room_master view through an association, linking room_category_identifier in the room_category view to room_master.room_category_identifier in the room_master view. This view could be used for classifying and organizing different types of rooms, allowing for a structured representation of room categories and their descriptions. It may be useful for hotel or property management systems to efficiently manage and categorize rooms, optimize booking operations, or provide detailed room information to customers.' 
+    PRIMARY KEY ( 'room_category_identifier' )
+    TAGS (mcp, room_category) (
+    room_classification TAGS (room_category)
+ )
+ AS
+    SELECT f_bv_room_category.room_category_id AS room_category_identifier,
+           f_bv_room_category.room_type AS room_classification,
+           f_bv_room_category.room_category_desc AS room_category_description
+    FROM f_bv_room_category CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW room_category
+ LAYOUT (f_bv_room_category = [20, 20, 200, 200]);
+
+ALTER VIEW room_category
+ CACHE FULL
+    BATCHSIZEINCACHE DEFAULT TIMETOLIVEINCACHE NOEXPIRE
+    ONSCHEMACHANGE RECREATE INCREMENTAL_LOAD
+ DELEGATESTATSQUERY = true GET_TABLE_STATS = true ATSOURCE_THROUGH_VDP_ONLY;
+

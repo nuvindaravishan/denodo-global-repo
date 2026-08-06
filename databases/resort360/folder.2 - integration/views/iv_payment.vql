@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE VIEW iv_payment FOLDER = '/2 - integration' DESCRIPTION = 'The iv_payment view represents a detailed ledger of payment transactions associated with resorts. It includes fields that capture critical financial and logistical information, such as resort identifiers, unique payment IDs, transaction details, and timestamps. The view also provides specifics about payment methods, cheque information, and monetary values, including amounts paid and balances left. Additionally, it tracks the individuals or entities involved in the payment, such as the payer and receiver, as well as the financial institutions via bank and IFSC details. This view could be utilized for financial management, transaction tracking, and auditing purposes within the context of resorts. It serves as a comprehensive resource for analyzing payment patterns, ensuring accurate reconciliation of payments, and maintaining detailed records for operational transparency.' 
+    PRIMARY KEY ( 'payment_id' ) (
+    booking_type TAGS (booking_category)
+ )
+ AS SELECT bv_payment.resort_id AS resort_id, bv_payment.payment_id AS payment_id, bv_payment.payment_date AS payment_date, bv_payment.payment_time AS payment_time, bv_booking_type.booking_type_description AS booking_type, bv_payment.transaction_id AS transaction_id, bv_payment.mode_of_payment AS mode_of_payment, bv_payment.cheque_date AS cheque_date, bv_payment.bank AS bank, bv_payment.ifsc AS ifsc, bv_payment.amount AS amount, bv_payment.paid AS paid, bv_payment.balance AS balance, bv_payment.paid_by AS paid_by, bv_payment.received_by AS received_by, bv_payment.cheque_n AS cheque_no, bv_payment.createddate AS createddate FROM bv_payment AS bv_payment INNER JOIN bv_booking_type AS bv_booking_type ON bv_payment.booking_type_id = bv_booking_type.booking_type_id  ORDER BY payment_id ASC;
+
+ALTER VIEW iv_payment
+ LAYOUT (bv_payment = [0, 0, 200, 200], bv_booking_type = [0, 200, 200, 200]);
+

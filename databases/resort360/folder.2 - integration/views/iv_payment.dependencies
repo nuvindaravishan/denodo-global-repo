@@ -1,0 +1,21 @@
+﻿1/databases/resort360/folder.2 - integration/2 - integration.vql
+1/tags/booking.vql
+1/tags/restricted.vql
+1/tags/booking_category.vql
+1/tags/payment.vql
+1/tags/resort.vql
+1/tags/sales.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/tags/payment.vql
+*/tags/resort.vql
+*/tags/booking_category.vql
+*/tags/restricted.vql
+*/tags/sales.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_payment.vql
+*/tags/booking.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking_type.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_payment.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking_type.vql

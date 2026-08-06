@@ -1,0 +1,15 @@
+﻿CREATE OR REPLACE VIEW resorts_with_states FOLDER = '/3 - reports' DESCRIPTION = 'The resorts_with_states view contains data about resorts, including a unique identifier for each resort (resort_id) and the name of the resort (resort_name). The resort_id serves as the primary key for the view, ensuring that each resort is uniquely identifiable. Additionally, the view has associations with other views such as customer_enquiries, daily_conversion_rate, and customer_booking, indicating its integration with data related to customer interactions, conversion rates, and bookings. The resorts_with_states view could be used for managing and analyzing resort-related data, such as tracking customer enquiries, understanding daily conversion rates, and analyzing booking details. These associations make it valuable for integrating resort data with other operational insights.' 
+    PRIMARY KEY ( 'resort_id' )
+    TAGS (mcp, resort) (
+    resort_name TAGS (resort)
+ )
+ AS
+    SELECT bv_resorts.resort_id AS resort_id,
+           ((bv_resorts.resort_name || ' - ') || bv_states.state_name) AS resort_name
+    FROM bv_resorts AS bv_resorts
+         INNER JOIN bv_states AS bv_states
+             ON bv_resorts.state_id = bv_states.state_id CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW resorts_with_states
+ LAYOUT (bv_resorts = [117, 89, 200, 200], bv_states = [593, 60, 200, 200]);
+

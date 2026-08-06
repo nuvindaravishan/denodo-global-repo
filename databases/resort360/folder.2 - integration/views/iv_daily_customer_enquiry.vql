@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW iv_daily_customer_enquiry FOLDER = '/2 - integration' DESCRIPTION = 'The iv_daily_customer_enquiry view provides detailed information on customer enquiries made at resorts on specific dates. It includes fields such as resort_id, which identifies the resort where the enquiry was made; total_customer_enquiries, representing the number of enquiries recorded; confirmed_booking_count, showing the number of bookings confirmed from those enquiries; and enquiry_date, specifying the date the enquiries occurred. The view aggregates data on a daily basis and highlights key metrics about customer interactions and bookings. This view could be used for analyzing customer enquiry trends, monitoring daily interactions across resorts, and evaluating the conversion rate from enquiries to confirmed bookings. It can also help identify high-performing resorts and determine peak dates for customer engagement.'  (
+    resort_id (description = 'Indicates the identification of the resort associated with the customer enquiry. It includes values like "4", "3", "5", and "9".'),
+    total_customer_enquiries (description = 'Represents the total number of customer enquiries recorded. It includes values like "255", "221", "232", and "342".'),
+    confirmed_booking_count (description = 'Denotes the count of confirmed bookings resulting from customer enquiries. It includes values like "17", "13", "93", and "5".'),
+    enquiry_date (description = 'Specifies the date on which customer enquiries were recorded. It includes values like "2023-11-10", "2023-11-01", "2023-11-03", and "2023-11-11".')
+ )
+ AS SELECT resort_id AS resort_id, count(customer_enquiry_id) AS total_customer_enquiries, sum(case WHEN (is_confirmed = true) THEN 1 ELSE 0 END) AS confirmed_booking_count, to_localdate('yyyy-MM-dd', formatdate('yyyy-MM-dd', enquiry_date)) AS enquiry_date FROM bv_customer_enquiry GROUP BY resort_id, formatdate('yyyy-MM-dd', enquiry_date);
+
+ALTER VIEW iv_daily_customer_enquiry
+ LAYOUT (bv_customer_enquiry = [20, 20, 200, 200]);
+

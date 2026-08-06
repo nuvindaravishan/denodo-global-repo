@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE VIEW iv_supplier_requisition_value FOLDER = '/2 - integration/sap' DESCRIPTION = 'The view named iv_supplier_requisition_value captures data related to suppliers and their requisition activities. It includes fields such as supplier_id (a unique identifier for each supplier), supplier_name (the name of the supplier), total_requistions (the total number of requisitions made by the supplier), and total_value_supplied (the total value supplied by the supplier). This structured data provides insights into supplier activities and their contributions in terms of requisitions and supplied value.'  (
+    supplier_name TAGS (supplier),
+    total_value_supplied TAGS (requisition_amount)
+ )
+ AS SELECT bv_supplier.supplier_id AS supplier_id, bv_supplier.supplier_name AS supplier_name, count(DISTINCT iv_item_requisition_sap.ir_id) AS total_requistions, sum(iv_item_requisition_details_sap.itemtotal) AS total_value_supplied FROM (bv_supplier AS bv_supplier INNER JOIN iv_item_requisition_sap AS iv_item_requisition_sap ON bv_supplier.supplier_id = iv_item_requisition_sap.supplier_id ) INNER JOIN iv_item_requisition_details_sap AS iv_item_requisition_details_sap ON iv_item_requisition_sap.ir_id = iv_item_requisition_details_sap.ir_id  GROUP BY bv_supplier.supplier_name, bv_supplier.supplier_id ORDER BY total_value_supplied DESC;
+
+ALTER VIEW iv_supplier_requisition_value
+ LAYOUT (bv_supplier = [20, 20, 200, 200], iv_item_requisition_sap = [284, 27, 200, 200], iv_item_requisition_details_sap = [563, 24, 200, 200]);
+

@@ -1,0 +1,32 @@
+﻿CREATE OR REPLACE REST WEBSERVICE ws_amenities_revenue
+    CONNECTION (
+        CHUNKSIZE = 1000
+        CHUNKTIMEOUT = 1000
+        QUERYTIMEOUT = 900000
+        POOLENABLED = true
+        POOLINITSIZE = 0
+        POOLMAXACTIVE = 30
+    )
+    DEFAULTREPRESENTATION = HTML
+    SUPPORTEDREPRESENTATIONS (HTML, XML, JSON)
+    RESOURCES (
+        VIEW amenities_revenue FIELDS (
+            amenity_name : 'text', 
+            creation_timestamp : 'timestamp', 
+            "Booking_Status" : 'text' UNESCAPED, 
+            "ModifiedDate" : 'timestamp' UNESCAPED, 
+            "ModifiedBy" : 'long' UNESCAPED, 
+            "Currency_ID" : 'long' UNESCAPED, 
+            "Tax_Amount" : 'decimal' UNESCAPED, 
+            "Special_Requests" : 'text' UNESCAPED, 
+            "Cancellation_Reason" : 'text' UNESCAPED, 
+            "Cancelled_By" : 'long' UNESCAPED, 
+            "Cancelled_Date" : 'timestamp' UNESCAPED
+        )
+    )
+    OPTIONS ( NULLVALUESASEMPTYXMLELEMENTS = false
+        ALLOW_CORS_ORIGINS (*) DISABLED
+        PROCESS_FUNCTIONS_IN_SELECT_PARAMETER = true ) 
+    OPENAPI2 ( API_VERSION = '1.0.0' ) 
+    FOLDER = '/5 - data services';
+

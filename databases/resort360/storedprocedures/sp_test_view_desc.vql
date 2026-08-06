@@ -1,0 +1,29 @@
+﻿CREATE OR REPLACE VQL PROCEDURE sp_test_view_desc(
+    generated_vql OUT VARCHAR
+)
+as(
+    target_db VARCHAR ;
+    target_view VARCHAR ;
+    view_desc VARCHAR ;
+    vql_command VARCHAR;
+
+)
+BEGIN
+    -- Declare variables and assign your runtime parameter values
+    
+     target_db := 'resort360';
+     target_view :='ai_booking';
+     view_desc :='Test';
+ 
+    -- Construct the precise metadata-altering wrapper statement dynamically
+      --vql_command := 'ALTER VIEW ' || target_db || '.' || target_view || ' SET DESCRIPTION = ''' || view_desc || '''';
+      
+      Execute 'ALTER VIEW :param1.:param2 set description ='':param3''' parameters(param1,param2,param3)values(target_db,target_view,view_desc);
+    
+     -- Return the output as row
+       RETURN ROW (generated_vql) VALUES (vql_command);
+       
+    -- Execute the generated command string against Denodo
+    --EXECUTE vql_command;
+END;
+

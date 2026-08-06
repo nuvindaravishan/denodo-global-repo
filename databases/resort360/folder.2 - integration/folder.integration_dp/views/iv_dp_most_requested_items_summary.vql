@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_most_requested_items_summary FOLDER = '/2 - integration/integration_dp' AS SELECT item_name, item_id, total_requested_quantity AS total_request_count FROM iv_most_requested_items;
+

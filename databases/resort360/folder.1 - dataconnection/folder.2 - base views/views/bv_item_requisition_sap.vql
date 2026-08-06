@@ -1,0 +1,73 @@
+﻿CREATE OR REPLACE WRAPPER CUSTOM ds_sap_item_requisition
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sap_item_requisition
+    PARAMETERS (
+      'Entity Collection *' = 'ZITEM_REQ_HEADSet',
+      'Expand Related Entities' = false,
+      'Enable Pagination' = false
+    )
+    OUTPUTSCHEMA (
+        mandt = 'Mandt' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        irid = 'IrId' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        resortid = 'ResortId' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        irno = 'IrNo' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        requestdate = 'RequestDate' : 'java.time.LocalDateTime' (OPT) (sourcetypeid='93')  NOT NULL SORTABLE,
+        irstatus = 'IrStatus' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        priority = 'Priority' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        supplierid = 'SupplierId' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        quotationno = 'QuotationNo' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        quotationref = 'QuotationRef' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        currency = 'Currency' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        irsubtotal = 'IrSubTotal' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        discount = 'Discount' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        shippingcharge = 'ShippingCharge' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        irtotal = 'IrTotal' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        shippingaddress = 'ShippingAddress' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE
+    );
+
+CREATE OR REPLACE TABLE bv_item_requisition_sap I18N us_est (
+        mandt:text (notnull, sourcetypeid = '12'),
+        irid:text (notnull, sourcetypeid = '12'),
+        resortid:text (notnull, sourcetypeid = '12'),
+        irno:text (notnull, sourcetypeid = '12'),
+        requestdate:timestamp (notnull, sourcetypeid = '93'),
+        irstatus:text (notnull, sourcetypeid = '12'),
+        priority:text (notnull, sourcetypeid = '12'),
+        supplierid:text (notnull, sourcetypeid = '12'),
+        quotationno:text (notnull, sourcetypeid = '12'),
+        quotationref:text (notnull, sourcetypeid = '12'),
+        currency:text (notnull, sourcetypeid = '12'),
+        irsubtotal:decimal (notnull, sourcetypeid = '3'),
+        discount:decimal (notnull, sourcetypeid = '3'),
+        shippingcharge:decimal (notnull, sourcetypeid = '3'),
+        irtotal:decimal (notnull, sourcetypeid = '3'),
+        shippingaddress:text (notnull, sourcetypeid = '12')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD ds_sap_item_requisition(
+        I18N us_est
+        CONSTRAINTS (
+             ADD mandt (any) OPT ANY
+             ADD irid (any) OPT ANY
+             ADD resortid (any) OPT ANY
+             ADD irno (any) OPT ANY
+             ADD requestdate (any) OPT ANY
+             ADD irstatus (any) OPT ANY
+             ADD priority (any) OPT ANY
+             ADD supplierid (any) OPT ANY
+             ADD quotationno (any) OPT ANY
+             ADD quotationref (any) OPT ANY
+             ADD currency (any) OPT ANY
+             ADD irsubtotal (any) OPT ANY
+             ADD discount (any) OPT ANY
+             ADD shippingcharge (any) OPT ANY
+             ADD irtotal (any) OPT ANY
+             ADD shippingaddress (any) OPT ANY
+        )
+        OUTPUTLIST (currency, discount, irid, irno, irstatus, irsubtotal, irtotal, mandt, priority, quotationno, quotationref, requestdate, resortid, shippingaddress, shippingcharge, supplierid
+        )
+        WRAPPER (custom ds_sap_item_requisition)
+    );
+

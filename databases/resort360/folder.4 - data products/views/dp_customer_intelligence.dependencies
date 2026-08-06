@@ -1,0 +1,72 @@
+﻿1/databases/resort360/folder.4 - data products/4 - data products.vql
+1/tags/address.vql
+1/tags/nationality.vql
+1/tags/restricted.vql
+1/tags/mcp.vql
+1/tags/email.vql
+1/tags/customer_domain.vql
+*/databases/resort360/folder.3 - reports/3 - reports.vql
+*/tags/address.vql
+*/tags/nationality.vql
+*/tags/restricted.vql
+*/tags/mcp.vql
+*/tags/email.vql
+*/tags/customer_domain.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_customer.vql
+1/databases/resort360/folder.3 - reports/views/customer.vql
+*/databases/resort360/folder.2 - integration/2 - integration.vql
+*/databases/resort360/folder.2 - integration/folder.integration_dp/integration_dp.vql
+*/tags/booking.vql
+*/tags/payment.vql
+*/tags/reservation_details.vql
+*/tags/check_in_list.vql
+*/tags/booking_date.vql
+*/tags/resort.vql
+*/tags/sales.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking.vql
+*/databases/resort360/folder.3 - reports/views/customer_booking.vql
+1/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_customer_booking_summary.vql
+*/tags/tour_operator.vql
+*/tags/room_category.vql
+*/tags/booking_category.vql
+*/tags/departure_details.vql
+*/tags/arrival_details.vql
+*/tags/amenities.vql
+*/tags/city.vql
+*/tags/country.vql
+*/tags/state.vql
+*/tags/room_status.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_master.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_master.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_category.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_category.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_resorts.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_states.vql
+*/databases/resort360/folder.2 - integration/views/iv_room_details.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_tour_operators.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking_type.vql
+*/databases/resort360/folder.2 - integration/views/iv_customer_resort_bookings_details.vql
+*/databases/resort360/folder.2 - integration/views/iv_repeated_customers.vql
+1/databases/resort360/folder.3 - reports/views/repeated_customers.vql
+*/databases/resort360/folder.2 - integration/views/iv_customer_longest_stay.vql
+*/databases/resort360/folder.3 - reports/views/customer_longest_stay.vql
+1/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_customer_longest_stay_summary.vql
+*/tags/amenity_category.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_customer_amenities_booking.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_amenities.vql
+*/databases/resort360/folder.2 - integration/views/iv_amenities_booking_details.vql
+*/databases/resort360/folder.3 - reports/views/amenities_bookings.vql
+1/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_customer_amenity_summary.vql
+*/databases/resort360/folder.2 - integration/views/iv_revenue_bycountry.vql
+*/databases/resort360/folder.3 - reports/views/revenueby_nationality.vql
+1/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_nationality_revenue_summary.vql
+*/databases/resort360/folder.3 - reports/views/customer.vql
+*/databases/resort360/folder.3 - reports/views/repeated_customers.vql
+*/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_customer_amenity_summary.vql
+*/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_nationality_revenue_summary.vql
+*/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_customer_booking_summary.vql
+*/databases/resort360/folder.2 - integration/folder.integration_dp/views/iv_dp_customer_longest_stay_summary.vql

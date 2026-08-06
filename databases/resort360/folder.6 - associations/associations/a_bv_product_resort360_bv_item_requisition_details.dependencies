@@ -1,0 +1,12 @@
+﻿1/databases/resort360/folder.6 - associations/6 - associations.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/tags/inventory.vql
+*/tags/sales.vql
+*/tags/item_quantity.vql
+*/tags/item_name.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_product.vql
+*/tags/resort.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition_details.vql

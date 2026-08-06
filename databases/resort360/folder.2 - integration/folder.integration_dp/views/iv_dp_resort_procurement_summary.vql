@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_resort_procurement_summary FOLDER = '/2 - integration/integration_dp' AS SELECT resort_name, count(ir_id) AS resort_requisition_count, sum(irtotal) AS resort_total_requisition_value, avg(irtotal) AS avg_resort_requisition_value FROM iv_requisition_details_union GROUP BY resort_name;
+

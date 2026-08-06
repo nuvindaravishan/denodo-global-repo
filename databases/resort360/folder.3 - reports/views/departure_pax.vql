@@ -1,0 +1,6 @@
+﻿CREATE OR REPLACE VIEW departure_pax FOLDER = '/3 - reports' DESCRIPTION = 'The departure_pax view contains data related to passenger departures from a resort. It includes information such as the checkout dates and the number of passengers associated with each departure. The checkout dates specify when customers are expected to leave the resort, while the departure passenger count indicates the number of individuals linked to each departure event.' 
+    TAGS (departure_details, mcp) AS SELECT iv_departure_pax.departure_dates AS checkout_dates, iv_departure_pax.no_of_departure_pax AS departure_passenger_count, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_departure_pax;
+
+ALTER VIEW departure_pax
+ LAYOUT (iv_departure_pax = [20, 20, 200, 200]);
+

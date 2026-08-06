@@ -1,0 +1,61 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_amenities
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_amenities.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_amenities.SCHEMANAME}' 
+    RELATIONNAME='Amenities' 
+    OUTPUTSCHEMA (
+        amenity_id = 'Amenity_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        resort_id = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        amenity_name = 'Amenity_Name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        category = 'Category' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        rate = 'Rate' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        duration_hours = 'Duration_Hours' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        capacity = 'Capacity' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        difficulty_level = 'Difficulty_Level' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        description = 'Description' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Amenities' PRIMARY KEY ( 'Amenity_ID' )
+    CONSTRAINT 'FK_Amenities_Resort' FOREIGN KEY ( 'Resort_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Amenities' CLUSTER UNIQUE PRIMARY ( 'Amenity_ID' );
+
+CREATE OR REPLACE TABLE bv_amenities I18N us_est (
+        amenity_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the resort associated with each amenity, enabling a linkage between amenities and their respective resorts.') TAGS (resort),
+        amenity_name:text (notnull, sourcetypeid = '12', sourcetypesize = '100'),
+        category:text (sourcetypeid = '12', sourcetypesize = '50') TAGS (amenity_category),
+        rate:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the cost or price associated with the amenity, allowing for financial assessment and comparison.'),
+        duration_hours:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        capacity:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        difficulty_level:text (sourcetypeid = '12', sourcetypesize = '50'),
+        description:text (sourcetypeid = '12', sourcetypesize = '2147483647', description = 'Unique identifier for the customer account'),
+        is_active:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_Amenities' PRIMARY KEY ( 'amenity_id' )
+    TAGS (amenity_category)
+    CACHE OFF
+    BATCHSIZEINCACHE DEFAULT
+    TIMETOLIVEINCACHE NOEXPIRE
+    ADD SEARCHMETHOD bv_amenities(
+        I18N us_est
+        CONSTRAINTS (
+             ADD amenity_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD amenity_name (any) OPT ANY
+             ADD category (any) OPT ANY
+             ADD rate (any) OPT ANY
+             ADD duration_hours (any) OPT ANY
+             ADD capacity (any) OPT ANY
+             ADD difficulty_level (any) OPT ANY
+             ADD description (any) OPT ANY
+             ADD is_active (any) OPT ANY
+        )
+        OUTPUTLIST (amenity_id, amenity_name, capacity, category, description, difficulty_level, duration_hours, is_active, rate, resort_id
+        )
+        WRAPPER (jdbc bv_amenities)
+    );
+

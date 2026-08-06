@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_iv_room_details_resort360_bv_booking REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT bv_booking iv_room_details PRINCIPAL (1)
+    ENDPOINT iv_room_details bv_booking (0,*)
+    ADD MAPPING room_master_id=room_master_id;
+
+ALTER ASSOCIATION a_iv_room_details_resort360_bv_booking
+ LAYOUT (iv_room_details = [446, 141, 200, 200], bv_booking = [756, 2, 200, 200]);
+

@@ -1,0 +1,10 @@
+﻿CREATE OR REPLACE VIEW iv_arrival_pax FOLDER = '/2 - integration' DESCRIPTION = 'The iv_arrival_pax view contains detailed information about expected customer arrivals at a resort. It includes fields such as arrival_dates, which specifies the date on which the customer is expected to arrive; no_of_arrival_pax, which indicates the number of passengers arriving on the specified date; and createddate, representing the timestamp of when the booking record was created in the system. This view could be used for managing arrival schedules, tracking customer bookings, optimizing resort operations, and analyzing arrival trends to enhance customer service and operational efficiency.'  (
+    arrival_dates (description = 'Specifies the date on which the customer is expected to arrive at the resort. It includes values like "2025-08-13", "2025-08-12", and "2025-08-11".') TAGS (arrival_details),
+    no_of_arrival_pax (description = 'Indicates the number of passengers arriving on the specified date. It includes values like "2", "5", "7", and "3".'),
+    createddate (description = 'Represents the timestamp when the booking record was created in the system. It includes values like "2025-04-29 22:09:21...", "2025-04-29 22:09:05...", "2025-04-29 22:05:09...", and "2025-04-29 22:04:45...".')
+ )
+ AS SELECT arrival_date AS arrival_dates, sum(no_of_pax) AS no_of_arrival_pax, createddate AS createddate, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_customer_resort_bookings_details GROUP BY arrival_date, createddate, "Booking_Status", "ModifiedDate", "ModifiedBy", "Currency_ID", "Tax_Amount", "Special_Requests", "Cancellation_Reason", "Cancelled_By", "Cancelled_Date";
+
+ALTER VIEW iv_arrival_pax
+ LAYOUT (iv_customer_resort_bookings_details = [0, 0, 200, 200]);
+

@@ -1,0 +1,37 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_product_sub_category
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_product_sub_category.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_product_sub_category.SCHEMANAME}' 
+    RELATIONNAME='Product_Sub_Category' 
+    OUTPUTSCHEMA (
+        product_sub_category_id = 'Product_Sub_Category_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        product_sub_category_name = 'Product_Sub_Category_Name' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        product_category_name = 'Product_Category_Name' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE
+    )
+    CONSTRAINT 'PK__Product___04B14E7A81F9B557' PRIMARY KEY ( 'Product_Sub_Category_ID' )
+    INDEX 'PK__Product___04B14E7A81F9B557' CLUSTER UNIQUE PRIMARY ( 'Product_Sub_Category_ID' );
+
+CREATE OR REPLACE TABLE bv_product_sub_category I18N us_est (
+        product_sub_category_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each product sub-category, enabling precise classification and reference within broader product structures.'),
+        product_sub_category_name:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Contains the name of the specific product sub-category, facilitating detailed categorization and organization of products. It includes values like "Sample1", "Sample2", "This is a very long..."'),
+        product_category_name:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Specifies the name of the overarching product category to which sub-categories belong, aiding in high-level grouping and classification of products. It includes values like "Category1", "ExampleCategory2", "This is a very lon..."')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_product_sub_category view represents a structured dataset designed to categorize and organize products into sub-categories within overarching product categories. It includes fields such as a unique identifier for each product sub-category (product_sub_category_id), the name of the specific product sub-category (product_sub_category_name), and the name of the overarching product category (product_category_name). The view enables detailed classification and reference within broader product structures and facilitates high-level grouping of products. This view could be used for organizing and managing a product catalog by categorizing items into specific sub-categories and linking them to broader product categories. Additionally, it may serve as a reference for establishing relationships between products and their respective sub-categories.'
+    PRIMARY KEY ( 'product_sub_category_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_product_sub_category(
+        I18N us_est
+        CONSTRAINTS (
+             ADD product_sub_category_id (any) OPT ANY
+             ADD product_sub_category_name (any) OPT ANY
+             ADD product_category_name (any) OPT ANY
+        )
+        OUTPUTLIST (product_category_name, product_sub_category_id, product_sub_category_name
+        )
+        WRAPPER (jdbc bv_product_sub_category)
+    );
+

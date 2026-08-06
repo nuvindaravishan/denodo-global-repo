@@ -1,0 +1,10 @@
+﻿CREATE OR REPLACE VIEW most_requested_items FOLDER = '/3 - reports/sap' (
+    product_id (description = 'Serves as the unique numeric identifier for each item, ensuring precise tracking and reference.'),
+    product_name (description = 'Represents the name of the product, enabling straightforward identification in records or listings.'),
+    total_requested_quantity (description = 'Indicates the aggregated quantity of a specific item requested across all records.') TAGS (item_quantity)
+ )
+ AS SELECT iv_most_requested_items.item_id AS product_id, iv_most_requested_items.item_name AS product_name, iv_most_requested_items.total_requested_quantity AS total_requested_quantity FROM iv_most_requested_items;
+
+ALTER VIEW most_requested_items
+ LAYOUT (iv_most_requested_items = [20, 20, 200, 200]);
+

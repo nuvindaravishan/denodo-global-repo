@@ -1,0 +1,17 @@
+﻿CREATE OR REPLACE VIEW requisition_details FOLDER = '/3 - reports/sap' (
+    item_requisition_id (description = 'Uniquely identifies each item requisition record.'),
+    resort_name (description = 'Represents the name of the resort, providing clarity and identity within the list of accommodations.') TAGS (resort),
+    supplier_name (description = 'Captures the name of the supplier, enabling clear identification and reference.') TAGS (supplier),
+    requisition_request_date (description = 'Specifies the date on which the item requisition request was created.') TAGS (requisition_date),
+    item_requisition_subtotal (description = 'Represents the subtotal amount for the items in the requisition before any discounts or shipping charges.') TAGS (requisition_amount),
+    discount_amount (description = 'Indicates the discount amount applied to the item requisition.') TAGS (requisition_amount),
+    shipping_charge (description = 'Refers to the shipping cost associated with the item requisition.'),
+    item_requisition_total (description = 'Represents the total amount of the item requisition, including discounts and shipping charges.'),
+    requisition_status (description = 'Indicates the current status of the item requisition, such as pending, approved, or completed.'),
+    delivery_address (description = 'Specifies the delivery address for the item requisition.') TAGS (address)
+ )
+ AS SELECT iv_requisition_details.ir_id AS item_requisition_id, iv_requisition_details.resort_name AS resort_name, iv_requisition_details.supplier_name AS supplier_name, iv_requisition_details.request_date AS requisition_request_date, iv_requisition_details.irsubtotal AS item_requisition_subtotal, iv_requisition_details.discount AS discount_amount, iv_requisition_details.shippingcharge AS shipping_charge, iv_requisition_details.irtotal AS item_requisition_total, iv_requisition_details.ir_status AS requisition_status, iv_requisition_details.shipping_address AS delivery_address FROM iv_requisition_details;
+
+ALTER VIEW requisition_details
+ LAYOUT (iv_requisition_details = [20, 20, 200, 200]);
+

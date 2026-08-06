@@ -1,0 +1,8 @@
+﻿*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+1/tags/amenities.vql
+1/tags/booking.vql
+1/tags/booking_date.vql
+1/tags/customer_domain.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+1/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql

@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION bv_booking_resort360_bv_booking_type REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT bv_booking bv_booking_type (0,1)
+    ENDPOINT bv_booking_type bv_booking PRINCIPAL (1)
+    ADD MAPPING booking_type_id=booking_type_id;
+
+ALTER ASSOCIATION bv_booking_resort360_bv_booking_type
+ LAYOUT (bv_booking_type = [16, 109, 200, 200], bv_booking = [462, 67, 200, 200]);
+

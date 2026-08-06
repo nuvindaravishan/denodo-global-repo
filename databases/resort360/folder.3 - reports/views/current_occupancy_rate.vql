@@ -1,0 +1,14 @@
+﻿CREATE OR REPLACE VIEW current_occupancy_rate FOLDER = '/3 - reports' DESCRIPTION = 'The current_occupancy_rate view contains data related to resorts, focusing on their room occupancy statistics. It includes fields such as resort_identifier to uniquely identify each resort, total_room_count for the number of rooms available, occupied_rooms indicating the rooms that are occupied, vacant_rooms for unoccupied rooms, and room_occupancy_rate to show the proportion of occupied rooms compared to the total. Additionally, record_date provides the date for which the data is recorded, adding temporal context. This view could be used to analyze room occupancy patterns and trends in resorts. It is useful for tracking occupancy rates over time, optimizing resource allocation, managing availability, and generating reports on the utilization of rooms.' 
+    TAGS (mcp, resort, room_status) (
+    resort_identifier (description = 'Represents the unique identifier of a resort, distinguishing each resort within the dataset. It includes values like "3", "7", "8", and "4".'),
+    total_room_count (description = 'Specifies the total count of rooms available within each resort. It includes values like "101", "102", "99", and "100".'),
+    occupied_rooms (description = 'Indicates the number of rooms currently occupied in a resort. It includes values like "43", "49", "45", and "48".'),
+    vacant_rooms (description = 'Represents the number of rooms that are vacant or unoccupied in a resort. It includes values like "58", "53", "54", and "52".'),
+    room_occupancy_rate (description = 'Indicates the proportion of occupied rooms to the total room count, expressed as a rate.'),
+    record_date (description = 'Denotes the specific date for which the room-related data is recorded, providing a temporal context for the dataset. It includes values like "2025-08-20", "2025-08-20", "2025-08-20", and "2025-08-20".')
+ )
+ AS SELECT iv_room_summary.resort_id AS resort_identifier, iv_room_summary.total_number_of_rooms AS total_room_count, iv_room_summary.occupied_room_count AS occupied_rooms, iv_room_summary.vacant_room_count AS vacant_rooms, (iv_room_summary.occupied_room_count/cast('double', iv_room_summary.total_number_of_rooms)) AS room_occupancy_rate, iv_room_summary.date AS record_date FROM iv_room_summary;
+
+ALTER VIEW current_occupancy_rate
+ LAYOUT (iv_room_summary = [20, 20, 200, 200]);
+

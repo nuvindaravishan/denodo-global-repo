@@ -1,0 +1,13 @@
+﻿CREATE OR REPLACE VIEW iv_denied_bookings FOLDER = '/2 - integration' DESCRIPTION = 'The iv_denied_bookings view contains detailed information about customer enquiries that have been denied by a resort. It includes fields that describe various aspects of the enquiries, such as customer details (e.g., name, nationality, mobile number, email), resort information (resort name), enquiry specifics (enquiry date, check-in and check-out dates), and denial details (denied date, reason for denial, and whether the enquiry was denied or not). This view acts as a repository for managing denied bookings, capturing reasons such as overbooking, blacklisting, or refusal to pay. This view can be used to analyze and manage denied bookings, including tracking reasons for denial, identifying trends related to customer demographics or resort performance, and improving processes for future booking handling.' 
+    TAGS (booking) (
+    customer_name (sourcetypesize = '30', sourcetypeid = '12') TAGS (customer_domain),
+    resort_name TAGS (resort),
+    nationality TAGS (nationality),
+    mobile TAGS (restricted),
+    email TAGS (email)
+ )
+ AS SELECT bv_customer_enquiry.customer_enquiry_id AS customer_enquiry_id, bv_customer_enquiry.enquiry_date AS enquiry_date, bv_resorts.resort_name AS resort_name, concat(bv_customer_enquiry.first_name, ' ', bv_customer_enquiry.last_name) AS customer_name, bv_customer_enquiry.nationality AS nationality, bv_customer_enquiry.mobile AS mobile, bv_customer_enquiry.email AS email, bv_customer_enquiry.check_in_date AS check_in_date, bv_customer_enquiry.check_out_date AS check_out_date, bv_customer_enquiry.denied_on AS denied_on, bv_denied_reason.denied_reason_description AS denied_reason_description, bv_customer_enquiry.is_denied AS is_denied FROM (bv_customer_enquiry AS bv_customer_enquiry INNER JOIN bv_denied_reason AS bv_denied_reason ON bv_customer_enquiry.denied_reason_id = bv_denied_reason.denied_reason_id ) INNER JOIN bv_resorts AS bv_resorts ON bv_customer_enquiry.resort_id = bv_resorts.resort_id  WHERE bv_customer_enquiry.is_denied = true;
+
+ALTER VIEW iv_denied_bookings
+ LAYOUT (bv_customer_enquiry = [126, 26, 200, 200], bv_denied_reason = [460, 32, 200, 200], bv_resorts = [222, 136, 200, 200]);
+

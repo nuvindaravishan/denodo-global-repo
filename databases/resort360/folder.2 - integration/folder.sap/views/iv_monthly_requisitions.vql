@@ -1,0 +1,8 @@
+﻿CREATE OR REPLACE VIEW iv_monthly_requisitions FOLDER = '/2 - integration/sap' DESCRIPTION = 'The iv_monthly_requisitions view contains data about monthly requisitions. It includes fields such as the month (text), year (long), total requisitions (long), and total requisition value (long). Each field provides information about requisitions aggregated on a monthly basis.'  (
+    total_requistion_value TAGS (requisition_amount)
+ )
+ AS SELECT month AS month, year AS year, count(DISTINCT ir_id) AS total_requisitions, sum(irtotal) AS total_requistion_value FROM iv_item_requisition_sap GROUP BY month, year;
+
+ALTER VIEW iv_monthly_requisitions
+ LAYOUT (iv_item_requisition_sap = [20, 20, 200, 200]);
+

@@ -1,0 +1,12 @@
+﻿CREATE OR REPLACE VIEW iv_repeated_customers FOLDER = '/2 - integration' AS
+    SELECT customer_id AS customer_id,
+           customer_name AS customer_name,
+           count(*) AS no_of_bookings
+    FROM iv_customer_resort_bookings_details
+    GROUP BY customer_name,
+             customer_id
+    HAVING count(*) > 1 CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW iv_repeated_customers
+ LAYOUT (iv_customer_resort_bookings_details = [20, 20, 200, 200]);
+

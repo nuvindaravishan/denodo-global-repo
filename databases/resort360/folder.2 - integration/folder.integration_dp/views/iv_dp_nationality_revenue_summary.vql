@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_nationality_revenue_summary FOLDER = '/2 - integration/integration_dp' AS SELECT customer_origin, sum(booking_count) AS nationality_booking_count, sum(total_revenue) AS nationality_total_revenue FROM revenueby_nationality GROUP BY customer_origin;
+
