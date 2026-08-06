@@ -2,57 +2,55 @@ trigger:
   - main
 
 pool:
-  name: 'denodo_git' # Matches your Agent Pool name
+  name: 'denodo_git'
 
 variables:
-  # Path to denodo-db-tools folder on Machine C
-  denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
-  pipelineTmpPath: 'C:\Users\hariharan.d\denodo\pipeline_files'
+  denodoPath: 'C:/Users/hariharan.d/denodo/denodo-db-tools/bin'
+  pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
   
-  # Machine A Details (Dev VDP Server)
-  vdpServer: 'devdenodo-9.iqzsystems.io:9999/admin'  # Replace with Machine A IP/Hostname
+  # Machine A Details (Dev VDP)
+  vdpServer: 'devdenodo-9.iqzsystems.io:9999/admin'
   
-  # Machine B Details (Solution Manager Server)
-  smHost: 'denodosm-9.iqzsystems.io'               # Replace with Machine B IP/Hostname
-  smPort: '10090'                     
-  targetEnvId: 2                                # Replace with Target Environment ID in SM
+  # Machine B Details (Solution Manager)
+  smHost: 'sm-server.company.com'  # Replace with Machine B IP/Hostname
+  smPort: '10090'                  # Replace with Solution Manager REST API Port
+  targetEnvId: 8                   # Replace with Target Environment ID in SM
 
 jobs:
 - job: DenodoCICDJob
   steps:
   
-  
-  
-  # 1. Initialize Pipeline Temp Folder
+  # 1. Initialize Pipeline Folder
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-# 2. Extract VQL Revision from Dev VDP
+  # 2. Extract VQL Revision from Dev VDP (Using VDP Credentials)
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       Set-Location "$(denodoPath)"
-      .\export.bat -l "$env:USER" -p "$env:PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -P replaceExistingElements=yes -P includejars=yes
+      .\export.bat -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -P replaceExistingElements=yes -P includejars=yes
     displayName: 'Extract VQL Revision from Dev VDP'
     env:
-      PASSWORD: $(PASSWORD)
-      USER: $(USER)
+      VDP_USER: $(VDP_USER)
+      VDP_PASSWORD: $(VDP_PASSWORD)
 
-  # 3. Publish VQL Artifact
+  # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(pipelineTmpPath)/$(REVISION_NAME)'
       ArtifactName: 'VQL_Revision'
       publishLocation: 'Container'
 
-  # 4. Deploy to Machine B via Solution Manager REST API
-  - script: |
-      cd $(pipelineTmpPath)
-      python base64revision.py -s $(smHost) -p $(smPort) -v $(pipelineTmpPath)/$(REVISION_NAME) -n "Auto_Build_$(Build.BuildId)" -d "Automated build from Git commit $(Build.SourceVersion)" -e $(targetEnvId) -u $(USER) -a $(PASSWORD)
+  # 4. Deploy via Solution Manager API (Using Solution Manager Credentials)
+  - powershell: |
+      Set-Location "$(pipelineTmpPath)"
+      python base64revision.py -s "$(smHost)" -p "$(smPort)" -v "$(pipelineTmpPath)/$(REVISION_NAME)" -n "Auto_Build_$(Build.BuildId)" -d "Automated deployment from Azure Pipeline" -e $(targetEnvId) -u "$env:SM_USER" -a "$env:SM_PASSWORD"
     displayName: 'Deploy via Solution Manager API'
     env:
-      PASSWORD: $(PASSWORD)
+      SM_USER: $(SM_USER)
+      SM_PASSWORD: $(SM_PASSWORD)
 
   # 5. Cleanup Temporary Files
   - script: |
