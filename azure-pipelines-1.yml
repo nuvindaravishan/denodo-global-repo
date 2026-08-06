@@ -2,7 +2,7 @@ trigger:
   - main
 
 pool:
-  name: 'local_agent' # Matches your Agent Pool name
+  name: 'denodo_git' # Matches your Agent Pool name
 
 variables:
   # Path to denodo-db-tools folder on Machine C
