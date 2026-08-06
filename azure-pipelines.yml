@@ -9,7 +9,6 @@ variables:
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
   
   # Machine A Details (Dev VDP)
-  vdbName: 'resort360'
   vdpServer: 'devdenodo-9.iqzsystems.io:9999/resort360'
   
   # Machine B Details (Solution Manager)
@@ -32,22 +31,22 @@ jobs:
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
       # Step 2a: Create VQL file with DVCSPULL <database_name>
-      "DVCSPULL $(vdbName);" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
+      "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Sync Dev VDP database with Git (Without singleuser warning)
+      # Step 2b: Sync Dev VDP database with Git
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental VQL Revision between HEAD~1 and latest commit
+      # Step 2c: Generate Incremental VQL Revision between HEAD~1 and HEAD
       Write-Host "Generating incremental VQL revision..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc "$(Build.SourceVersion)" -P includeprivileges=yes
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
+      VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
