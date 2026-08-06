@@ -12,8 +12,8 @@ variables:
   vdpServer: 'devdenodo-9.iqzsystems.io:9999/admin'
   
   # Machine B Details (Solution Manager)
-  smHost: 'sm-server.company.com'  # Replace with Machine B IP/Hostname
-  smPort: '10090'                  # Replace with Solution Manager REST API Port
+  smHost: 'denodosm-9.iqzsystems.io'  # Replace with Machine B IP/Hostname
+  smPort: '19443'                  # Replace with Solution Manager REST API Port
   targetEnvId: 8                   # Replace with Target Environment ID in SM
 
 jobs:
