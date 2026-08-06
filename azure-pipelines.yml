@@ -9,6 +9,7 @@ variables:
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
   
   # Machine A Details (Dev VDP)
+  vdbName: 'resort360'
   vdpServer: 'devdenodo-9.iqzsystems.io:9999/resort360'
   
   # Machine B Details (Solution Manager)
