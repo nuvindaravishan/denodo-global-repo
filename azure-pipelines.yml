@@ -25,24 +25,25 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-# 2. Extract VQL Revision from Dev VDP (Database VCS Workflow)
+# Generate Incremental Revision (Exact Denodo KB Pattern)
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 2a: Create VQL file to pull Git changes for database resort360
+      # Step 1: Pull latest Git changes into Dev VDP so it recognizes $(Build.SourceVersion)
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
-      
       Set-Location "$(denodoPath)"
-      
-      # Step 2b: Sync Dev VDP database 'resort360' with Git
-      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Git..."
+      Write-Host "Syncing Dev VDP with Git repository..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Export VQL Revision for Solution Manager Deployment
-      Write-Host "Exporting VQL metadata revision..."
-      .\export.bat -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -P replaceExistingElements=yes -P includejars=yes
-    displayName: 'Extract VQL Revision from Dev VDP'
+      # Step 2: Denodo Official Incremental Revision Command
+      Write-Host "Generating incremental revision for commit $(Build.SourceVersion)..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" `
+      -f "$(pipelineTmpPath)/$(REVISION_NAME)" `
+      -fc HEAD~1 `
+      -tc "$(Build.SourceVersion)" `
+      -P includeprivileges=yes
+    displayName: 'Generate Incremental Revision (Denodo Official)'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
