@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW bv_customer_dq_checks DESCRIPTION = 'test'  AS SELECT customer_id, gender, mobile, passportno, case WHEN (gender in ('Female', 'Male', 'Other')) THEN 1 ELSE 0 END AS gender_valid, case WHEN (regexp_count(mobile, '^\+[0-9]{11}$') > 0) THEN 1 ELSE 0 END AS mobile_valid, case WHEN (regexp_count(passportno, '^[A-Z][0-9]{8}$') > 0) THEN 1 ELSE 0 END AS passportno_valid FROM bv_customer;
+

@@ -1,0 +1,21 @@
+﻿CREATE OR REPLACE VIEW iv_customer_booking_details FOLDER = '/2 - integration/sap/optimization/data movement' (
+    last_name TAGS (customer_domain),
+    email TAGS (email),
+    mobile TAGS (restricted),
+    address TAGS (address),
+    passportno TAGS (restricted),
+    booking_id TAGS (booking),
+    booking_date TAGS (booking_date),
+    arrival_date TAGS (arrival_details),
+    arrival_time TAGS (arrival_details),
+    reservation_start_date TAGS (reservation_details),
+    reservation_end_date TAGS (reservation_details),
+    departure_date TAGS (departure_details),
+    departure_time TAGS (departure_details),
+    first_name TAGS (customer_domain)
+ )
+ AS SELECT bv_booking.booking_id AS booking_id, bv_booking.booking_date AS booking_date, bv_booking.arrival_date AS arrival_date, bv_booking.arrival_time AS arrival_time, bv_booking.no_of_pax AS no_of_pax, bv_booking.reservation_start_date AS reservation_start_date, bv_booking.reservation_end_date AS reservation_end_date, bv_booking.no_of_days AS no_of_days, bv_booking.is_checked_in AS is_checked_in, bv_booking.amount_before_discount AS amount_before_discount, bv_booking.percentagediscount AS percentagediscount, bv_booking.final_amount AS final_amount, bv_booking.departure_date AS departure_date, bv_booking.departure_time AS departure_time, bv_booking.is_checked_out AS is_checked_out, bv_booking.customer_enquiry_id AS customer_enquiry_id, bv_customer.first_name AS first_name, bv_customer.last_name AS last_name, bv_customer.dob AS dob, bv_customer.email AS email, bv_customer.mobile AS mobile, bv_customer.address AS address, bv_customer.passportno AS passportno, bv_customer.tier_id AS tier_id, bv_customer.is_active AS is_active, bv_customer.modifieddate AS modifieddate, bv_customer.modifiedby AS modifiedby, bv_customer.deleteddate AS deleteddate, bv_customer.deletedby AS deletedby, bv_customer.last_booking_date AS last_booking_date, bv_customer.last_login_date AS last_login_date, bv_customer.total_spent AS total_spent, bv_customer.total_bookings AS total_bookings, bv_booking."Booking_Status" AS "Booking_Status", bv_booking."ModifiedDate" AS "ModifiedDate", bv_booking."ModifiedBy" AS "ModifiedBy", bv_booking."Currency_ID" AS "Currency_ID", bv_booking."Tax_Amount" AS "Tax_Amount", bv_booking."Special_Requests" AS "Special_Requests", bv_booking."Cancellation_Reason" AS "Cancellation_Reason", bv_booking."Cancelled_By" AS "Cancelled_By", bv_booking."Cancelled_Date" AS "Cancelled_Date" FROM (f_bv_room_master AS f_bv_room_master INNER JOIN bv_booking AS bv_booking ON (f_bv_room_master.resort_id = bv_booking.resort_id AND f_bv_room_master.room_master_id = bv_booking.room_master_id) ) INNER JOIN bv_customer AS bv_customer ON bv_booking.customer_id = bv_customer.customer_id  CONTEXT (DATAMOVEMENTPLAN = f_bv_room_master : JDBC ds_sql_resort360db);
+
+ALTER VIEW iv_customer_booking_details
+ LAYOUT (f_bv_room_master = [20, 20, 200, 200], bv_booking = [310, 18, 200, 200], bv_customer = [614, 19, 200, 200]);
+

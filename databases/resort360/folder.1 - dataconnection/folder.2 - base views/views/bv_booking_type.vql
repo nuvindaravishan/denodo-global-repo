@@ -1,0 +1,35 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_booking_type
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_booking_type.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_booking_type.SCHEMANAME}' 
+    RELATIONNAME='Booking_Type' 
+    OUTPUTSCHEMA (
+        booking_type_id = 'Booking_Type_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        booking_type_description = 'Booking_Type_Description' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='12', sourcetypename='varchar')  SORTABLE
+    )
+    CONSTRAINT 'PK__Booking___14A0097A1EBB9C89' PRIMARY KEY ( 'Booking_Type_ID' )
+    INDEX 'PK__Booking___14A0097A1EBB9C89' CLUSTER UNIQUE PRIMARY ( 'Booking_Type_ID' );
+
+CREATE OR REPLACE TABLE bv_booking_type I18N us_est (
+        booking_type_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each booking type in the system, ensuring clarity and distinction between different types of bookings.'),
+        booking_type_description:text (sourcetypeid = '12', sourcetypesize = '30', description = 'Provides a textual description of the booking type, offering insight into the purpose or nature of each type. It includes values like "Tour Operator Booking" and "Direct Booking".')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_booking_type view represents a repository of booking type data, with each booking type identified uniquely by the field "booking_type_id." This view captures essential information about various booking types, such as their unique identifier and a descriptive text field ("booking_type_description") providing insights into their purpose or nature. Examples of booking types include "Tour Operator Booking" and "Direct Booking." The schema structure ensures clarity and distinction between different types of bookings. Additionally, this view is directly associated with the bv_booking view, highlighting its relevance in mapping booking types to individual bookings in the system. The bv_booking_type view could be used to maintain and manage information about different booking types within a system. It could also be useful in associating booking types with specific bookings and analyzing booking trends based on types in systems such as travel agencies, hospitality management, or booking platforms.'
+    PRIMARY KEY ( 'booking_type_id' )
+    TAGS (booking)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_booking_type(
+        I18N us_est
+        CONSTRAINTS (
+             ADD booking_type_id (any) OPT ANY
+             ADD booking_type_description (any) OPT ANY
+        )
+        OUTPUTLIST (booking_type_description, booking_type_id
+        )
+        WRAPPER (jdbc bv_booking_type)
+    );
+

@@ -1,0 +1,26 @@
+﻿CREATE OR REPLACE INTERFACE VIEW i_customer_booking (
+        resort_id:long TAGS (resort),
+        booking_id:long TAGS (booking),
+        booking_date:timestamp TAGS (booking_date),
+        customer_id:long TAGS (customer_domain),
+        number_of_guests:long,
+        reservation_start_date:localdate TAGS (reservation_details),
+        reservation_end_date:localdate TAGS (reservation_details),
+        duration_in_days:long TAGS (reservation_details),
+        total_payment:decimal TAGS (payment)
+    )
+    SET IMPLEMENTATION customer_booking(
+        resort_id = resort_identifier,
+        booking_id = booking_identifier,
+        booking_date = booking_timestamp,
+        customer_id = customer_identifier,
+        number_of_guests = number_of_guests,
+        reservation_start_date = reservation_start,
+        reservation_end_date = reservation_end,
+        duration_in_days = duration_in_days,
+        total_payment = total_payment    
+)
+    FOLDER = '/7 - interfaces'
+    DESCRIPTION = 'The i_customer_booking view represents detailed information about customer bookings for resorts. It includes key fields such as the resort identifier, booking unique identifier, booking creation date, customer identifier, number of guests, reservation start and end dates, duration in days, and total payment amount after discounts. Each field is structured and provides specific data about the booking, enabling an organized representation of reservation details. The view could be used to track, analyze, and manage customer bookings at resorts. It may support operational tasks such as monitoring booking activity, calculating reservation durations, analyzing payment trends, and understanding customer behaviors. Additionally, it could be useful for generating reports on bookings and conducting business analytics for resorts.' 
+    TAGS (booking, payment, reservation_details);
+

@@ -1,0 +1,70 @@
+﻿CREATE OR REPLACE WRAPPER CUSTOM ds_sap_item_requisition_details
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sap_item_requisition_details
+    PARAMETERS (
+      'Entity Collection *' = 'ZITEM_REQ_DETAILSet',
+      'Expand Related Entities' = false,
+      'Enable Pagination' = false
+    )
+    OUTPUTSCHEMA (
+        mandt = 'Mandt' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        irdetailid = 'IrDetailId' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        irid = 'IrId' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        resortid = 'ResortId' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        itemid = 'ItemId' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        units = 'Units' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        quantity = 'Quantity' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        rate = 'Rate' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        total = 'Total' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        discount = 'Discount' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        tax = 'Tax' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        itemtotal = 'ItemTotal' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        isapproved = 'IsApproved' : 'java.lang.String' (OPT) (sourcetypeid='12')  NOT NULL SORTABLE,
+        poorderqty = 'PoOrderQty' : 'java.math.BigDecimal' (OPT) (sourcetypeid='3')  NOT NULL SORTABLE,
+        createddate = 'CreatedDate' : 'java.time.LocalDateTime' (OPT) (sourcetypeid='93')  NOT NULL SORTABLE
+    );
+
+CREATE OR REPLACE TABLE bv_item_requisition_details_sap I18N us_est (
+        mandt:text (notnull, sourcetypeid = '12'),
+        irdetailid:text (notnull, sourcetypeid = '12'),
+        irid:text (notnull, sourcetypeid = '12'),
+        resortid:text (notnull, sourcetypeid = '12'),
+        itemid:text (notnull, sourcetypeid = '12'),
+        units:text (notnull, sourcetypeid = '12'),
+        quantity:decimal (notnull, sourcetypeid = '3'),
+        rate:decimal (notnull, sourcetypeid = '3'),
+        total:decimal (notnull, sourcetypeid = '3'),
+        discount:text (notnull, sourcetypeid = '12'),
+        tax:decimal (notnull, sourcetypeid = '3'),
+        itemtotal:decimal (notnull, sourcetypeid = '3'),
+        isapproved:text (notnull, sourcetypeid = '12'),
+        poorderqty:decimal (notnull, sourcetypeid = '3'),
+        createddate:timestamp (notnull, sourcetypeid = '93')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD ds_sap_item_requisition_details(
+        I18N us_est
+        CONSTRAINTS (
+             ADD mandt (any) OPT ANY
+             ADD irdetailid (any) OPT ANY
+             ADD irid (any) OPT ANY
+             ADD resortid (any) OPT ANY
+             ADD itemid (any) OPT ANY
+             ADD units (any) OPT ANY
+             ADD quantity (any) OPT ANY
+             ADD rate (any) OPT ANY
+             ADD total (any) OPT ANY
+             ADD discount (any) OPT ANY
+             ADD tax (any) OPT ANY
+             ADD itemtotal (any) OPT ANY
+             ADD isapproved (any) OPT ANY
+             ADD poorderqty (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (createddate, discount, irdetailid, irid, isapproved, itemid, itemtotal, mandt, poorderqty, quantity, rate, resortid, tax, total, units
+        )
+        WRAPPER (custom ds_sap_item_requisition_details)
+    );
+

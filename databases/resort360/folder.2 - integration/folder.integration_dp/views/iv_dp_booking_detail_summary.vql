@@ -1,0 +1,8 @@
+﻿CREATE OR REPLACE VIEW iv_dp_booking_detail_summary FOLDER = '/2 - integration/integration_dp' AS
+    SELECT resort_name,
+           count(booking_identifier) AS total_bookings,
+           avg(total_days) AS avg_length_of_stay,
+           sum(room_rate) AS total_booking_revenue
+    FROM booking_details
+    GROUP BY resort_name CONTEXT ('formatted' = 'yes');
+

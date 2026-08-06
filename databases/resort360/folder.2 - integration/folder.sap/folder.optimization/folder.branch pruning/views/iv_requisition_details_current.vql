@@ -1,0 +1,12 @@
+﻿CREATE OR REPLACE VIEW iv_requisition_details_current FOLDER = '/2 - integration/sap/optimization/branch pruning' DESCRIPTION = 'The iv_requisition_details_current view contains detailed data related to item requisitions. It includes fields such as ir_id, which uniquely identifies each requisition record, resort_name for the identification of the resort, supplier_name to capture the supplier''s identity, request_date for tracking when a requisition was made, irsubtotal for the subtotal amount, discount for applicable price reductions, shippingcharge for associated shipping costs, irtotal as the total requisition amount, ir_status to indicate the current status of the requisition (like pending, approved, or completed), and shipping_address for the delivery location. This structured dataset provides clarity on transactions and delivery details. The view could be used for managing and analyzing requisition records, tracking statuses, calculating costs, handling supplier and resort information, and monitoring shipping details. Such data can benefit logistics, procurement, and inventory management operations, ensuring efficient processes and accurate record maintenance.' 
+    TAGS (address, requisition_date, resort, supplier) (
+    resort_name TAGS (resort),
+    supplier_name TAGS (supplier),
+    request_date TAGS (requisition_date),
+    shipping_address TAGS (address)
+ )
+ AS SELECT iv_item_requisition_sap.ir_id AS ir_id, bv_resorts.resort_name AS resort_name, bv_supplier.supplier_name AS supplier_name, iv_item_requisition_sap.request_date AS request_date, iv_item_requisition_sap.irsubtotal AS irsubtotal, iv_item_requisition_sap.discount AS discount, iv_item_requisition_sap.shippingcharge AS shippingcharge, iv_item_requisition_sap.irtotal AS irtotal, iv_item_requisition_sap.ir_status AS ir_status, iv_item_requisition_sap.shipping_address AS shipping_address FROM bv_resorts AS bv_resorts INNER JOIN (iv_item_requisition_sap AS iv_item_requisition_sap INNER JOIN bv_supplier AS bv_supplier ON iv_item_requisition_sap.supplier_id = bv_supplier.supplier_id ) ON bv_resorts.resort_id = iv_item_requisition_sap.resort_id  WHERE (iv_item_requisition_sap.request_date >= '2026-01-01' AND iv_item_requisition_sap.request_date <= current_date());
+
+ALTER VIEW iv_requisition_details_current
+ LAYOUT (bv_resorts = [29, 49, 200, 200], iv_item_requisition_sap = [343, 58, 200, 200], bv_supplier = [774, 66, 200, 200]);
+

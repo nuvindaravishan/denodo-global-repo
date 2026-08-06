@@ -1,0 +1,34 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_denied_reason
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_denied_reason.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_denied_reason.SCHEMANAME}' 
+    RELATIONNAME='Denied_Reason' 
+    OUTPUTSCHEMA (
+        denied_reason_id = 'Denied_Reason_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        denied_reason_description = 'Denied_Reason_Description' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='12', sourcetypename='varchar')  SORTABLE
+    )
+    CONSTRAINT 'PK__Denied_R__1B548DDE5025B663' PRIMARY KEY ( 'Denied_Reason_ID' )
+    INDEX 'PK__Denied_R__1B548DDE5025B663' CLUSTER UNIQUE PRIMARY ( 'Denied_Reason_ID' );
+
+CREATE OR REPLACE TABLE bv_denied_reason I18N us_est (
+        denied_reason_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Serves as a unique identifier for each reason associated with the denial of a request or transaction.'),
+        denied_reason_description:text (sourcetypeid = '12', sourcetypesize = '30', description = 'Provides descriptive information about the specific reason for a denial. It includes values like "Over Booking", "BlackListed Customer", and "Refused to Pay".')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_denied_reason view contains information about the reasons for the denial of requests or transactions. It includes two fields: denied_reason_id, which serves as a unique identifier for each denial reason, and denied_reason_description, which provides descriptive details about specific denial reasons, such as "Over Booking," "BlackListed Customer," or "Refused to Pay." Additionally, the view has an association with the bv_customer_enquiry view, establishing a relationship where a denial reason can be linked to customer enquiries. This view could be used to catalog and analyze the reasons for denied requests or transactions within a system. It can help businesses identify trends in denials, resolve operational issues, and improve decision-making processes. Moreover, the association with bv_customer_enquiry could be leveraged for tracing denial reasons back to specific customer enquiries, enabling better customer service and operational insights.'
+    PRIMARY KEY ( 'denied_reason_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_denied_reason(
+        I18N us_est
+        CONSTRAINTS (
+             ADD denied_reason_id (any) OPT ANY
+             ADD denied_reason_description (any) OPT ANY
+        )
+        OUTPUTLIST (denied_reason_description, denied_reason_id
+        )
+        WRAPPER (jdbc bv_denied_reason)
+    );
+

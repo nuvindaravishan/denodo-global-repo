@@ -1,0 +1,75 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_item_requisition
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_item_requisition.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_item_requisition.SCHEMANAME}' 
+    RELATIONNAME='Item_Requisition' 
+    OUTPUTSCHEMA (
+        ir_id = 'Ir_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        resort_id = 'Resort_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        ir_no = 'Ir_No' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        request_date = 'Request_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  NOT NULL SORTABLE,
+        ir_status = 'Ir_Status' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        priority = 'Priority' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        supplier_id = 'Supplier_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        quote_ref = 'Quote_Ref' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        ir_sub_total = 'Ir_Sub_Total' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        discount = 'Discount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        shipping_charge = 'Shipping_Charge' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        ir_total = 'Ir_Total' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        shipping_address = 'Shipping_Address' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Item_Requisition' PRIMARY KEY ( 'Ir_Id' )
+    CONSTRAINT 'FK_Item_Requisition_Resort' FOREIGN KEY ( 'Resort_Id' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Item_Requisition_Supplier' FOREIGN KEY ( 'Supplier_Id' ) 
+    REFERENCES 'resort360'.'dbo'.'Supplier'( 'Supplier_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Item_Requisition' CLUSTER UNIQUE PRIMARY ( 'Ir_Id' )
+    INDEX 'UQ_Item_Requisition_No' OTHER UNIQUE ( 'Ir_No' );
+
+CREATE OR REPLACE TABLE bv_item_requisition I18N us_est (
+        ir_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each item requisition record.'),
+        resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier of the resort associated with the item requisition.') TAGS (resort),
+        ir_no:text (notnull, sourcetypeid = '12', sourcetypesize = '20', description = 'Denotes the item requisition number, which serves as an identifier for tracking requisitions.'),
+        request_date:localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the date on which the item requisition request was created.') TAGS (requisition_date),
+        ir_status:text (notnull, sourcetypeid = '12', sourcetypesize = '50', description = 'Indicates the current status of the item requisition, such as pending, approved, or completed.'),
+        priority:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1', description = 'Defines whether the item requisition is designated as a high-priority request.'),
+        supplier_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier of the supplier associated with the requisition.') TAGS (supplier),
+        quote_ref:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Contains the reference number associated with the quotation for the requisition.'),
+        ir_sub_total:decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Represents the subtotal value of the item requisition before applying discounts, shipping charges, or taxes.') TAGS (requisition_amount),
+        discount:decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the discount amount applied to the item requisition.') TAGS (sales),
+        shipping_charge:decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Denotes the shipping fee incurred for the item requisition.'),
+        ir_total:decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Indicates the total amount of the item requisition after applying all adjustments, including discounts and shipping charges.') TAGS (requisition_amount),
+        shipping_address:text (notnull, sourcetypeid = '12', sourcetypesize = '50', description = 'Specifies the delivery address for the item requisition.') TAGS (address),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Records the exact timestamp when the item requisition was created.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_Item_Requisition' PRIMARY KEY ( 'ir_id' )
+    TAGS (region)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_item_requisition(
+        I18N us_est
+        CONSTRAINTS (
+             ADD ir_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD ir_no (any) OPT ANY
+             ADD request_date (any) OPT ANY
+             ADD ir_status (any) OPT ANY
+             ADD priority (any) OPT ANY
+             ADD supplier_id (any) OPT ANY
+             ADD quote_ref (any) OPT ANY
+             ADD ir_sub_total (any) OPT ANY
+             ADD discount (any) OPT ANY
+             ADD shipping_charge (any) OPT ANY
+             ADD ir_total (any) OPT ANY
+             ADD shipping_address (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (createddate, discount, ir_id, ir_no, ir_status, ir_sub_total, ir_total, priority, quote_ref, request_date, resort_id, shipping_address, shipping_charge, supplier_id
+        )
+        WRAPPER (jdbc bv_item_requisition)
+    );
+

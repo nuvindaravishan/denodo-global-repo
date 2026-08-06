@@ -1,0 +1,13 @@
+﻿1/databases/resort360/folder.2 - integration/2 - integration.vql
+1/tags/nationality.vql
+1/tags/restricted.vql
+1/tags/customer_domain.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/tags/customer_domain.vql
+*/tags/nationality.vql
+*/tags/restricted.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_customer_pax.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_customer_pax.vql

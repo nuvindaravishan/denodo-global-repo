@@ -1,0 +1,15 @@
+﻿CREATE OR REPLACE VIEW amenities_bookings FOLDER = '/3 - reports' DESCRIPTION = 'The amenities_bookings view contains detailed information about booking transactions for various amenities offered by different resorts. It includes fields such as booking identifiers, amenity names, booking dates, resort names, customer details (full name and phone number), confirmation times, reserved time slots, duration of bookings in hours, amenity rates, total costs, and timestamps for record creation. This structured data ensures clarity in tracking and managing bookings while allowing differentiation between transactions and facilitating scheduling and resource allocation. This view could be used to analyze booking patterns, manage resort amenities, provide insights into customer preferences, track financial data related to bookings, and support scheduling and operational decisions for resorts and hospitality businesses.' 
+    TAGS (booking, customer_domain, mcp, restricted) (
+    customer_full_name (description = 'Customer Name') TAGS (customer_domain),
+    booking_identifier TAGS (booking),
+    booking_date TAGS (booking_date),
+    resort_name TAGS (resort),
+    customer_phone TAGS (restricted),
+    amenity_rate TAGS (sales),
+    total_cost TAGS (sales)
+ )
+ AS SELECT iv_amenities_booking_details.booking_id AS booking_identifier, iv_amenities_booking_details.amenities_booking_date AS booking_date, iv_amenities_booking_details.resort_name AS resort_name, iv_amenities_booking_details.customer_name AS customer_full_name, iv_amenities_booking_details.customer_mobile AS customer_phone, iv_amenities_booking_details.booking_time AS confirmation_time, iv_amenities_booking_details.slot_booked AS reserved_time_slot, iv_amenities_booking_details.no_of_hours AS duration_hours, iv_amenities_booking_details.rate AS amenity_rate, iv_amenities_booking_details.cost AS total_cost, iv_amenities_booking_details.createddate AS record_creation_timestamp, iv_amenities_booking_details.amenity_name AS amenity_name, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_amenities_booking_details;
+
+ALTER VIEW amenities_bookings
+ LAYOUT (iv_amenities_booking_details = [20, 20, 200, 200]);
+

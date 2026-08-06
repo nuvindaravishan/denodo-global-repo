@@ -1,0 +1,14 @@
+﻿CREATE OR REPLACE VIEW iv_requisition_details_union FOLDER = '/2 - integration/sap/optimization/branch pruning' DESCRIPTION = 'The iv_requisition_details_union view represents a collection of item requisition details, capturing relevant information about requisitions made for various accommodations or resorts. Key fields include ir_id, which uniquely identifies item requisition records; resort_name, denoting the associated resort; supplier_name, capturing supplier details; request_date, indicating when the requisition was made; and financial fields such as irsubtotal, discount, shippingcharge, and irtotal that provide a breakdown of the requisition costs. Additionally, the ir_status field reflects the current status of the requisition (e.g., pending, approved, or completed), while the shipping_address specifies the delivery location for the requisitioned items. 
+
+This view could be utilized to analyze requisition data across resorts, monitor supplier interactions, track financial information related to requisitions, or assess delivery logistics and statuses. It can serve as a resource for financial reporting, operational management, and decision-making processes within organizations handling requisitions.' 
+    TAGS (address, requisition_date, resort, supplier) (
+    resort_name TAGS (resort),
+    supplier_name TAGS (supplier),
+    request_date TAGS (requisition_date),
+    shipping_address TAGS (address)
+ )
+ AS SELECT ir_id AS ir_id, resort_name AS resort_name, supplier_name AS supplier_name, request_date AS request_date, irsubtotal AS irsubtotal, discount AS discount, shippingcharge AS shippingcharge, irtotal AS irtotal, ir_status AS ir_status, shipping_address AS shipping_address FROM (SELECT ir_id, resort_name, supplier_name, request_date, irsubtotal, discount, shippingcharge, irtotal, ir_status, shipping_address FROM iv_requisition_details_history SQL UNION ALL SELECT ir_id, resort_name, supplier_name, request_date, irsubtotal, discount, shippingcharge, irtotal, ir_status, shipping_address FROM iv_requisition_details_current);
+
+ALTER VIEW iv_requisition_details_union
+ LAYOUT (iv_requisition_details_history = [20, 20, 200, 200], iv_requisition_details_current = [322, 25, 200, 200]);
+

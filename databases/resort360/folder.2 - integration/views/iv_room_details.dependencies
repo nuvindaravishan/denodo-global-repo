@@ -1,0 +1,37 @@
+﻿1/databases/resort360/folder.2 - integration/2 - integration.vql
+1/tags/amenities.vql
+1/tags/country.vql
+1/tags/address.vql
+1/tags/room_category.vql
+1/tags/city.vql
+1/tags/restricted.vql
+1/tags/state.vql
+1/tags/resort.vql
+1/tags/email.vql
+1/tags/room_status.vql
+*/databases/resort360/folder.2 - integration/2 - integration.vql
+*/tags/room_category.vql
+*/tags/resort.vql
+*/tags/sales.vql
+*/tags/room_status.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_master.vql
+1/databases/resort360/folder.2 - integration/views/f_bv_room_master.vql
+*/tags/amenities.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_category.vql
+1/databases/resort360/folder.2 - integration/views/f_bv_room_category.vql
+*/tags/address.vql
+*/tags/city.vql
+*/tags/restricted.vql
+*/tags/email.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_resorts.vql
+*/tags/state.vql
+*/tags/country.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_states.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_states.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_resorts.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_category.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_master.vql

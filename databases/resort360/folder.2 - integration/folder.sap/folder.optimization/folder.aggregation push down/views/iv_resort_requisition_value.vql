@@ -1,0 +1,13 @@
+﻿CREATE OR REPLACE VIEW iv_resort_requisition_value FOLDER = '/2 - integration/sap/optimization/aggregation push down' DESCRIPTION = 'The iv_resort_requisition_value view contains data related to resorts and their requisitions. It includes fields that uniquely identify each resort, such as resort_id and resort_name, as well as geographical details like state_name and country_name. Additionally, the view provides requisition-specific data, including total_requistions, which represents the total number of requisitions made by a resort, and total_requistion_value, which captures the aggregated value of these requisitions. This view could be used for analyzing requisition trends for resorts across different states and countries, monitoring resort-specific requisition data, and generating reports for financial and operational insights. ' 
+    TAGS (requisition_amount, requisition_date, resort) (
+    resort_id TAGS (resort),
+    resort_name TAGS (resort),
+    country_name TAGS (country),
+    total_requistions TAGS (requisition_date),
+    total_requistion_value TAGS (requisition_amount)
+ )
+ AS SELECT bv_resorts.resort_id AS resort_id, bv_resorts.resort_name AS resort_name, bv_states.state_name AS state_name, bv_states.country_name AS country_name, count(DISTINCT iv_item_requisition_sap.ir_id) AS total_requistions, sum(iv_item_requisition_sap.irtotal) AS total_requistion_value FROM iv_item_requisition_sap AS iv_item_requisition_sap INNER JOIN (bv_resorts AS bv_resorts INNER JOIN bv_states AS bv_states ON bv_resorts.state_id = bv_states.state_id ) ON iv_item_requisition_sap.resort_id = bv_resorts.resort_id  GROUP BY bv_states.country_name, bv_states.state_name, bv_resorts.resort_name, bv_resorts.resort_id;
+
+ALTER VIEW iv_resort_requisition_value
+ LAYOUT (iv_item_requisition_sap = [102, 21, 200, 200], bv_resorts = [373, 20, 200, 200], bv_states = [670, 25, 200, 200]);
+

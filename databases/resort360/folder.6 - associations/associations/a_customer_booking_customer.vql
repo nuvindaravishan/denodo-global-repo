@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_customer_booking_customer REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT customer customer_booking (0,*)
+    ENDPOINT booking customer PRINCIPAL (1)
+    ADD MAPPING customer_identifier=customer_identifier;
+
+ALTER ASSOCIATION a_customer_booking_customer
+ LAYOUT (customer_booking = [84, 57, 200, 200], customer = [478, 43, 200, 200]);
+

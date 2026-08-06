@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE VIEW iv_most_requested_items FOLDER = '/2 - integration/sap' DESCRIPTION = 'The iv_most_requested_items view provides data on items that are most frequently requested. It includes information such as the name of the item, its unique identifier, and the total quantity requested. This view enables the identification of items that are popular or in high demand based on their requisition details.' 
+    TAGS (item_quantity) (
+    total_requested_quantity TAGS (item_quantity)
+ )
+ AS SELECT bv_product.item_name AS item_name, iv_item_requisition_details_sap.item_id AS item_id, sum(iv_item_requisition_details_sap.quantity) AS total_requested_quantity FROM iv_item_requisition_details_sap AS iv_item_requisition_details_sap INNER JOIN bv_product AS bv_product ON iv_item_requisition_details_sap.item_id = bv_product.item_id  GROUP BY bv_product.item_name, iv_item_requisition_details_sap.item_id ORDER BY total_requested_quantity DESC;
+
+ALTER VIEW iv_most_requested_items
+ LAYOUT (iv_item_requisition_details_sap = [20, 20, 200, 200], bv_product = [322, 18, 200, 200]);
+

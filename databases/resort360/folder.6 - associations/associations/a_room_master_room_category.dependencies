@@ -1,0 +1,19 @@
+﻿1/databases/resort360/folder.6 - associations/6 - associations.vql
+*/databases/resort360/folder.3 - reports/3 - reports.vql
+*/tags/room_category.vql
+*/tags/mcp.vql
+*/tags/room_status.vql
+*/databases/resort360/folder.2 - integration/2 - integration.vql
+*/tags/resort.vql
+*/tags/sales.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_master.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_master.vql
+1/databases/resort360/folder.3 - reports/views/room_master.vql
+*/tags/amenities.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_category.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_category.vql
+1/databases/resort360/folder.3 - reports/views/room_category.vql

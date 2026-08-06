@@ -1,0 +1,64 @@
+﻿CREATE OR REPLACE SOAP WEBSERVICE ws_product_details
+    CONNECTION (
+        CHUNKSIZE = 1000
+        CHUNKTIMEOUT = 1000
+        QUERYTIMEOUT = 900000
+        POOLENABLED = true
+        POOLINITSIZE = 0
+        POOLMAXACTIVE = 30
+    )
+    I18N  = us_est
+    DATETYPEMAPPING DATE
+    NOWRAPARRAYS
+    RAISEFAULTONIDU
+    DONOTAPPLYOUTPUTXSLTTOERRORS
+    OUTPUT 
+        ( STYLE DOCUMENT )
+    OPERATION 'getProductDetails' (
+        TYPE SELECT
+        SCHEMA VIEW iv_product_details
+        VQL = 'SELECT item_id, item_code, item_name, product_sub_category_name, product_category_name, description, unit, price, quantity, reorder_level, is_active, other_details FROM resort360.iv_product_details ^ExecuteIfIsNotNull("WHERE ",@WHEREEXPRESSION,"") CONTEXT (''i18n'' = ''us_est''^ExecuteIfIsNotNull(", ",@VERBOSEERRORS,"")^ExecuteIfIsNotNull(", ",@CONTEXTEXPRESSION,""))'
+        INPUTS 'getProductDetails' (
+            'ITEM_ID' item_id:'long' '=' 
+            'ITEM_CODE' item_code:'text' '=' 
+            'ITEM_NAME' item_name:'text' '=' 
+            'PRODUCT_SUB_CATEGORY_NAME' product_sub_category_name:'text' '=' 
+            'PRODUCT_CATEGORY_NAME' product_category_name:'text' '=' 
+            'DESCRIPTION' description:'text' '=' 
+            'UNIT' unit:'text' '=' 
+            'PRICE' price:'decimal' '=' 
+            'QUANTITY' quantity:'long' '=' 
+            'REORDER_LEVEL' reorder_level:'long' '=' 
+            'IS_ACTIVE' is_active:'boolean' '=' 
+            'OTHER_DETAILS' other_details:'text' '=' 
+        )
+        OUTPUT 
+            'IV_PRODUCT_DETAILSReturn': Array of ( 'getProductDetailsRow': Register of (
+                item_id : 'long',
+                item_code : 'text',
+                item_name : 'text',
+                product_sub_category_name : 'text',
+                product_category_name : 'text',
+                description : 'text',
+                unit : 'text',
+                price : 'decimal',
+                quantity : 'long',
+                reorder_level : 'long',
+                is_active : 'boolean',
+                other_details : 'text'
+            ) (
+                    '/description'='DESCRIPTION',
+                    '/is_active'='IS_ACTIVE',
+                    '/item_code'='ITEM_CODE',
+                    '/item_id'='ITEM_ID',
+                    '/item_name'='ITEM_NAME',
+                    '/other_details'='OTHER_DETAILS',
+                    '/price'='PRICE',
+                    '/product_category_name'='PRODUCT_CATEGORY_NAME',
+                    '/product_sub_category_name'='PRODUCT_SUB_CATEGORY_NAME',
+                    '/quantity'='QUANTITY',
+                    '/reorder_level'='REORDER_LEVEL',
+                    '/unit'='UNIT'))
+    )
+    FOLDER = '/5 - data services';
+

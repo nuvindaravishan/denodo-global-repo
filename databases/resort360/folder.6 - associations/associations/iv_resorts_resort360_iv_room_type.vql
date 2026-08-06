@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION iv_resorts_resort360_iv_room_type REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT iv_room_type iv_resorts PRINCIPAL (0,1)
+    ENDPOINT iv_resorts iv_room_type (0,1)
+    ADD MAPPING resort_name=room_type;
+
+ALTER ASSOCIATION iv_resorts_resort360_iv_room_type
+ LAYOUT (iv_resorts = [164, 140, 200, 200], iv_room_type = [460, 115, 200, 200]);
+

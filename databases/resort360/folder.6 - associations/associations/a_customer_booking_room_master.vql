@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_customer_booking_room_master REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT room_master customer_booking (0,*)
+    ENDPOINT booking room_master PRINCIPAL (1)
+    ADD MAPPING room_identifier=room_master_identifier;
+
+ALTER ASSOCIATION a_customer_booking_room_master
+ LAYOUT (customer_booking = [128, 74, 200, 200], room_master = [435, 46, 200, 200]);
+

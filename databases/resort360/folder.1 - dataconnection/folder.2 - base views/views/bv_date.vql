@@ -1,0 +1,55 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_date
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_date.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_date.SCHEMANAME}' 
+    RELATIONNAME='Date' ESCAPE
+    OUTPUTSCHEMA (
+        datekey = 'DateKey' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  NOT NULL SORTABLE,
+        date = 'Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  ESCAPE NOT NULL SORTABLE,
+        year = 'Year' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  ESCAPE NOT NULL SORTABLE,
+        quarter = 'Quarter' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  NOT NULL SORTABLE,
+        month = 'Month' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  ESCAPE NOT NULL SORTABLE,
+        monthname = 'MonthName' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        day = 'Day' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  ESCAPE NOT NULL SORTABLE,
+        weekdayname = 'WeekdayName' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        isweekend = 'IsWeekend' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK__Date__40DF45E3A86ED2C4' PRIMARY KEY ( 'DateKey' )
+    INDEX 'PK__Date__40DF45E3A86ED2C4' CLUSTER UNIQUE PRIMARY ( 'DateKey' );
+
+CREATE OR REPLACE TABLE bv_date I18N us_est (
+        datekey:int (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Uniquely identifies each date record with a specific numeric key.'),
+        date:localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the calendar date in a standard format, enabling precise day-level identification and analysis.'),
+        year:int (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the year associated with each date, providing a yearly grouping for data analysis.'),
+        quarter:int (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the quarter (1-4) of the year that the date falls into, facilitating quarterly trends and reporting.'),
+        month:int (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the month of the year in numeric format, allowing monthly comparisons and aggregation.'),
+        monthname:text (notnull, sourcetypeid = '-9', sourcetypesize = '20', description = 'Contains the name of the month, such as "January", "February", "March", or "April". It includes values like "January", "February", "March", and "April".'),
+        day:int (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the day of the month for the given date, aiding daily-level analysis and tracking.'),
+        weekdayname:text (notnull, sourcetypeid = '-9', sourcetypesize = '20', description = 'Lists the name of the weekday, such as "Monday", "Tuesday", "Wednesday", or "Thursday". It includes values like "Saturday", "Wednesday", "Thursday", and "Monday".'),
+        isweekend:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1', description = 'Identifies whether the date falls on a weekend, with values indicating "true" for weekends and "false" otherwise.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_date view represents a structured collection of date-related information. It includes a unique numeric key (datekey) for each record, the calendar date in a standard format, and various attributes such as year, quarter, month (numeric and name), day, weekday name, and whether the date falls on a weekend. This view provides detailed and organized data for analyzing and categorizing dates at different levels, including yearly, quarterly, monthly, daily, and by weekday or weekend. The bv_date view could be useful for time-series analysis, scheduling, tracking seasonal trends, generating reports based on specific time intervals, and categorizing data by calendar attributes such as weekdays, weekends, and months. It can support applications requiring precise date-related insights and breakdowns.'
+    PRIMARY KEY ( 'datekey' , 'date' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_date(
+        I18N us_est
+        CONSTRAINTS (
+             ADD datekey (any) OPT ANY
+             ADD date (any) OPT ANY
+             ADD year (any) OPT ANY
+             ADD quarter (any) OPT ANY
+             ADD month (any) OPT ANY
+             ADD monthname (any) OPT ANY
+             ADD day (any) OPT ANY
+             ADD weekdayname (any) OPT ANY
+             ADD isweekend (any) OPT ANY
+        )
+        OUTPUTLIST (date, datekey, day, isweekend, month, monthname, quarter, weekdayname, year
+        )
+        WRAPPER (jdbc bv_date)
+    );
+

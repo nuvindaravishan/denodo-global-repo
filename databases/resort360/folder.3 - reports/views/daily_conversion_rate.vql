@@ -1,0 +1,14 @@
+﻿CREATE OR REPLACE VIEW daily_conversion_rate FOLDER = '/3 - reports' DESCRIPTION = 'The daily_conversion_rate view contains detailed information about customer enquiries and confirmed bookings at various resorts on a daily basis. This view includes fields such as resort_identifier, which identifies the resorts; customer_enquiry_date, specifying the date of recorded enquiries; total_enquiries_count, representing the total number of customer enquiries; bookings_confirmed_count, denoting confirmed bookings; and booking_conversion_rate, which calculates the percentage of confirmed bookings in relation to the total enquiries. It provides relevant data for analyzing the booking performance of resorts over specific dates. Additionally, it is associated with the resorts_with_states view, enabling integration of resort-related data like states to enhance analysis. 
+
+The daily_conversion_rate view can be used for monitoring and analyzing resort performance based on customer enquiries and bookings. It is valuable for calculating booking conversion rates, identifying trends over specific dates, and optimizing strategies for improving bookings. By linking the view with resorts_with_states, users can also incorporate resort-related context such as location, making it beneficial for targeted marketing, resource allocation, and business decisions in the travel and hospitality industry.'  (
+    resort_identifier (description = 'Indicates the identification of the resort associated with the customer enquiry. It includes values like "3", "7", "2", and "6".'),
+    customer_enquiry_date (description = 'Specifies the date on which customer enquiries were recorded. It includes values like "2023-11-01", "2023-11-04", "2023-11-11", and "2023-11-07".'),
+    total_enquiries_count (description = 'Represents the total number of customer enquiries recorded. It includes values like "221", "229", "318", and "241".'),
+    bookings_confirmed_count (description = 'Denotes the count of confirmed bookings resulting from customer enquiries. It includes values like "17", "18", "87", and "12".'),
+    booking_conversion_rate (description = 'Represents the percentage or rate of confirmed bookings in relation to the total number of customer enquiries.')
+ )
+ AS SELECT iv_daily_customer_enquiry.resort_id AS resort_identifier, iv_daily_customer_enquiry.enquiry_date AS customer_enquiry_date, iv_daily_customer_enquiry.total_customer_enquiries AS total_enquiries_count, iv_daily_customer_enquiry.confirmed_booking_count AS bookings_confirmed_count, (iv_daily_customer_enquiry.confirmed_booking_count/cast('double', iv_daily_customer_enquiry.total_customer_enquiries)) AS booking_conversion_rate FROM iv_daily_customer_enquiry;
+
+ALTER VIEW daily_conversion_rate
+ LAYOUT (iv_daily_customer_enquiry = [20, 20, 200, 200]);
+

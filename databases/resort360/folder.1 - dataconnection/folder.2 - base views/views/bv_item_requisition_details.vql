@@ -1,0 +1,67 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_item_requisition_details
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_item_requisition_details.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_item_requisition_details.SCHEMANAME}' 
+    RELATIONNAME='Item_Requisition_Details' 
+    OUTPUTSCHEMA (
+        ir_detail_id = 'Ir_Detail_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        resort_id = 'Resort_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        ir_id = 'Ir_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        item_id = 'Item_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        quantity = 'Quantity' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        rate = 'Rate' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        total = 'Total' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        discount = 'Discount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        tax = 'Tax' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        item_total = 'Item_Total' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        is_approved = 'Is_Approved' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  SORTABLE,
+        po_order_quantity = 'Po_Order_Quantity' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK__Item_Req__67F2780D7741DA95' PRIMARY KEY ( 'Ir_Detail_Id' )
+    INDEX 'PK__Item_Req__67F2780D7741DA95' CLUSTER UNIQUE PRIMARY ( 'Ir_Detail_Id' );
+
+CREATE OR REPLACE TABLE bv_item_requisition_details I18N us_est (
+        ir_detail_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each requisition detail entry, ensuring distinction from other records.'),
+        resort_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Specifies the unique identifier of the resort associated with the requisition detail.') TAGS (resort),
+        ir_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Denotes the identifier of the associated item requisition.'),
+        item_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier of the item listed in the requisition detail.'),
+        quantity:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the amount or quantity of the item requested in the requisition detail.') TAGS (item_quantity),
+        rate:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Indicates the unit price or rate for the item in the requisition detail.') TAGS (sales),
+        total:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Represents the overall cost for the item before applying discounts or taxes.') TAGS (sales),
+        discount:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Denotes the amount or percentage of discount applied to the item.') TAGS (sales),
+        tax:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Represents the tax amount applied to the item in the requisition detail.') TAGS (sales),
+        item_total:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Indicates the final total cost for the item after applying discounts and taxes.') TAGS (sales),
+        is_approved:boolean (sourcetypeid = '-7', sourcetypesize = '1', description = 'Defines whether the requisition detail has been approved or not.'),
+        po_order_quantity:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Specifies the quantity of the item ordered in the related purchase order.') TAGS (item_quantity),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Indicates the timestamp of when the requisition detail was created.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_item_requisition_details view encapsulates data regarding the individual details of item requisitions. It houses information on various fields such as requisition detail ID (`ir_detail_id`), resort IDs (`resort_id`), item IDs (`item_id`), item quantities (`quantity`), item rates (`rate`), total costs (`total`), applied discounts (`discount`), applicable taxes (`tax`), final item totals (`item_total`), approval statuses (`is_approved`), purchase order quantities (`po_order_quantity`), and creation timestamps (`createddate`). Each record is uniquely identified by the `ir_detail_id` field, which serves as the primary key. The view is associated with two other views: bv_item_requisition, through the `ir_id`, representing the relationship between requisitions and their details; and bv_product, through the `item_id`, representing the relationship between products and requisition details. This view provides a structured representation of requisition details, ensuring accurate tracking of quantities, item costs, discounts, taxes, and purchase orders. The bv_item_requisition_details view could be useful for tracking and managing detailed information regarding item requisitions for resorts or other entities. It can aid in inventory management, purchase order monitoring, cost analysis, and approval status tracking. By incorporating associated data from bv_item_requisition and bv_product views, it enables a comprehensive understanding of requisition activities, product details, and financial impacts.'
+    PRIMARY KEY ( 'ir_detail_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_item_requisition_details(
+        I18N us_est
+        CONSTRAINTS (
+             ADD ir_detail_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD ir_id (any) OPT ANY
+             ADD item_id (any) OPT ANY
+             ADD quantity (any) OPT ANY
+             ADD rate (any) OPT ANY
+             ADD total (any) OPT ANY
+             ADD discount (any) OPT ANY
+             ADD tax (any) OPT ANY
+             ADD item_total (any) OPT ANY
+             ADD is_approved (any) OPT ANY
+             ADD po_order_quantity (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (createddate, discount, ir_detail_id, ir_id, is_approved, item_id, item_total, po_order_quantity, quantity, rate, resort_id, tax, total
+        )
+        WRAPPER (jdbc bv_item_requisition_details)
+    );
+

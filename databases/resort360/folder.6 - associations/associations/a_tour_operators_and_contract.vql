@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_tour_operators_and_contract REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT bv_tour_operator_contract bv_tour_operators PRINCIPAL (1)
+    ENDPOINT bv_tour_operators bv_tour_operator_contract (0,*)
+    ADD MAPPING tour_operator_id=tour_operator_id;
+
+ALTER ASSOCIATION a_tour_operators_and_contract
+ LAYOUT (bv_tour_operators = [105, 110, 200, 200], bv_tour_operator_contract = [513, 75, 200, 200]);
+

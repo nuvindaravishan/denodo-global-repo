@@ -1,0 +1,5 @@
+﻿CREATE OR REPLACE VIEW r_resorts_final FOLDER = '/3 - reports' AS SELECT iv_resorts.resort_name AS resort_name FROM iv_resorts;
+
+ALTER VIEW r_resorts_final
+ LAYOUT (iv_resorts = [20, 20, 200, 200]);
+

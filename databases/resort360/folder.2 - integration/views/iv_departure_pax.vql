@@ -1,0 +1,10 @@
+﻿CREATE OR REPLACE VIEW iv_departure_pax FOLDER = '/2 - integration' (
+    departure_dates (description = 'Specifies the dates on which customers are expected to check out from the resort. It includes values like "2025-08-27", "2025-08-26", "2025-08-25", and "2025-08-24".') TAGS (departure_details),
+    no_of_departure_pax (description = 'Indicates the number of passengers or individuals associated with each departure event. It includes values like "2", "1", "3", and "1".'),
+    createddate (description = 'Represents the timestamp when the booking record was created in the system.')
+ )
+ AS SELECT departure_date AS departure_dates, sum(no_of_pax) AS no_of_departure_pax, createddate AS createddate, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_customer_resort_bookings_details GROUP BY departure_date, createddate, createddate, "Booking_Status", "ModifiedDate", "ModifiedBy", "Currency_ID", "Tax_Amount", "Special_Requests", "Cancellation_Reason", "Cancelled_By", "Cancelled_Date";
+
+ALTER VIEW iv_departure_pax
+ LAYOUT (iv_customer_resort_bookings_details = [20, 20, 200, 200]);
+

@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW iv_item_requisition_details FOLDER = '/2 - integration' (
+    resort_name TAGS (resort),
+    requisition_quantity TAGS (item_quantity),
+    request_date TAGS (requisition_date),
+    shipping_address TAGS (address)
+ )
+ AS SELECT bv_item_requisition_details.ir_detail_id AS ir_detail_id, bv_item_requisition.ir_no AS ir_no, bv_resorts.resort_name AS resort_name, bv_product.item_name AS item_name, bv_item_requisition_details.quantity AS requisition_quantity, bv_item_requisition_details.rate AS requisition_item_rate, bv_item_requisition_details.total AS requisition_item_total, bv_item_requisition_details.tax AS item_tax, bv_item_requisition_details.item_total AS item_final_amount, bv_item_requisition_details.is_approved AS is_approved, bv_item_requisition_details.po_order_quantity AS po_order_quantity, bv_item_requisition.request_date AS request_date, bv_item_requisition.ir_status AS ir_status, bv_item_requisition.priority AS priority, bv_item_requisition.supplier_id AS supplier_id, bv_item_requisition.quote_ref AS quote_ref, bv_item_requisition.ir_total AS ir_total, bv_item_requisition.shipping_address AS shipping_address FROM ((bv_item_requisition AS bv_item_requisition INNER JOIN bv_item_requisition_details AS bv_item_requisition_details ON bv_item_requisition.ir_id = bv_item_requisition_details.ir_id ) INNER JOIN bv_resorts AS bv_resorts ON bv_item_requisition.resort_id = bv_resorts.resort_id ) INNER JOIN bv_product AS bv_product ON bv_item_requisition_details.item_id = bv_product.item_id ;
+
+ALTER VIEW iv_item_requisition_details
+ LAYOUT (bv_item_requisition = [385, 44, 200, 200], bv_item_requisition_details = [641, 37, 200, 200], bv_resorts = [384, 124, 200, 200], bv_product = [675, 129, 200, 200]);
+

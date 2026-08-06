@@ -1,0 +1,12 @@
+﻿CREATE OR REPLACE VIEW iv_room_summary FOLDER = '/2 - integration' DESCRIPTION = 'The iv_room_summary view provides aggregated information about room availability and occupancy in resorts. It includes data fields such as resort_id (unique identifier for resorts), total_number_of_rooms (total count of rooms available in each resort), occupied_room_count (number of rooms currently occupied), vacant_room_count (number of rooms unoccupied), and date (specific date for which the data is recorded). This view could be used for analyzing room occupancy and availability trends across resorts over time. It is particularly useful for resort management to monitor utilization rates, make staffing decisions, optimize room allocation, and plan for future demand. Additionally, it serves as a basis for generating reports on room availability and occupancy.'  (
+    resort_id (description = 'Represents the unique identifier of a resort, distinguishing each resort within the dataset. It includes values like "3", "7", "8", and "4".'),
+    total_number_of_rooms (description = 'Specifies the total count of rooms available within each resort. It includes values like "101", "102", "99", and "100".'),
+    occupied_room_count (description = 'Indicates the number of rooms currently occupied in a resort. It includes values like "43", "49", "45", and "48".'),
+    vacant_room_count (description = 'Represents the number of rooms that are vacant or unoccupied in a resort. It includes values like "58", "53", "54", and "52".'),
+    date (description = 'Denotes the specific date for which the room-related data is recorded, providing a temporal context for the dataset. It includes values like "2025-08-20", "2025-08-20", "2025-08-20", and "2025-08-20".')
+ )
+ AS SELECT resort_id AS resort_id, count(room_no) AS total_number_of_rooms, sum(case WHEN (room_status_id = 'Occupaid') THEN 1 ELSE 0 END) AS occupied_room_count, sum(case WHEN (room_status_id = 'Available') THEN 1 ELSE 0 END) AS vacant_room_count, current_date() AS date FROM f_bv_room_master GROUP BY resort_id;
+
+ALTER VIEW iv_room_summary
+ LAYOUT (f_bv_room_master = [20, 20, 200, 200]);
+

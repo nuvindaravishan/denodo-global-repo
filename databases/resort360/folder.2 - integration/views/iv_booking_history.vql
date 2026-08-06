@@ -1,0 +1,14 @@
+﻿CREATE OR REPLACE VIEW iv_booking_history FOLDER = '/2 - integration' DESCRIPTION = 'The iv_booking_history view contains detailed information related to booking records in a resort management system. It comprises fields that capture essential data such as booking identifiers, associated resorts, booking dates, customer details, arrival and departure schedules, room allocation, reservation periods, and financial details including discounts and final payment amounts. Additionally, it tracks operational statuses like check-in and check-out information, allowing for comprehensive monitoring of booking activities. This view could be used for managing and analyzing booking records efficiently in a resort system. It can facilitate tracking customer reservations, calculating financial metrics, monitoring operational statuses, and generating reports related to bookings and customer activities.'  (
+    booking_date TAGS (booking_date),
+    arrival_date TAGS (arrival_details),
+    arrival_time TAGS (arrival_details),
+    reservation_start_date TAGS (reservation_details),
+    reservation_end_date TAGS (reservation_details),
+    departure_date TAGS (departure_details),
+    departure_time TAGS (departure_details)
+ )
+ AS SELECT bv_booking.booking_id AS booking_id, bv_booking.resort_id AS resort_id, bv_booking.booking_date AS booking_date, bv_booking.booking_type_id AS booking_type_id, bv_booking.tour_operator_id AS tour_operator_id, bv_booking.tour_operator_contract_id AS tour_operator_contract_id, bv_booking.customer_id AS customer_id, bv_booking.arrival_date AS arrival_date, bv_booking.arrival_time AS arrival_time, bv_booking.no_of_pax AS no_of_pax, bv_booking.reservation_start_date AS reservation_start_date, bv_booking.reservation_end_date AS reservation_end_date, bv_booking.no_of_days AS no_of_days, bv_booking.is_checked_in AS is_checked_in, bv_booking.room_master_id AS room_master_id, bv_booking.room_fare AS room_fare, bv_booking.amount_before_discount AS amount_before_discount, bv_booking.percentagediscount AS percentagediscount, bv_booking.final_amount AS final_amount, bv_booking.departure_date AS departure_date, bv_booking.departure_time AS departure_time, bv_booking.is_checked_out AS is_checked_out, bv_booking.customer_enquiry_id AS customer_enquiry_id, bv_booking.createddate AS createddate, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM bv_booking WHERE (booking_date >= '2023-01-01' AND booking_date <= '2024-12-31');
+
+ALTER VIEW iv_booking_history
+ LAYOUT (bv_booking = [20, 20, 200, 200]);
+

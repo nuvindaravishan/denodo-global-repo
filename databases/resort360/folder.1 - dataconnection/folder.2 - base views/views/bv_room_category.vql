@@ -1,0 +1,59 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_room_category
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_room_category.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_room_category.SCHEMANAME}' 
+    RELATIONNAME='Room_Category' 
+    OUTPUTSCHEMA (
+        room_category_id = 'Room_Category_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        resort_id = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        room_category_description = 'Room_Category_Description' :'java.lang.String' (OPT) (sourcetypesize='200', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        room_type = 'Room_Type' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        capacity = 'Capacity' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  NOT NULL SORTABLE,
+        base_rate_min = 'Base_Rate_Min' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        base_rate_max = 'Base_Rate_Max' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        amenities = 'Amenities' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        description = 'Description' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Room_Category' PRIMARY KEY ( 'Room_Category_ID' )
+    CONSTRAINT 'FK_Room_Category_Resort' FOREIGN KEY ( 'Resort_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Room_Category' CLUSTER UNIQUE PRIMARY ( 'Room_Category_ID' );
+
+CREATE OR REPLACE TABLE bv_room_category I18N au_cst (
+        room_category_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each room category within the view.') TAGS (room_category),
+        resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier of the resort associated with the room category.') TAGS (resort),
+        room_category_description:text (notnull, sourcetypeid = '12', sourcetypesize = '200', description = 'Provides a textual description of the room category.') TAGS (room_category),
+        room_type:text (notnull, sourcetypeid = '12', sourcetypesize = '100', description = 'Specifies the type or classification of the room, such as suite or double.') TAGS (room_category),
+        capacity:int (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the maximum number of occupants the room can accommodate.'),
+        base_rate_min:decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Defines the minimum price of the base rate for the room category.') TAGS (sales),
+        base_rate_max:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Defines the maximum price of the base rate for the room category.') TAGS (sales),
+        amenities:text (sourcetypeid = '12', sourcetypesize = '2147483647', description = 'Lists the features or services available in the room category.') TAGS (amenities),
+        description:text (sourcetypeid = '12', sourcetypesize = '2147483647', description = 'Offers additional details or attributes regarding the room category.'),
+        is_active:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1', description = 'Indicates whether the room category is currently active or available.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_Room_Category' PRIMARY KEY ( 'room_category_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_room_category(
+        I18N au_cst
+        CONSTRAINTS (
+             ADD room_category_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD room_category_description (any) OPT ANY
+             ADD room_type (any) OPT ANY
+             ADD capacity (any) OPT ANY
+             ADD base_rate_min (any) OPT ANY
+             ADD base_rate_max (any) OPT ANY
+             ADD amenities (any) OPT ANY
+             ADD description (any) OPT ANY
+             ADD is_active (any) OPT ANY
+        )
+        OUTPUTLIST (amenities, base_rate_max, base_rate_min, capacity, description, is_active, resort_id, room_category_description, room_category_id, room_type
+        )
+        WRAPPER (jdbc bv_room_category)
+    );
+

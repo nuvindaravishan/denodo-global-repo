@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_monthly_procurement_summary FOLDER = '/2 - integration/integration_dp' AS SELECT year, month, total_requisitions AS monthly_requisition_count, total_requistion_value AS monthly_requisition_value FROM iv_monthly_requisitions;
+

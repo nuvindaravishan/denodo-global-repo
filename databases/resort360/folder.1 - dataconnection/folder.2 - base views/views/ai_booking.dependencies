@@ -1,0 +1,14 @@
+﻿*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+1/tags/sales.vql
+1/tags/tour_operator.vql
+1/tags/arrival_details.vql
+1/tags/check_in_list.vql
+1/tags/booking_date.vql
+1/tags/reservation_details.vql
+1/tags/departure_details.vql
+1/tags/resort.vql
+1/tags/booking_category.vql
+1/tags/booking.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+1/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql

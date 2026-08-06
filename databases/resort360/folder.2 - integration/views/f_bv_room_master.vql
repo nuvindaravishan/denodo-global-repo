@@ -1,0 +1,20 @@
+﻿CREATE OR REPLACE VIEW f_bv_room_master FOLDER = '/2 - integration' DESCRIPTION = 'The f_bv_room_master view contains structured information about rooms within a resort system, including fields for the associated resort ID, the unique identifier for each room (room_master_id), the category or type of the room (room_category_id), the unique room number or code (room_no), and the current status of the room (room_status_id), such as whether it is "Occupied" or "Available." Real data examples are provided, such as room numbers "pu778," "ep460," and room statuses like "Occupied" and "Available." This view is associated with the bv_resorts view, enabling connections between resorts and their rooms through the resort_id field.  
+
+This view could be used for managing and organizing room-related data within a resort system. It can help track room availability, categorize rooms based on type, and identify specific rooms using unique room numbers. Additionally, its association with bv_resorts facilitates understanding the relationship between resorts and their respective rooms, which could be utilized for resort-specific operations, reporting, or room allocation purposes.'  (
+    resort_id (description = 'Represents the identifier of the resort to which the room is associated.'),
+    room_master_id (description = 'Denotes the unique identifier for each room in the system, serving as its master reference.'),
+    room_category_id (description = 'Indicates the category or type of the room, such as standard, deluxe, or suite.'),
+    room_no (description = 'Specifies the unique number or code assigned to each room. It includes values like "pu778", "ep460", "pp863", and "pp647".'),
+    room_status_id (description = 'Represents the current status of the room, such as whether it is occupied or available. It includes values like "Occupaid", "Available", "Occupaid", and "Available".') TAGS (room_status)
+ )
+ AS
+    SELECT resort_id AS resort_id,
+           room_master_id AS room_master_id,
+           room_category_id AS room_category_id,
+           room_no AS room_no,
+           status AS room_status_id
+    FROM bv_room_master CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW f_bv_room_master
+ LAYOUT (bv_room_master = [20, 20, 200, 200]);
+

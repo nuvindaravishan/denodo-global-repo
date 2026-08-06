@@ -1,0 +1,2 @@
+﻿UNDEPLOY IF EXISTS WEBSERVICE ws_amenities_revenue;
+

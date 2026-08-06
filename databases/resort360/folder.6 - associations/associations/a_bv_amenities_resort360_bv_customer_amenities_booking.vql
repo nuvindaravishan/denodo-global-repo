@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_bv_amenities_resort360_bv_customer_amenities_booking REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT bv_customer_amenities_booking bv_amenities PRINCIPAL (1)
+    ENDPOINT bv_amenities bv_customer_amenities_booking (0,*)
+    ADD MAPPING amenity_id=amenities_id;
+
+ALTER ASSOCIATION a_bv_amenities_resort360_bv_customer_amenities_booking
+ LAYOUT (bv_amenities = [385, 70, 200, 200], bv_customer_amenities_booking = [833, 30, 200, 200]);
+

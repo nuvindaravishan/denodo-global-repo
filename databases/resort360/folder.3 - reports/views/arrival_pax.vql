@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW arrival_pax FOLDER = '/3 - reports' DESCRIPTION = 'The arrival_pax view contains information about passenger arrivals at a resort. It includes details such as the expected arrival date, the number of passengers arriving on that date, and the timestamp when the booking record was created. This view provides a structured format to store and access data related to passenger arrivals.' 
+    TAGS (arrival_details, mcp) (
+    arrival_date (description = 'Specifies the date on which the customer is expected to arrive at the resort.') TAGS (arrival_details),
+    arrival_passenger_count (description = 'Indicates the number of passengers arriving on the specified date.'),
+    record_creation_timestamp (description = 'Represents the timestamp when the booking record was created in the system.')
+ )
+ AS SELECT iv_arrival_pax.arrival_dates AS arrival_date, iv_arrival_pax.no_of_arrival_pax AS arrival_passenger_count, createddate AS record_creation_timestamp, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_arrival_pax;
+
+ALTER VIEW arrival_pax
+ LAYOUT (iv_arrival_pax = [20, 20, 200, 200]);
+

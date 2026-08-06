@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_room_master_room_category REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT room_category room_master (0,*)
+    ENDPOINT room_master room_category PRINCIPAL (1)
+    ADD MAPPING room_category_identifier=room_category_identifier;
+
+ALTER ASSOCIATION a_room_master_room_category
+ LAYOUT (room_master = [59, 68, 200, 200], room_category = [552, 22, 200, 200]);
+

@@ -1,0 +1,12 @@
+﻿CREATE OR REPLACE VIEW tour_operator_bookings FOLDER = '/3 - reports' DESCRIPTION = 'The tour_operator_bookings view contains detailed information about tour operators and their booking statistics. It includes fields such as operator_name, operator_mobile, operator_email, bookings_count, and total_revenue. These fields collectively provide insights into identifying tour operators, their contact information, the number of bookings they manage, and their financial performance. This view could be used for analyzing tour operators'' performance, tracking their bookings and revenue, and facilitating communication or collaboration with specific operators.' 
+    TAGS (booking, email, restricted, sales, tour_operator) (
+    operator_name TAGS (tour_operator),
+    operator_mobile TAGS (restricted),
+    operator_email TAGS (email),
+    total_revenue TAGS (sales)
+ )
+ AS SELECT iv_tour_operator_bookings.tour_operator_name AS operator_name, iv_tour_operator_bookings.tour_operator_mobile AS operator_mobile, iv_tour_operator_bookings.tour_operator_email AS operator_email, iv_tour_operator_bookings.total_bookings AS bookings_count, iv_tour_operator_bookings.revenue AS total_revenue, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_tour_operator_bookings;
+
+ALTER VIEW tour_operator_bookings
+ LAYOUT (iv_tour_operator_bookings = [20, 20, 200, 200]);
+

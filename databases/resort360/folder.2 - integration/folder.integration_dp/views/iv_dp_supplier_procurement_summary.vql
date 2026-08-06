@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_supplier_procurement_summary FOLDER = '/2 - integration/integration_dp' AS SELECT supplier_name, count(ir_id) AS requisition_count, sum(irtotal) AS supplier_total_requisition_value, avg(irtotal) AS avg_requisition_value FROM iv_requisition_details_union GROUP BY supplier_name;
+

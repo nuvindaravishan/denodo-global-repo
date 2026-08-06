@@ -1,0 +1,58 @@
+﻿1/databases/resort360/folder.2 - integration/2 - integration.vql
+1/tags/amenities.vql
+1/tags/booking.vql
+1/tags/address.vql
+1/tags/tour_operator.vql
+1/tags/city.vql
+1/tags/booking_date.vql
+1/tags/sales.vql
+1/tags/customer_domain.vql
+1/tags/check_in_list.vql
+1/tags/room_category.vql
+1/tags/nationality.vql
+1/tags/restricted.vql
+1/tags/booking_category.vql
+1/tags/reservation_details.vql
+1/tags/resort.vql
+1/tags/email.vql
+1/tags/departure_details.vql
+1/tags/arrival_details.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/tags/booking.vql
+*/tags/booking_date.vql
+*/tags/check_in_list.vql
+*/tags/customer_domain.vql
+*/tags/reservation_details.vql
+*/tags/resort.vql
+*/tags/sales.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking.vql
+*/databases/resort360/folder.2 - integration/2 - integration.vql
+*/tags/amenities.vql
+*/tags/country.vql
+*/tags/address.vql
+*/tags/room_category.vql
+*/tags/city.vql
+*/tags/restricted.vql
+*/tags/state.vql
+*/tags/email.vql
+*/tags/room_status.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_master.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_master.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_room_category.vql
+*/databases/resort360/folder.2 - integration/views/f_bv_room_category.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_resorts.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_states.vql
+1/databases/resort360/folder.2 - integration/views/iv_room_details.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_resorts.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_customer.vql
+*/tags/tour_operator.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_tour_operators.vql
+1/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking_type.vql
+*/databases/resort360/folder.2 - integration/views/iv_room_details.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_customer.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_tour_operators.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_booking_type.vql

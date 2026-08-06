@@ -1,0 +1,34 @@
+﻿CREATE OR REPLACE REST WEBSERVICE confirmed_bookings
+    CONNECTION (
+        CHUNKSIZE = 1000
+        CHUNKTIMEOUT = 1000
+        QUERYTIMEOUT = 900000
+        POOLENABLED = true
+        POOLINITSIZE = 0
+        POOLMAXACTIVE = 30
+    )
+    DEFAULTREPRESENTATION = HTML
+    SUPPORTEDREPRESENTATIONS (HTML, XML, JSON)
+    RESOURCES (
+        VIEW confirmed_bookings FIELDS (
+            enquiry_identifier : 'long', 
+            enquiry_timestamp : 'timestamp', 
+            resort_title : 'text', 
+            customer_full_name : 'text', 
+            arrival_date : 'localdate', 
+            departure_date : 'localdate', 
+            customer_nationality : 'text', 
+            mobile_number : 'text', 
+            email_address : 'text', 
+            reservation_identifier : 'long', 
+            confirmation_status : 'boolean', 
+            confirmation_date : 'localdate', 
+            record_creation_timestamp : 'timestamp'
+        )
+    )
+    OPTIONS ( NULLVALUESASEMPTYXMLELEMENTS = false
+        ALLOW_CORS_ORIGINS (*) DISABLED
+        PROCESS_FUNCTIONS_IN_SELECT_PARAMETER = true ) 
+    OPENAPI2 ( API_VERSION = '1.0.0' ) 
+    FOLDER = '/5 - data services';
+

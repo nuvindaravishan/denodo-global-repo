@@ -1,0 +1,23 @@
+﻿CREATE OR REPLACE VIEW dp_procurement_intelligence FOLDER = '/4 - data products' (
+    "ir id" (description = 'Uniquely identifies each item requisition record, allowing precise tracking and management.'),
+    "Resort name" (description = 'Specifies the name of the resort, aiding in the identification of properties involved in procurement activities.'),
+    "Supplier name" (description = 'Captures the name of the supplier to ensure clarity in procurement dealings and supplier identification.'),
+    "Request date" (description = 'Indicates the date when the item requisition was initiated, enabling chronological tracking.'),
+    "ir subtotal" (description = 'Represents the subtotal amount for the item requisition before applying any discounts or additional charges.'),
+    "Discount" (description = 'Specifies the discount applied to the item requisition, reflecting cost reductions.'),
+    "Shipping charge" (description = 'Represents the cost associated with shipping the requisitioned items to their destination.'),
+    "ir total" (description = 'Indicates the total amount for the item requisition, including discounts, shipping charges, and other adjustments.'),
+    "ir status" (description = 'Indicates the current status of the item requisition, such as pending, approved, or completed.'),
+    "Shipping address" (description = 'Specifies the delivery address where the requisitioned items will be shipped.'),
+    "Supplier requisition_count" (description = 'Represents the total number of requisitions associated with a specific supplier.'),
+    "Supplier total requisition_value" (description = 'Indicates the aggregated monetary value of all requisitions linked to a specific supplier.'),
+    "Resort requisition count" (description = 'Represents the total number of requisitions associated with a particular resort.'),
+    "Resort total requisition value" (description = 'Indicates the aggregated monetary value of all requisitions linked to a specific resort.'),
+    "Procurement status segment" (description = 'Represents a classification or grouping of procurement activities based on their current status.'),
+    "Supplier value segment" (description = 'Indicates a classification or categorization of suppliers based on the value of their transactions.')
+ )
+ AS SELECT ir.ir_id AS "ir id", ir.resort_name AS "Resort name", ir.supplier_name AS "Supplier name", ir.request_date AS "Request date", ir.irsubtotal AS "ir subtotal", ir.discount AS "Discount", ir.shippingcharge AS "Shipping charge", ir.irtotal AS "ir total", ir.ir_status AS "ir status", ir.shipping_address AS "Shipping address", coalesce(sps.requisition_count, 0) AS "Supplier requisition_count", coalesce(sps.supplier_total_requisition_value, 0) AS "Supplier total requisition_value", coalesce(rps.resort_requisition_count, 0) AS "Resort requisition count", coalesce(rps.resort_total_requisition_value, 0) AS "Resort total requisition value", case WHEN (ir.irtotal >= 50000) THEN 'HIGH_VALUE_REQUISITION' WHEN (ir.ir_status = 'Pending') THEN 'PENDING_APPROVAL' ELSE 'STANDARD_REQUISITION' END AS "Procurement status segment", case WHEN (coalesce(sps.supplier_total_requisition_value, 0) >= 100000) THEN 'STRATEGIC_SUPPLIER' WHEN (coalesce(sps.supplier_total_requisition_value, 0) >= 50000) THEN 'IMPORTANT_SUPPLIER' ELSE 'STANDARD_SUPPLIER' END AS "Supplier value segment" FROM (iv_requisition_details_union AS ir LEFT OUTER JOIN iv_dp_supplier_procurement_summary AS sps ON ir.supplier_name = sps.supplier_name ) LEFT OUTER JOIN iv_dp_resort_procurement_summary AS rps ON ir.resort_name = rps.resort_name ;
+
+ALTER VIEW dp_procurement_intelligence
+ LAYOUT (iv_requisition_details_union = [0, 0, 200, 200], iv_dp_supplier_procurement_summary = [0, 200, 200, 200], iv_dp_resort_procurement_summary = [0, 400, 200, 200]);
+

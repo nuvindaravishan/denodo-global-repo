@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW year_month_bookings_count FOLDER = '/3 - reports' DESCRIPTION = 'The year_month_bookings_count view contains data that represents the total number of bookings aggregated by calendar year and calendar month. Fields in the view include calendar_year, representing the year of the data; calendar_month, indicating the corresponding month; and total_booking_count, which reflects the total number of bookings for the specified year and month. This view could be used for tracking booking trends over time, analyzing seasonal patterns in bookings, or generating reports about booking activity for specific months and years.' 
+    TAGS (booking) (
+    calendar_year TAGS (booking),
+    calendar_month TAGS (booking),
+    total_booking_count TAGS (booking)
+ )
+ AS SELECT iv_year_month_bookings_count.year AS calendar_year, iv_year_month_bookings_count.month AS calendar_month, iv_year_month_bookings_count.total_bookings AS total_booking_count FROM iv_year_month_bookings_count;
+
+ALTER VIEW year_month_bookings_count
+ LAYOUT (iv_year_month_bookings_count = [20, 20, 200, 200]);
+

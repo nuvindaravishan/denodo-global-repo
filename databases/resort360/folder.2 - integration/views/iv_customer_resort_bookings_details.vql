@@ -1,0 +1,32 @@
+﻿CREATE OR REPLACE VIEW iv_customer_resort_bookings_details FOLDER = '/2 - integration'
+    PRIMARY KEY ( 'booking_id' )
+    TAGS (booking, customer_domain) (
+    reservation_end_date TAGS (reservation_details),
+    tour_operator_name TAGS (tour_operator),
+    tour_operator_address TAGS (address),
+    tour_operator_email TAGS (email),
+    tour_operator_mobile TAGS (restricted),
+    departure_date TAGS (departure_details),
+    departure_time TAGS (departure_details),
+    room_type TAGS (room_category),
+    customer_nationality TAGS (nationality),
+    booking_id TAGS (booking),
+    booking_date TAGS (booking_date),
+    resort_id TAGS (resort),
+    resort_name TAGS (resort),
+    booking_type TAGS (booking_category),
+    customer_name TAGS (customer_domain),
+    customer_email TAGS (email),
+    tour_operator_id TAGS (tour_operator),
+    customer_mobile TAGS (restricted),
+    customer_address TAGS (address),
+    customer_id TAGS (customer_domain),
+    arrival_date TAGS (arrival_details),
+    arrival_time TAGS (arrival_details),
+    reservation_start_date TAGS (reservation_details)
+ )
+ AS SELECT bv_booking.booking_id AS booking_id, bv_booking.booking_date AS booking_date, bv_booking.resort_id AS resort_id, bv_resorts.resort_name AS resort_name, bv_booking_type.booking_type_description AS booking_type, concat(bv_customer.first_name, ' ', bv_customer.last_name) AS customer_name, bv_customer.gender AS gender, bv_customer.email AS customer_email, bv_booking.tour_operator_id AS tour_operator_id, bv_customer.mobile AS customer_mobile, bv_customer.address AS customer_address, bv_booking.tour_operator_contract_id AS tour_operator_contract_id, bv_booking.customer_id AS customer_id, bv_booking.arrival_date AS arrival_date, bv_booking.arrival_time AS arrival_time, bv_booking.no_of_pax AS no_of_pax, bv_booking.reservation_start_date AS reservation_start_date, bv_booking.reservation_end_date AS reservation_end_date, bv_tour_operators.name AS tour_operator_name, bv_tour_operators.contact_address AS tour_operator_address, bv_tour_operators.email AS tour_operator_email, bv_tour_operators.mobile AS tour_operator_mobile, bv_booking.no_of_days AS no_of_days, bv_booking.is_checked_in AS is_checked_in, cast('double', bv_booking.room_fare) AS room_fare, bv_booking.departure_date AS departure_date, bv_booking.departure_time AS departure_time, bv_booking.is_checked_out AS is_checked_out, iv_room_details.room_no AS room_no, iv_room_details.room_type AS room_type, bv_customer.nationality AS customer_nationality, bv_booking.amount_before_discount AS amount_before_discount, bv_booking.percentagediscount AS percentagediscount, bv_booking.final_amount AS final_amount, bv_booking.createddate AS createddate, bv_booking."Booking_Status" AS "Booking_Status", bv_booking."ModifiedDate" AS "ModifiedDate", bv_booking."ModifiedBy" AS "ModifiedBy", bv_booking."Currency_ID" AS "Currency_ID", bv_booking."Tax_Amount" AS "Tax_Amount", bv_booking."Special_Requests" AS "Special_Requests", bv_booking."Cancellation_Reason" AS "Cancellation_Reason", bv_booking."Cancelled_By" AS "Cancelled_By", bv_booking."Cancelled_Date" AS "Cancelled_Date" FROM ((((bv_booking AS bv_booking INNER JOIN iv_room_details AS iv_room_details ON cast(bv_booking.room_master_id AS INTEGER) = iv_room_details.room_master_id ) INNER JOIN bv_resorts AS bv_resorts ON bv_booking.resort_id = bv_resorts.resort_id ) INNER JOIN bv_customer AS bv_customer ON bv_booking.customer_id = bv_customer.customer_id ) LEFT OUTER JOIN bv_tour_operators AS bv_tour_operators ON cast(bv_booking.tour_operator_id AS INTEGER) = bv_tour_operators.tour_operator_id ) INNER JOIN bv_booking_type AS bv_booking_type ON bv_booking.booking_type_id = bv_booking_type.booking_type_id ;
+
+ALTER VIEW iv_customer_resort_bookings_details
+ LAYOUT (bv_booking = [905, 43, 200, 200], iv_room_details = [528, 115, 200, 200], bv_resorts = [520, 264, 200, 200], bv_customer = [874, 447, 200, 200], bv_tour_operators = [1449, 304, 200, 200], bv_booking_type = [1208, 417, 200, 200]);
+

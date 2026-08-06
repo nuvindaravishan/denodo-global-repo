@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW iv_dp_denied_booking_summary FOLDER = '/2 - integration/integration_dp' AS SELECT accommodation_name AS resort_name, count(enquiry_identifier) AS denied_booking_count FROM denied_bookings GROUP BY accommodation_name;
+

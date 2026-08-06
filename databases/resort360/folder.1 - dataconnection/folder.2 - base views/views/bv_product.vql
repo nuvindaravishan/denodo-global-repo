@@ -1,0 +1,65 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_product
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_product.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_product.SCHEMANAME}' 
+    RELATIONNAME='Product' 
+    OUTPUTSCHEMA (
+        item_id = 'Item_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        item_code = 'Item_Code' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        item_name = 'Item_Name' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        description = 'Description' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        item_sub_category_id = 'Item_Sub_Category_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        unit = 'Unit' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        price = 'Price' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        quantity = 'Quantity' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        reorder_level = 'Reorder_Level' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  SORTABLE,
+        other_details = 'Other_Details' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK__Product__3FB5087424FD13E5' PRIMARY KEY ( 'Item_Id' )
+    INDEX 'PK__Product__3FB5087424FD13E5' CLUSTER UNIQUE PRIMARY ( 'Item_Id' );
+
+CREATE OR REPLACE TABLE bv_product I18N us_est (
+        item_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each product in the view, ensuring it can be differentiated from others.'),
+        item_code:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Represents a unique or descriptive code for the product, often used for cataloging or reference.'),
+        item_name:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Holds the name of the product, providing an easily recognizable identifier.') TAGS (item_name),
+        description:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Describes the product in detail, offering additional contextual or functional information.'),
+        item_sub_category_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'References the sub-category of the product, helping to organize and classify items within a broader category.'),
+        unit:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Defines the measurement unit associated with the product, such as pieces, kilograms, or liters.'),
+        price:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the monetary cost of the product, serving as its value in financial exchanges.') TAGS (sales),
+        quantity:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Indicates the number of units available or associated with the product.') TAGS (item_quantity),
+        reorder_level:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the inventory threshold at which the product should be reordered to maintain stock levels.'),
+        is_active:boolean (sourcetypeid = '-7', sourcetypesize = '1', description = 'Specifies whether the product is currently active or available for use, purchase, or display.'),
+        other_details:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Captures any additional information or attributes about the product that do not fit into other fields.'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Records the date and time when the product entry was created in the system.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_product view provides detailed information about products, including their unique identifiers, names, descriptive codes, sub-category references, measurement units, pricing, available quantities, reorder levels, activity status, additional attributes, and creation timestamps. Additionally, it includes associations with sub-category views and requisition details, enabling further categorization and analysis of the product data. The view may be used for managing and analyzing product-related data, organizing catalog information, tracking inventory levels, handling pricing, and identifying reorder needs. It can also support business processes such as procurement, categorization, and stock management by maintaining relational links to sub-category classifications and requisition details.'
+    PRIMARY KEY ( 'item_id' )
+    TAGS (inventory)
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_product(
+        I18N us_est
+        CONSTRAINTS (
+             ADD item_id (any) OPT ANY
+             ADD item_code (any) OPT ANY
+             ADD item_name (any) OPT ANY
+             ADD description (any) OPT ANY
+             ADD item_sub_category_id (any) OPT ANY
+             ADD unit (any) OPT ANY
+             ADD price (any) OPT ANY
+             ADD quantity (any) OPT ANY
+             ADD reorder_level (any) OPT ANY
+             ADD is_active (any) OPT ANY
+             ADD other_details (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (createddate, description, is_active, item_code, item_id, item_name, item_sub_category_id, other_details, price, quantity, reorder_level, unit
+        )
+        WRAPPER (jdbc bv_product)
+    );
+

@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW iv_requisition_details FOLDER = '/2 - integration/sap' (
+    resort_name TAGS (resort),
+    supplier_name TAGS (supplier),
+    request_date TAGS (requisition_date),
+    shipping_address TAGS (address)
+ )
+ AS SELECT iv_item_requisition_sap.ir_id AS ir_id, bv_resorts.resort_name AS resort_name, bv_supplier.supplier_name AS supplier_name, iv_item_requisition_sap.request_date AS request_date, iv_item_requisition_sap.irsubtotal AS irsubtotal, iv_item_requisition_sap.discount AS discount, iv_item_requisition_sap.shippingcharge AS shippingcharge, iv_item_requisition_sap.irtotal AS irtotal, iv_item_requisition_sap.ir_status AS ir_status, iv_item_requisition_sap.shipping_address AS shipping_address FROM bv_resorts AS bv_resorts INNER JOIN (iv_item_requisition_sap AS iv_item_requisition_sap INNER JOIN bv_supplier AS bv_supplier ON iv_item_requisition_sap.supplier_id = bv_supplier.supplier_id ) ON bv_resorts.resort_id = iv_item_requisition_sap.resort_id ;
+
+ALTER VIEW iv_requisition_details
+ LAYOUT (bv_resorts = [29, 49, 200, 200], iv_item_requisition_sap = [348, 55, 200, 200], bv_supplier = [696, 58, 200, 200]);
+

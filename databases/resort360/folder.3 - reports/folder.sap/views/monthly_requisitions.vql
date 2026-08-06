@@ -1,0 +1,11 @@
+﻿CREATE OR REPLACE VIEW monthly_requisitions FOLDER = '/3 - reports/sap' (
+    requisition_year (description = 'Represents the year during which the requisitions were recorded.') TAGS (requisition_date),
+    requisition_month (description = 'Indicates the month associated with the recorded requisitions.') TAGS (requisition_date),
+    total_requisition_count (description = 'Represents the total number of requisitions recorded for the given period.'),
+    total_requisition_value (description = 'Denotes the cumulative value of all requisitions recorded during the specified time frame.') TAGS (sales)
+ )
+ AS SELECT iv_monthly_requisitions.year AS requisition_year, iv_monthly_requisitions.month AS requisition_month, iv_monthly_requisitions.total_requisitions AS total_requisition_count, iv_monthly_requisitions.total_requistion_value AS total_requisition_value FROM iv_monthly_requisitions;
+
+ALTER VIEW monthly_requisitions
+ LAYOUT (iv_monthly_requisitions = [20, 20, 200, 200]);
+

@@ -1,0 +1,10 @@
+﻿CREATE OR REPLACE VIEW revenueby_nationality FOLDER = '/3 - reports' DESCRIPTION = 'The revenueby_nationality view represents a dataset that provides information about customer nationality (customer_origin), the total number of bookings made by customers (booking_count), and the total revenue generated from these bookings (total_revenue). The view''s schema indicates that it captures nationality as text data, booking counts as numeric values, and revenue as decimal values, offering insights into cultural and financial aspects of customer behavior. This view could be used for analyzing the financial performance and customer engagement based on nationality. Businesses can utilize this data to understand market demand, optimize strategies for targeting specific groups of customers, and evaluate the contribution of different nationalities to overall revenue generation.' 
+    TAGS (mcp, nationality, sales) (
+    customer_origin TAGS (nationality),
+    total_revenue TAGS (sales)
+ )
+ AS SELECT iv_revenue_bycountry.customer_nationality AS customer_origin, iv_revenue_bycountry.total_bookings AS booking_count, iv_revenue_bycountry.revenue AS total_revenue, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_revenue_bycountry;
+
+ALTER VIEW revenueby_nationality
+ LAYOUT (iv_revenue_bycountry = [20, 20, 200, 200]);
+

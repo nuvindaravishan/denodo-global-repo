@@ -1,0 +1,30 @@
+﻿CREATE OR REPLACE VIEW iv_room_details FOLDER = '/2 - integration' DESCRIPTION = 'Your new base view description' 
+    PRIMARY KEY ( 'room_master_id' ) (
+    resort_name TAGS (resort),
+    room_type TAGS (room_category),
+    room_category_desc TAGS (room_category)
+ )
+ AS
+    SELECT f_bv_room_master.room_master_id AS room_master_id,
+           bv_resorts.resort_id AS resort_id,
+           bv_resorts.resort_name AS resort_name,
+           f_bv_room_master.room_no AS room_no,
+           f_bv_room_category.room_type AS room_type,
+           f_bv_room_category.room_category_desc AS room_category_desc,
+           f_bv_room_master.room_status_id AS room_status_id,
+           bv_states.state_name AS state_name
+    FROM (
+             (
+                 f_bv_room_master AS f_bv_room_master
+                 INNER JOIN f_bv_room_category AS f_bv_room_category
+                     ON f_bv_room_master.room_category_id = f_bv_room_category.room_category_id
+             )
+             INNER JOIN bv_resorts AS bv_resorts
+                 ON f_bv_room_master.resort_id = bv_resorts.resort_id
+         )
+         INNER JOIN bv_states AS bv_states
+             ON bv_resorts.state_id = bv_states.state_id CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW iv_room_details
+ LAYOUT (f_bv_room_master = [79, 65, 200, 200], f_bv_room_category = [394, 59, 200, 200], bv_resorts = [396, 146, 200, 200], bv_states = [456, 240, 200, 200]);
+

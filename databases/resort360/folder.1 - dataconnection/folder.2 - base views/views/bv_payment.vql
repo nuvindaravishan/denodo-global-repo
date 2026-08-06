@@ -1,0 +1,79 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_payment
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_payment.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_payment.SCHEMANAME}' 
+    RELATIONNAME='Payment' 
+    OUTPUTSCHEMA (
+        payment_id = 'Payment_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        resort_id = 'Resort_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        payment_date = 'Payment_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        payment_time = 'Payment_Time' :'java.time.LocalTime' (OPT) (sourcetypedecimals='7', sourcetypesize='16', sourcetypeid='92', sourcetypename='time')  SORTABLE,
+        booking_type_id = 'Booking_Type_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        transaction_id = 'Transaction_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        mode_of_payment = 'Mode_Of_Payment' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        cheque_n = 'Cheque_N' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        cheque_date = 'Cheque_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        bank = 'Bank' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        ifsc = 'Ifsc' :'java.lang.String' (OPT) (sourcetypesize='15', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        amount = 'Amount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        paid = 'Paid' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        balance = 'Balance' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        paid_by = 'Paid_By' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        received_by = 'Received_By' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK__Payment__DA6C7FC1A5630434' PRIMARY KEY ( 'Payment_Id' )
+    INDEX 'PK__Payment__DA6C7FC1A5630434' CLUSTER UNIQUE PRIMARY ( 'Payment_Id' );
+
+CREATE OR REPLACE TABLE bv_payment I18N us_est (
+        payment_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each payment record, serving as a reference point for tracking transactions.') TAGS (payment),
+        resort_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the resort associated with the payment, enabling the linkage of financial data to specific resorts.') TAGS (resort),
+        payment_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the date on which the payment was made, aiding in chronological tracking of transactions.') TAGS (payment),
+        payment_time:time (sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16', description = 'Records the precise time when the payment occurred, ensuring accurate timestamping of transactions.'),
+        booking_type_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the type of booking associated with the payment, facilitating categorization of transaction data.') TAGS (booking_category),
+        transaction_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Tracks the unique identifier for the transaction, ensuring consistency and traceability in payment records.'),
+        mode_of_payment:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Indicates the method used to complete the payment, such as cash, card, or bank transfer.') TAGS (payment),
+        cheque_n:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Records the cheque number if the payment was made using a cheque.') TAGS (restricted),
+        cheque_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the date on the cheque used for the payment, ensuring accurate audit trails for cheque transactions.'),
+        bank:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Identifies the bank involved in processing the payment, enabling financial institution tracking.'),
+        ifsc:text (sourcetypeid = '12', sourcetypesize = '15', description = 'Captures the IFSC code of the bank branch facilitating the payment, ensuring precise identification of payment channels.'),
+        amount:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the total monetary value of the payment transaction.') TAGS (payment, sales),
+        paid:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Records the amount paid during the transaction, reflecting the actual payment made.') TAGS (payment, sales),
+        balance:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Represents the remaining balance after the payment has been processed.') TAGS (payment, sales),
+        paid_by:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Denotes the individual or entity responsible for making the payment.') TAGS (restricted),
+        received_by:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Identifies the person or entity who received the payment on behalf of the resort or organization.'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Records the timestamp for when the payment record was initially created.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_payment view is a detailed database table that records payment transactions made in relation to resorts. It includes various pieces of information such as a unique identifier for each payment (payment_id), the associated resort (resort_id), the date and time of payment (payment_date and payment_time), the type of booking connected to the payment (booking_type_id), and the transaction identifier (transaction_id). Furthermore, it captures details about the mode of payment (mode_of_payment), cheque information if applicable (cheque_n and cheque_date), the bank and IFSC code involved in processing the payment, the total amount of the transaction (amount), the amount paid (paid), the remaining balance (balance), and the individuals or entities responsible for making and receiving the payment (paid_by and received_by). The view also tracks when the payment record was initially created (createddate). This view could be used for financial tracking and reporting in resort management. It provides comprehensive details about payment transactions, making it beneficial for auditing purposes, resolving discrepancies, managing bookings, and ensuring accurate financial records.'
+    PRIMARY KEY ( 'payment_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_payment(
+        I18N us_est
+        CONSTRAINTS (
+             ADD payment_id (any) OPT ANY
+             ADD resort_id (any) OPT ANY
+             ADD payment_date (any) OPT ANY
+             ADD payment_time (any) OPT ANY
+             ADD booking_type_id (any) OPT ANY
+             ADD transaction_id (any) OPT ANY
+             ADD mode_of_payment (any) OPT ANY
+             ADD cheque_n (any) OPT ANY
+             ADD cheque_date (any) OPT ANY
+             ADD bank (any) OPT ANY
+             ADD ifsc (any) OPT ANY
+             ADD amount (any) OPT ANY
+             ADD paid (any) OPT ANY
+             ADD balance (any) OPT ANY
+             ADD paid_by (any) OPT ANY
+             ADD received_by (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (amount, balance, bank, booking_type_id, cheque_date, cheque_n, createddate, ifsc, mode_of_payment, paid, paid_by, payment_date, payment_id, payment_time, received_by, resort_id, transaction_id
+        )
+        WRAPPER (jdbc bv_payment)
+    );
+

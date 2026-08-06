@@ -1,0 +1,35 @@
+﻿CREATE OR REPLACE VIEW dp_customer_intelligence FOLDER = '/4 - data products' (
+    "Customer Identifier" (description = 'Represents a unique identifier assigned to each customer, ensuring individual distinction within the system.'),
+    "Customer First Name" (description = 'Contains the first name of the customer, enabling personalization and identification within records.'),
+    "Customer Last Name" (description = 'Stores the last name of the customer, supporting detailed record creation and referencing.'),
+    "Full Customer Name" (description = 'Combines both first and last names of the customer into a complete name format for consistency.'),
+    "Date of Birth" (description = 'Indicates the date of birth of the customer, providing insights into their age and demographic attributes.'),
+    "Customer Gender" (description = 'Specifies the gender of the customer, supporting segmentation and diversity analysis.'),
+    "Customer Email address" (description = 'Contains the email address of the customer, facilitating communication and notifications.'),
+    "Customer mobile number" (description = 'Holds the mobile phone number of the customer, enabling direct contact and communication.'),
+    "Customer nationality" (description = 'Represents the nationality of the customer, reflecting cultural and geographic backgrounds.'),
+    "Customer address" (description = 'Captures the address of the customer, supporting delivery and location-specific services.'),
+    "Passport number" (description = 'Contains the passport number of the customer for identification and legal compliance.'),
+    "State identifier" (description = 'Represents a code identifying the state associated with the customer, aiding in regional tracking.'),
+    "Customer Record creation date" (description = 'Records the date and time when the customer record was created in the system, ensuring traceability and auditability.'),
+    "Total bookings" (description = 'Indicates the total number of bookings made by the customer, reflecting their engagement level.'),
+    "Lifetime booking revenue" (description = 'Represents the total revenue generated from all bookings made by the customer.'),
+    "Avg stay duration" (description = 'Specifies the average length of stay for the customer across their bookings.'),
+    "Max stay duration" (description = 'Indicates the longest duration of stay recorded for the customer.'),
+    "Total guests" (description = 'Represents the total number of guests accompanying the customer across all bookings.'),
+    "Repeat booking count" (description = 'Shows the number of times the customer has made repeat bookings.'),
+    "Repeat customer flag" (description = 'Indicates whether the customer is classified as a repeat customer.'),
+    "Longest stay duration" (description = 'Represents the maximum length of a single stay recorded for the customer.'),
+    "Amenity booking count" (description = 'Shows the total number of amenities booked by the customer.'),
+    "Total amenity revenue" (description = 'Represents the total revenue generated from amenities booked by the customer.'),
+    "Avg amenity spend" (description = 'Specifies the average amount spent by the customer on amenities per booking.'),
+    "Estimated customer value" (description = 'Indicates the projected overall value of the customer based on their bookings and spending behavior.'),
+    "Nationality booking count" (description = 'Indicates the total number of bookings made by customers of a specific nationality.'),
+    "Nationality total revenue" (description = 'Represents the total revenue generated from bookings by customers of a specific nationality.'),
+    "Customer value segment" (description = 'Classifies the customer into a value segment based on their booking and spending behaviors.')
+ )
+ AS SELECT c.customer_identifier AS "Customer Identifier", c.customer_first_name AS "Customer First Name", c.customer_last_name AS "Customer Last Name", c.full_customer_name AS "Full Customer Name", c.date_of_birth AS "Date of Birth", c.customer_gender AS "Customer Gender", c.customer_email_address AS "Customer Email address", c.customer_mobile_number AS "Customer mobile number", c.customer_nationality AS "Customer nationality", c.customer_address AS "Customer address", c.passport_number AS "Passport number", c.state_identifier AS "State identifier", c.record_creation_date AS "Customer Record creation date", coalesce(bs.total_bookings, 0) AS "Total bookings", coalesce(bs.lifetime_booking_revenue, 0) AS "Lifetime booking revenue", coalesce(bs.avg_stay_duration, 0) AS "Avg stay duration", coalesce(bs.max_stay_duration, 0) AS "Max stay duration", coalesce(bs.total_guests, 0) AS "Total guests", coalesce(rc.number_of_bookings, 0) AS "Repeat booking count", case WHEN (coalesce(rc.number_of_bookings, 0) > 1) THEN true ELSE false END AS "Repeat customer flag", coalesce(ls.longest_stay_duration, 0) AS "Longest stay duration", coalesce(a.amenity_booking_count, 0) AS "Amenity booking count", coalesce(a.total_amenity_revenue, 0) AS "Total amenity revenue", coalesce(a.avg_amenity_spend, 0) AS "Avg amenity spend", (coalesce(bs.lifetime_booking_revenue, 0)+coalesce(a.total_amenity_revenue, 0)) AS "Estimated customer value", rbn.nationality_booking_count AS "Nationality booking count", rbn.nationality_total_revenue AS "Nationality total revenue", case WHEN ((coalesce(bs.lifetime_booking_revenue, 0)+coalesce(a.total_amenity_revenue, 0)) >= 50000) THEN 'HIGH_VALUE_CUSTOMER' WHEN ((coalesce(bs.lifetime_booking_revenue, 0)+coalesce(a.total_amenity_revenue, 0)) >= 20000) THEN 'MEDIUM_VALUE_CUSTOMER' WHEN (coalesce(rc.number_of_bookings, 0) > 1) THEN 'REPEAT_CUSTOMER' ELSE 'STANDARD_CUSTOMER' END AS "Customer value segment" FROM ((((customer AS c LEFT OUTER JOIN iv_dp_customer_booking_summary AS bs ON c.customer_identifier = bs.customer_identifier ) LEFT OUTER JOIN repeated_customers AS rc ON c.customer_identifier = rc.customer_identifier ) LEFT OUTER JOIN iv_dp_customer_longest_stay_summary AS ls ON c.full_customer_name = ls.guest_name ) LEFT OUTER JOIN iv_dp_customer_amenity_summary AS a ON c.full_customer_name = a.customer_full_name ) LEFT OUTER JOIN iv_dp_nationality_revenue_summary AS rbn ON c.customer_nationality = rbn.customer_origin ;
+
+ALTER VIEW dp_customer_intelligence
+ LAYOUT (customer = [0, 0, 200, 200], iv_dp_customer_booking_summary = [0, 200, 200, 200], repeated_customers = [0, 400, 200, 200], iv_dp_customer_longest_stay_summary = [0, 600, 200, 200], iv_dp_customer_amenity_summary = [0, 800, 200, 200], iv_dp_nationality_revenue_summary = [0, 0, 200, 200]);
+

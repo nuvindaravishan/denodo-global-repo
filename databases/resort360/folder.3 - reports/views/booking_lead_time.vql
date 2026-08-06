@@ -1,0 +1,13 @@
+﻿CREATE OR REPLACE VIEW booking_lead_time FOLDER = '/3 - reports' DESCRIPTION = 'The booking_lead_time view contains detailed information related to booking patterns and behaviors. It includes fields such as resort_identifier, reservation_start_date, average_booking_lead_time, average_length_of_stay, and booking_type_identifier. These fields provide insights into the resort associated with bookings, the start dates of reservations, the average lead time for bookings, the average duration of stays, and the type or category of bookings. This view could be used for analyzing booking trends at resorts, understanding lead time and stay duration patterns, and optimizing reservation strategies based on booking type or category.' 
+    TAGS (booking, reservation_details) (
+    resort_identifier (description = 'Denotes the identifier of the resort associated with the booking.') TAGS (resort),
+    reservation_start_date (description = 'Denotes the start date of the reservation period for the booking.') TAGS (booking, reservation_details),
+    average_booking_lead_time (description = 'Represents the average time in advance that bookings are made relative to the reservation start date.') TAGS (booking),
+    average_length_of_stay (description = 'Indicates the average duration of stays for bookings, measured in days.') TAGS (booking),
+    booking_type_identifier (description = 'Refers to the type or category of the booking.') TAGS (booking, booking_category)
+ )
+ AS SELECT resort_id AS resort_identifier, reservation_start_date AS reservation_start_date, avg((reservation_start_date-booking_date)) AS average_booking_lead_time, avg(no_of_days) AS average_length_of_stay, booking_type_id AS booking_type_identifier, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM bv_booking GROUP BY resort_id, reservation_start_date, booking_type_id, "Booking_Status", "ModifiedDate", "ModifiedBy", "Currency_ID", "Tax_Amount", "Special_Requests", "Cancellation_Reason", "Cancelled_By", "Cancelled_Date";
+
+ALTER VIEW booking_lead_time
+ LAYOUT (bv_booking = [20, 20, 200, 200]);
+

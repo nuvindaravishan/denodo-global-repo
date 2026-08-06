@@ -1,0 +1,21 @@
+﻿*/databases/resort360/folder.2 - integration/2 - integration.vql
+1/databases/resort360/folder.2 - integration/folder.integration_dp/integration_dp.vql
+1/tags/requisition_amount.vql
+*/databases/resort360/folder.2 - integration/folder.sap/sap.vql
+*/tags/address.vql
+*/tags/requisition_amount.vql
+*/tags/requisition_date.vql
+*/tags/supplier.vql
+*/tags/resort.vql
+*/tags/region.vql
+*/tags/sales.vql
+*/databases/resort360/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/2 - base views.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_resort360db.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition.vql
+*/databases/resort360/folder.1 - dataconnection/folder.1 - data sources/datasources/custom/ds_sap_item_requisition.vql
+*/databases/resort360/folder.1 - dataconnection/folder.2 - base views/views/bv_item_requisition_sap.vql
+*/databases/resort360/folder.2 - integration/folder.sap/views/iv_item_requisition_sap.vql
+1/databases/resort360/folder.2 - integration/folder.sap/views/iv_monthly_requisitions.vql
+*/databases/resort360/folder.2 - integration/folder.sap/views/iv_monthly_requisitions.vql

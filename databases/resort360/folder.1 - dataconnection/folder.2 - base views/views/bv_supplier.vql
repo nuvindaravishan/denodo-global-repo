@@ -1,0 +1,65 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_supplier
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_supplier.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_supplier.SCHEMANAME}' 
+    RELATIONNAME='Supplier' 
+    OUTPUTSCHEMA (
+        supplier_id = 'Supplier_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        supplier_name = 'Supplier_Name' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        registered_date = 'Registered_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        registration_no = 'Registration_No' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        supplier_email = 'Supplier_Email' :'java.lang.String' (OPT) (sourcetypesize='45', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        supplier_mobile = 'Supplier_Mobile' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        fax = 'Fax' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        state_id = 'State_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        city = 'City' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        address = 'Address' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Supplier' PRIMARY KEY ( 'Supplier_ID' )
+    CONSTRAINT 'FK_Supplier_State' FOREIGN KEY ( 'State_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'State'( 'State_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Supplier' CLUSTER UNIQUE PRIMARY ( 'Supplier_ID' );
+
+CREATE OR REPLACE TABLE bv_supplier I18N us_est (
+        supplier_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each supplier, ensuring distinctness and traceability.') TAGS (supplier),
+        supplier_name:text (notnull, sourcetypeid = '12', sourcetypesize = '30', description = 'Captures the name of the supplier, enabling clear identification and reference.') TAGS (supplier),
+        registered_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the date when the supplier was officially registered or onboarded.'),
+        registration_no:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Holds the official registration number of the supplier, used for compliance and recordkeeping.'),
+        supplier_email:text (sourcetypeid = '12', sourcetypesize = '45', description = 'Stores the email address of the supplier, enabling effective communication and correspondence.') TAGS (email, restricted),
+        supplier_mobile:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Contains the mobile phone number of the supplier, facilitating direct contact.') TAGS (restricted),
+        fax:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Includes the fax number of the supplier, useful for formal documentation exchanges.'),
+        state_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        city:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Specifies the city where the supplier operates or is headquartered.') TAGS (city),
+        address:text (sourcetypeid = '12', sourcetypesize = '30', description = 'Holds the full address of the supplier, ensuring accurate location details.') TAGS (address),
+        is_active:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Records the timestamp when the supplier record was created in the system.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_Supplier' PRIMARY KEY ( 'supplier_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_supplier(
+        I18N us_est
+        CONSTRAINTS (
+             ADD supplier_id (any) OPT ANY
+             ADD supplier_name (any) OPT ANY
+             ADD registered_date (any) OPT ANY
+             ADD registration_no (any) OPT ANY
+             ADD supplier_email (any) OPT ANY
+             ADD supplier_mobile (any) OPT ANY
+             ADD fax (any) OPT ANY
+             ADD state_id (any) OPT ANY
+             ADD city (any) OPT ANY
+             ADD address (any) OPT ANY
+             ADD is_active (any) OPT ANY
+             ADD createddate (any) OPT ANY
+        )
+        OUTPUTLIST (address, city, createddate, fax, is_active, registered_date, registration_no, state_id, supplier_email, supplier_id, supplier_mobile, supplier_name
+        )
+        WRAPPER (jdbc bv_supplier)
+    );
+

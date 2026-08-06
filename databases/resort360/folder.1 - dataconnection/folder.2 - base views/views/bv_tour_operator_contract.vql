@@ -1,0 +1,47 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_tour_operator_contract
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_tour_operator_contract.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.bv_tour_operator_contract.SCHEMANAME}' 
+    RELATIONNAME='Tour_Operator_Contract' 
+    OUTPUTSCHEMA (
+        resort_id = 'Resort_ID' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        tour_operator_contract_id = 'Tour_Operator_Contract_ID' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        tour_operator_id = 'Tour_Operator_ID' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        contract_start_date = 'Contract_Start_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        contract_end_date = 'Contract_End_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        all_inclusive = 'All_Inclusive' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        discount = 'Discount' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE
+    );
+
+CREATE OR REPLACE TABLE bv_tour_operator_contract I18N us_est (
+        resort_id:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Represents the unique identifier of a resort, essential for tracking and associating contracts with specific resorts. It includes values like "5", "7", "9", and "1".') TAGS (resort),
+        tour_operator_contract_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Provides a distinct identifier for each contract between a tour operator and a resort, facilitating contract management and tracking.') TAGS (tour_operator),
+        tour_operator_id:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Serves as the unique identifier for tour operators, enabling efficient organization and referencing of operators tied to specific contracts. It includes values like "16", "6", "29", and "22".') TAGS (tour_operator),
+        contract_start_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the starting date of a contractual agreement between a resort and a tour operator, establishing the commencement of rights and obligations.'),
+        contract_end_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Denotes the ending date of a contractual agreement, marking the conclusion of the agreed terms and obligations between the resort and tour operator.'),
+        all_inclusive:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Specifies whether the contract includes all-inclusive offerings, a feature often critical for tour operator packages. It includes values like "false", "true", "true", and "false".'),
+        discount:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the percentage discount offered as part of the contract, providing insights into competitive pricing strategies and incentives.') TAGS (sales)
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DESCRIPTION = 'The bv_tour_operator_contract view represents the contractual agreements between resorts and tour operators. It includes detailed information such as resort identifiers, tour operator IDs, contract start and end dates, whether the contracts include all-inclusive offerings, and the percentage of discounts offered. This structured data allows for the effective management and tracking of contracts, facilitating insights into contract durations, pricing strategies, and offerings. This view could be used for managing contractual relationships between resorts and tour operators, enabling efficient tracking of contract details such as start and end dates, identifying associated resorts and operators, analyzing pricing strategies through discount percentages, and determining whether all-inclusive offerings are included in the contracts.'
+    PRIMARY KEY ( 'tour_operator_contract_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_tour_operator_contract(
+        I18N us_est
+        CONSTRAINTS (
+             ADD resort_id (any) OPT ANY
+             ADD tour_operator_contract_id (any) OPT ANY
+             ADD tour_operator_id (any) OPT ANY
+             ADD contract_start_date (any) OPT ANY
+             ADD contract_end_date (any) OPT ANY
+             ADD all_inclusive (any) OPT ANY
+             ADD discount (any) OPT ANY
+        )
+        OUTPUTLIST (all_inclusive, contract_end_date, contract_start_date, discount, resort_id, tour_operator_contract_id, tour_operator_id
+        )
+        WRAPPER (jdbc bv_tour_operator_contract)
+    );
+

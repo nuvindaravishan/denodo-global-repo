@@ -1,0 +1,51 @@
+﻿CREATE OR REPLACE VIEW dp_booking_demand FOLDER = '/4 - data products' (
+    "Resort Name" (description = 'Represents the name of the resort, helping to identify and distinguish various accommodations.'),
+    "Total bookings" (description = 'Indicates the total number of bookings recorded for a specific resort or room category.'),
+    "Avg length of stay" (description = 'Represents the average duration of stay per booking, measured in days.'),
+    "Total booking revenue" (description = 'Indicates the total revenue generated from bookings.'),
+    "Confirmed booking count" (description = 'Represents the total number of bookings that have been successfully confirmed.'),
+    "Denied booking count" (description = 'Indicates the total number of booking requests that were denied.'),
+    "Booking confirmation rate" (description = 'Represents the percentage of booking requests that were successfully confirmed.'),
+    "Demand status" (description = 'Indicates the current demand status for bookings, reflecting market trends or occupancy levels.')
+ )
+ AS
+    SELECT bds.resort_name AS "Resort Name",
+           --bds.room_category AS "Room category",
+           bds.total_bookings AS "Total bookings",
+           round(bds.avg_length_of_stay,2) AS "Avg length of stay",
+           round(bds.total_booking_revenue,2) AS "Total booking revenue",
+           coalesce(cbs.confirmed_booking_count, 0) AS "Confirmed booking count",
+           coalesce(dbs.denied_booking_count, 0) AS "Denied booking count",
+           round(CASE WHEN (bds.total_bookings = 0) THEN
+               0
+           ELSE
+               ((coalesce(cbs.confirmed_booking_count, 0) * 1.0) / bds.total_bookings)
+           END,2) AS "Booking confirmation rate",
+           
+   round(CASE
+       WHEN bds.total_bookings = 0 THEN 0
+       ELSE COALESCE(dbs.denied_booking_count, 0) * 1.0 / bds.total_bookings
+   END,2) AS "Denied demand rate",
+   CASE
+       WHEN bds.total_bookings = 0 THEN 'NO_BOOKING_ACTIVITY'
+       WHEN COALESCE(dbs.denied_booking_count, 0) * 1.0 / bds.total_bookings >= 0.20
+           THEN 'HIGH_DENIED_DEMAND'
+       WHEN COALESCE(dbs.denied_booking_count, 0) * 1.0 / bds.total_bookings >= 0.10
+           THEN 'MODERATE_DENIED_DEMAND'
+       WHEN bds.total_bookings >= 2700
+           THEN 'HIGH_BOOKING_DEMAND'
+       WHEN bds.total_bookings >= 2500
+           THEN 'NORMAL_BOOKING_DEMAND'
+       ELSE 'LOW_BOOKING_DEMAND'
+   END AS "Demand status"
+    FROM (
+             iv_dp_booking_detail_summary AS bds
+             LEFT OUTER JOIN iv_dp_confirmed_booking_summary AS cbs
+                 ON bds.resort_name = cbs.resort_title
+         )
+         LEFT OUTER JOIN iv_dp_denied_booking_summary AS dbs
+             ON bds.resort_name = dbs.resort_name CONTEXT ('formatted' = 'yes');
+
+ALTER VIEW dp_booking_demand
+ LAYOUT (iv_dp_booking_detail_summary = [0, 0, 200, 200], iv_dp_confirmed_booking_summary = [0, 200, 200, 200], iv_dp_denied_booking_summary = [0, 400, 200, 200]);
+

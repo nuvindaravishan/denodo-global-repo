@@ -1,0 +1,10 @@
+﻿CREATE OR REPLACE VIEW iv_dp_customer_booking_summary FOLDER = '/2 - integration/integration_dp' AS
+    SELECT customer_identifier,
+           count(booking_identifier) AS total_bookings,
+           sum(total_payment) AS lifetime_booking_revenue,
+           avg(duration_in_days) AS avg_stay_duration,
+           max(duration_in_days) AS max_stay_duration,
+           sum(number_of_guests) as total_guests
+    FROM customer_booking
+    GROUP BY customer_identifier CONTEXT ('formatted' = 'yes');
+

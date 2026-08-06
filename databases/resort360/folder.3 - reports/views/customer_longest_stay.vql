@@ -1,0 +1,13 @@
+﻿CREATE OR REPLACE VIEW customer_longest_stay FOLDER = '/3 - reports' DESCRIPTION = 'The customer_longest_stay view contains detailed information regarding lodging reservations. It includes fields such as reservation identifiers, timestamps for reservation creation, the name of the accommodation, guest names, and the duration of their stay in days. For example, ''Grand Horizon Lodge,'' ''Whispering Pines Retreat,'' and ''Sunset Ridge Lodge'' are some accommodation names, while guests may include names like ''Santiago Hobbs,'' ''Prince Grimes,'' and ''Merle Bishop.'' This view provides structured and precise data tracking related to reservations. This data could be used for analyzing guest stay patterns, identifying guests with the longest stays, or generating reports on popular accommodation options and their associated reservation durations.' 
+    TAGS (booking, customer_domain, mcp, reservation_details) (
+    reservation_identifier (description = 'Represents a unique identifier assigned to each reservation, ensuring precise tracking and differentiation of bookings within the system.'),
+    reservation_date_time (description = 'Indicates the exact date and time when the reservation was created, serving as a timestamp for booking activities.') TAGS (reservation_details),
+    accommodation_name (description = 'Represents the name of the lodging or resort associated with the reservation. It includes values like "Grand Horizon Lodge", "Whispering Pines Retreat", "Sunset Ridge Lodge", and "Ocean Breeze Retreat".'),
+    guest_name (description = 'Identifies the individual or group for whom the reservation is made. It includes values like "Santiago Hobbs", "Prince Grimes", "Merle Bishop", and "Fredrick Crane".'),
+    stay_duration_days (description = 'Specifies the total number of days the guest is expected to stay, reflecting the duration of the reservation.')
+ )
+ AS SELECT iv_customer_longest_stay.booking_id AS reservation_identifier, iv_customer_longest_stay.booking_date AS reservation_date_time, iv_customer_longest_stay.resort_name AS accommodation_name, iv_customer_longest_stay.customer_name AS guest_name, iv_customer_longest_stay.no_of_days AS stay_duration_days, "Booking_Status" AS "Booking_Status", "ModifiedDate" AS "ModifiedDate", "ModifiedBy" AS "ModifiedBy", "Currency_ID" AS "Currency_ID", "Tax_Amount" AS "Tax_Amount", "Special_Requests" AS "Special_Requests", "Cancellation_Reason" AS "Cancellation_Reason", "Cancelled_By" AS "Cancelled_By", "Cancelled_Date" AS "Cancelled_Date" FROM iv_customer_longest_stay;
+
+ALTER VIEW customer_longest_stay
+ LAYOUT (iv_customer_longest_stay = [20, 20, 200, 200]);
+

@@ -1,0 +1,81 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_resorts
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.views.jdbc.bv_resorts.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.views.jdbc.bv_resorts.SCHEMANAME}' 
+    RELATIONNAME='Resort' 
+    OUTPUTSCHEMA (
+        resort_id = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        resort_name = 'Resort_Name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        resort_type = 'Resort_Type' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        state_id = 'State_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        address = 'Address' :'java.lang.String' (OPT) (sourcetypesize='200', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        city = 'City' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        phone = 'Phone' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        email = 'Email' :'java.lang.String' (OPT) (sourcetypesize='150', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        star_rating = 'Star_Rating' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        description = 'Description' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        amenities = 'Amenities' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        check_in_time = 'Check_In_Time' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        check_out_time = 'Check_Out_Time' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        default_currency_id = 'Default_Currency_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        timezone = 'Timezone' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        created_date = 'Created_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE,
+        modifieddate = 'ModifiedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        modifiedby = 'ModifiedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE
+    );
+
+CREATE OR REPLACE TABLE bv_resorts I18N au_cst (
+        resort_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each resort, ensuring distinct records for all resorts in the view.') TAGS (resort),
+        resort_name:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Specifies the name of the resort, facilitating easy identification of each property.') TAGS (resort),
+        resort_type:text (sourcetypeid = '-9', sourcetypesize = '50', description = 'Indicates the category or classification of the resort, such as luxury, boutique, or budget.'),
+        state_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier of the state where the resort is located.'),
+        address:text (notnull, sourcetypeid = '-9', sourcetypesize = '200', description = 'Contains the full physical address of the resort, facilitating location identification.') TAGS (address),
+        city:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Specifies the city in which the resort is located.') TAGS (city),
+        phone:text (sourcetypeid = '-9', sourcetypesize = '30', description = 'Provides the contact phone number of the resort for communication purposes.') TAGS (restricted),
+        email:text (sourcetypeid = '-9', sourcetypesize = '150', description = 'Contains the email address of the resort, useful for correspondence and inquiries.') TAGS (email),
+        star_rating:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the star rating of the resort, reflecting its quality and luxury level.'),
+        description:text (sourcetypeid = '-9', sourcetypesize = '2147483647', description = 'Provides a detailed narrative about the resort''s features, offerings, and ambiance.'),
+        amenities:text (sourcetypeid = '-9', sourcetypesize = '2147483647', description = 'Lists the facilities or services available at the resort, such as pools, gyms, or restaurants.') TAGS (amenities),
+        check_in_time:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Specifies the standard time guests can check into the resort.'),
+        check_out_time:text (sourcetypeid = '12', sourcetypesize = '10', description = 'Indicates the time by which guests are required to check out of the resort.'),
+        default_currency_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier for the default currency used for transactions at the resort.'),
+        timezone:text (sourcetypeid = '-9', sourcetypesize = '50', description = 'Specifies the time zone in which the resort operates.'),
+        is_active:boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1', description = 'Indicates whether the resort is currently operational and active in the system.'),
+        created_date:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Records the date and time the resort information was added to the system.'),
+        modifieddate:timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27', description = 'Captures the date and time when the resort''s information was last updated.'),
+        modifiedby:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the user or entity responsible for the last modification of the resort''s details.')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CONSTRAINT 'PK_Resort' PRIMARY KEY ( 'resort_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_resorts(
+        I18N au_cst
+        CONSTRAINTS (
+             ADD resort_id (any) OPT ANY
+             ADD resort_name (any) OPT ANY
+             ADD resort_type (any) OPT ANY
+             ADD state_id (any) OPT ANY
+             ADD address (any) OPT ANY
+             ADD city (any) OPT ANY
+             ADD phone (any) OPT ANY
+             ADD email (any) OPT ANY
+             ADD star_rating (any) OPT ANY
+             ADD description (any) OPT ANY
+             ADD amenities (any) OPT ANY
+             ADD check_in_time (any) OPT ANY
+             ADD check_out_time (any) OPT ANY
+             ADD default_currency_id (any) OPT ANY
+             ADD timezone (any) OPT ANY
+             ADD is_active (any) OPT ANY
+             ADD created_date (any) OPT ANY
+             ADD modifieddate (any) OPT ANY
+             ADD modifiedby (any) OPT ANY
+        )
+        OUTPUTLIST (address, amenities, check_in_time, check_out_time, city, created_date, default_currency_id, description, email, is_active, modifiedby, modifieddate, phone, resort_id, resort_name, resort_type, star_rating, state_id, timezone
+        )
+        WRAPPER (jdbc bv_resorts)
+    );
+

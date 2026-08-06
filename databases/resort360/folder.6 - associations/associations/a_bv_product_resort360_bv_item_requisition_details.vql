@@ -1,0 +1,9 @@
+﻿CREATE OR REPLACE ASSOCIATION a_bv_product_resort360_bv_item_requisition_details REFERENTIAL CONSTRAINT 
+FOLDER = '/6 - associations'
+    ENDPOINT bv_item_requisition_details bv_product PRINCIPAL (1)
+    ENDPOINT bv_product bv_item_requisition_details (0,*)
+    ADD MAPPING item_id=item_id;
+
+ALTER ASSOCIATION a_bv_product_resort360_bv_item_requisition_details
+ LAYOUT (bv_product = [350, 117, 200, 200], bv_item_requisition_details = [572, 40, 200, 200]);
+

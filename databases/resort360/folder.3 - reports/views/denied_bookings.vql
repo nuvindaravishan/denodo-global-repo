@@ -1,0 +1,18 @@
+﻿CREATE OR REPLACE VIEW denied_bookings FOLDER = '/3 - reports' DESCRIPTION = 'The denied_bookings view contains detailed information about customer enquiries that were denied. It includes fields such as the enquiry identifier, timestamp of enquiry initiation, the name of the accommodation involved, the full name and nationality of the client, the client''s contact details (phone number and email address), the date the enquiry was denied, the reason for the denial, and the denial status indicating whether the enquiry was denied. The view captures essential attributes that facilitate tracking, personalization, demographic analysis, and insights into decision-making processes. This view could be used for analyzing patterns in denied bookings, understanding reasons behind denials, improving processes related to customer enquiries, and addressing issues that lead to denied bookings. Additionally, it could help in demographic studies of clients whose enquiries are denied, as well as aiding in operational improvements and strategic decision-making for accommodation businesses.' 
+    TAGS (booking, client, email, mcp, nationality, restricted) (
+    enquiry_identifier (description = 'Uniquely identifies each customer enquiry record, facilitating tracking and reference.') TAGS (booking),
+    enquiry_timestamp (description = 'Specifies the exact date and time when a customer enquiry was initiated.'),
+    accommodation_name (description = 'Represents the name of the accommodation involved in the enquiry, ensuring clarity and recognition. It includes values like "Mountain Valley Lodge", "Pinewood Resort", "Redwood Haven", and "Crystal Lake Reso...".'),
+    client_full_name (description = 'Captures the full name of the client making the enquiry, aiding in personalization and identification. It includes values like "Eugene Hunt", "Chi Guy", "Gale Hurst", and "Michael Morton".') TAGS (client, restricted),
+    client_nationality (description = 'Indicates the nationality of the client who submitted the enquiry, enabling demographic understanding. It includes values like "British Virgin Islands", "St. Helena", "Israel", and "Burkina Faso".') TAGS (nationality),
+    contact_phone_number (description = 'Stores the phone number of the client, facilitating communication. It includes values like "090-561-7178", "093-667-1217", "516-245-1522", and "633-253-6302".') TAGS (restricted),
+    email_address (description = 'Records the email address of the client for correspondence purposes. It includes values like "ehunt@icloud.com", "cguy@protonmail.com", "hurstg30@gmail.com", and "michael_morton@yahoo....".') TAGS (email, restricted),
+    denial_date (description = 'Indicates the date on which the client enquiry was denied.'),
+    denial_reason (description = 'Provides the reason for the denial, offering insights into the decision-making process. It includes values like "Refused to Pay", "Over Booking", "BlackListed Customer", and "Refused to Pay".'),
+    denial_status (description = 'Denotes whether the customer enquiry resulted in a denial.')
+ )
+ AS SELECT iv_denied_bookings.customer_enquiry_id AS enquiry_identifier, iv_denied_bookings.enquiry_date AS enquiry_timestamp, iv_denied_bookings.resort_name AS accommodation_name, iv_denied_bookings.customer_name AS client_full_name, iv_denied_bookings.nationality AS client_nationality, iv_denied_bookings.mobile AS contact_phone_number, iv_denied_bookings.email AS email_address, iv_denied_bookings.denied_on AS denial_date, iv_denied_bookings.denied_reason_description AS denial_reason, iv_denied_bookings.is_denied AS denial_status FROM iv_denied_bookings;
+
+ALTER VIEW denied_bookings
+ LAYOUT (iv_denied_bookings = [20, 20, 200, 200]);
+

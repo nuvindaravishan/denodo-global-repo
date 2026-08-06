@@ -1,0 +1,88 @@
+﻿CREATE OR REPLACE WRAPPER JDBC ai_customer
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    RELATIONNAME='Customer' 
+    OUTPUTSCHEMA (
+        customer_id = 'Customer_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        first_name = 'First_Name' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        last_name = 'Last_Name' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        dob = 'DOB' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        gender = 'Gender' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        email = 'Email' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='255', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        nationality = 'Nationality' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        mobile = 'Mobile' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        address = 'Address' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='500', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        passportno = 'PassportNo' :'java.lang.String' (OPT) (sourcetypedecimals='0', sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        state_id = 'State_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        tier_id = 'Tier_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        is_active = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypedecimals='0', sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        createddate = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE,
+        modifieddate = 'ModifiedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        modifiedby = 'ModifiedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        deleteddate = 'DeletedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        deletedby = 'DeletedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        last_booking_date = 'Last_Booking_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        last_login_date = 'Last_Login_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        total_spent = 'Total_Spent' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        total_bookings = 'Total_Bookings' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE
+    );
+
+CREATE OR REPLACE TABLE ai_customer I18N us_est (
+        customer_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each customer in the system.') TAGS (customer_domain),
+        first_name:text (notnull, sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Stores the first name of the customer.') TAGS (customer_domain),
+        last_name:text (notnull, sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Stores the last name of the customer.') TAGS (customer_domain),
+        dob:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the date of birth of the customer.') TAGS (restricted),
+        gender:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Indicates the gender of the customer.'),
+        email:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '255', description = 'Contains the email address of the customer.') TAGS (email, restricted),
+        nationality:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '100', description = 'Specifies the nationality of the customer.') TAGS (nationality),
+        mobile:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Stores the mobile phone number of the customer.') TAGS (restricted),
+        address:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '500', description = 'Records the residential address of the customer.') TAGS (address),
+        passportno:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Holds the passport number of the customer.') TAGS (restricted),
+        state_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Refers to the identifier for the customer''s state of residence.'),
+        tier_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the customer''s membership or service tier level.'),
+        is_active:boolean (notnull, sourcetypeid = '-7', sourcetypedecimals = '0', sourcetypesize = '1', description = 'Indicates whether the customer''s account is currently active.'),
+        createddate:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Specifies the date and time when the customer record was created.'),
+        modifieddate:timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27', description = 'Records the last date and time the customer record was updated.'),
+        modifiedby:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the user or system that last modified the customer record.'),
+        deleteddate:timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27', description = 'Logs the date and time when the customer record was deleted.'),
+        deletedby:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the user or system that deleted the customer record.'),
+        last_booking_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the most recent date when the customer made a booking.') TAGS (booking_date),
+        last_login_date:timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27', description = 'Shows the last date and time the customer logged into their account.'),
+        total_spent:decimal (sourcetypeid = '3', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Calculates the total monetary amount spent by the customer.') TAGS (sales),
+        total_bookings:int (sourcetypeid = '4', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the total number of bookings made by the customer.') TAGS (booking)
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    PRIMARY KEY ( 'customer_id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD ai_customer(
+        I18N us_est
+        CONSTRAINTS (
+             ADD customer_id (any) OPT ANY
+             ADD first_name (any) OPT ANY
+             ADD last_name (any) OPT ANY
+             ADD dob (any) OPT ANY
+             ADD gender (any) OPT ANY
+             ADD email (any) OPT ANY
+             ADD nationality (any) OPT ANY
+             ADD mobile (any) OPT ANY
+             ADD address (any) OPT ANY
+             ADD passportno (any) OPT ANY
+             ADD state_id (any) OPT ANY
+             ADD tier_id (any) OPT ANY
+             ADD is_active (any) OPT ANY
+             ADD createddate (any) OPT ANY
+             ADD modifieddate (any) OPT ANY
+             ADD modifiedby (any) OPT ANY
+             ADD deleteddate (any) OPT ANY
+             ADD deletedby (any) OPT ANY
+             ADD last_booking_date (any) OPT ANY
+             ADD last_login_date (any) OPT ANY
+             ADD total_spent (any) OPT ANY
+             ADD total_bookings (any) OPT ANY
+        )
+        OUTPUTLIST (address, createddate, customer_id, deletedby, deleteddate, dob, email, first_name, gender, is_active, last_booking_date, last_login_date, last_name, mobile, modifiedby, modifieddate, nationality, passportno, state_id, tier_id, total_bookings, total_spent
+        )
+        WRAPPER (jdbc ai_customer)
+    );
+
