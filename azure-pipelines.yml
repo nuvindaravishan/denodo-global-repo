@@ -27,7 +27,7 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-# 2. Extract Incremental VQL Revision from Dev VDP
+# 2. Extract VQL Revision from Dev VDP
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
@@ -37,7 +37,7 @@ jobs:
           exit 1
       }
 
-      # Step 2a: Write DVCSPULL for the connected database (resort360)
+      # Step 2a: Write DVCSPULL VQL command for database resort360
       $pullVqlPath = "$(pipelineTmpPath)/pull.vql"
       $vqlCommand = 'DVCSPULL ' + $env:VDB_NAME + ';'
       Write-Host "Creating pull.vql with command: $vqlCommand"
@@ -48,7 +48,7 @@ jobs:
       # Step 2b: Construct URI using raw credentials
       $serverUri = "//" + $env:VDP_HOST + "/" + $env:VDB_NAME + "?" + $env:VDP_USER + "@" + $env:VDP_PASSWORD
 
-      # Step 2c: Execute DVCSPULL to sync Dev VDP with GitHub
+      # Step 2c: Execute DVCSPULL to sync Dev VDP catalog with GitHub main branch
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       
       $oldEap = $ErrorActionPreference
@@ -67,10 +67,10 @@ jobs:
           exit 1
       }
 
-      # Step 2e: Export Revision using server references (HEAD~1 to HEAD)
-      Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME' between HEAD~1 and HEAD..."
+      # Step 2e: Export VQL metadata from Dev VDP for database resort360
+      Write-Host "Exporting updated VQL metadata for database '$env:VDB_NAME'..."
       
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
+      .\export.bat -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -P replaceExistingElements=yes -P includeServerElements=no
 
       # Step 2f: Sanitize revision file
       if (Test-Path "$(pipelineTmpPath)/$(REVISION_NAME)") {
@@ -82,10 +82,10 @@ jobs:
           Write-Host "=== FINAL GENERATED REVISION FILE OUTPUT ==="
           Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
       } else {
-          Write-Error "Revision file was not created by export.bat!"
+          Write-Error "Export failed! Revision VQL file was not created by export.bat."
           exit 1
       }
-    displayName: 'Extract Incremental VQL Revision from Dev VDP'
+    displayName: 'Extract VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
