@@ -41,20 +41,22 @@ jobs:
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Execute DVCSPULL (Uses vdpImportServer with //)
+      # Step 2b: Execute DVCSPULL (Syncs Dev VDP with GitHub main branch)
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$env:VDP_IMPORT_SERVER?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision (Uses vdpExportServer WITHOUT //)
+      # Step 2c: Generate Incremental Revision
       Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME'..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_EXPORT_SERVER" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P includeEnvSpecificElements=yes -P includeNonEnvSpecificElements=yes -P includeServerElements=no
+      $vqlFile = "$(pipelineTmpPath)/$(REVISION_NAME)".Replace('/', '\')
       
-      # Step 2d: Sanitize revision file
-      if (Test-Path "$(pipelineTmpPath)/$(REVISION_NAME)") {
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_EXPORT_SERVER" -P repositoryName="$env:REPO_NAME" -f "$vqlFile" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+      
+      # Step 2d: Sanitize revision file to remove any unwanted DROP DATABASE lines
+      if (Test-Path "$vqlFile") {
           Write-Host "Sanitizing revision VQL file..."
-          $fileContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+          $fileContent = Get-Content "$vqlFile"
           $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
-          $cleanContent | Set-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+          $cleanContent | Set-Content "$vqlFile"
       }
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
