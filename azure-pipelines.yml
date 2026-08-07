@@ -10,35 +10,6 @@ variables:
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
   vdbName: 'resort360'
   
-  # Dev VDP Details (Separated Host and Database)
-  vdpHost: 'devdenodo-9.iqzsystems.io:9999'
-  
-  # Machine B Details (Solution Manager)
-  smHost: 'denodosm-9.iqzsystems.io'
-  smPort: '10090'
-  targetEnvId: 8
-
-jobs:
-- job: DenodoCICDJob
-  steps:
-  
-  # 1. Initialize Pipeline Folder
-  - powershell: |
-      if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
-    displayName: 'Initialize Pipeline Folder'
-
-trigger:
-  - main
-
-pool:
-  name: 'denodo_git'
-
-variables:
-  denodoPath: 'C:/Users/hariharan.d/denodo/denodo-db-tools/bin'
-  pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
-  REVISION_NAME: 'Revision_$(Build.BuildId).vql'
-  vdbName: 'resort360'
-  
   # Machine B Details (Solution Manager)
   smHost: 'denodosm-9.iqzsystems.io'
   smPort: '10090'
@@ -117,26 +88,6 @@ jobs:
       SM_USER: $(SM_USER)
       SM_PASSWORD: $(SM_PASSWORD)
 
-  # 5. Cleanup Temporary Files
-  - script: |
-      if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
-    displayName: 'Cleanup Temp Files'
-    condition: always()
-  # 3. Publish VQL Build Artifact
-  - task: PublishBuildArtifacts@1
-    inputs:
-      PathtoPublish: '$(pipelineTmpPath)/$(REVISION_NAME)'
-      ArtifactName: 'VQL_Revision'
-      publishLocation: 'Container'
-
-  # 4. Deploy via Solution Manager API
-  - powershell: |
-      Set-Location "$(pipelineTmpPath)"
-      python base64revision.py -s "$(smHost)" -p "$(smPort)" -v "$(pipelineTmpPath)/$(REVISION_NAME)" -n "Auto_Build_$(Build.BuildId)" -d "Automated deployment from Azure Pipeline" -e $(targetEnvId) -u "$env:SM_USER" -a "$env:SM_PASSWORD"
-    displayName: 'Deploy via Solution Manager API'
-    env:
-      SM_USER: $(SM_USER)
-      SM_PASSWORD: $(SM_PASSWORD)
   # 5. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
