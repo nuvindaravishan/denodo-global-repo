@@ -34,27 +34,31 @@ jobs:
       
       Write-Host "Detecting changed files in commit $(Build.SourceVersion)..."
       
-      # Step 2a: Get all files modified in the build commit (including PR merge commits)
-      $allChanged = git diff-tree --no-commit-id --name-only -r -m HEAD
-      
-      if (-not $allChanged) {
-          Write-Host "git diff-tree returned empty. Fallback checking HEAD~5..HEAD..."
-          $allChanged = git diff --name-only HEAD~5 HEAD
+      # Step 2a: Check if current commit has .vql changes
+      $changedFiles = git diff-tree --no-commit-id --name-only -r -m HEAD | Where-Object { $_ -like "*.vql" } | Select-Object -Unique
+
+      if (-not $changedFiles) {
+          Write-Host "Current commit ($(Build.SourceVersion)) contains no .vql changes (e.g. YAML pipeline update)."
+          Write-Host "Searching Git history for the most recent commit containing .vql changes..."
+
+          $vqlCommit = (git log -n 1 --format="%H" -- "*.vql").Trim()
+
+          if ($vqlCommit) {
+              Write-Host "Found most recent VQL commit: $vqlCommit"
+              $changedFiles = git show --name-only --format="" $vqlCommit | Where-Object { $_ -like "*.vql" } | Select-Object -Unique
+          } else {
+              Write-Error "No .vql files were found anywhere in the Git repository history!"
+              exit 1
+          }
       }
 
-      Write-Host "All files modified in Git commit:"
-      $allChanged | ForEach-Object { Write-Host "   $_" }
-
-      # Step 2b: Filter specifically for .vql files
-      $changedFiles = $allChanged | Where-Object { $_ -like "*.vql" } | Select-Object -Unique
-
-      Write-Host "Filtered .vql Files:"
-      $changedFiles | ForEach-Object { Write-Host "   $_" }
+      Write-Host "Detected VQL Files to export:"
+      $changedFiles | ForEach-Object { Write-Host " - $_" }
 
       $revisionPath = "$(pipelineTmpPath)/$(REVISION_NAME)"
       if (Test-Path $revisionPath) { Remove-Item $revisionPath -Force }
 
-      # Step 2c: Append content of modified .vql files
+      # Step 2b: Append content of modified .vql files
       if ($changedFiles) {
           foreach ($file in $changedFiles) {
               if (Test-Path $file) {
@@ -62,15 +66,15 @@ jobs:
                   Get-Content $file -Raw | Out-File -FilePath $revisionPath -Encoding utf8 -Append
                   Add-Content -Path $revisionPath -Value "`r`n`r`n"
               } else {
-                  Write-Host "File was deleted or not found on disk: $file"
+                  Write-Host "File not found on disk: $file"
               }
           }
       } else {
-          Write-Error "No modified .vql files were detected in commit $(Build.SourceVersion)!"
+          Write-Error "No modified .vql files could be extracted!"
           exit 1
       }
 
-      # Step 2d: Sanitize revision file
+      # Step 2c: Sanitize revision file
       Write-Host "Sanitizing revision VQL file..."
       $fileContent = Get-Content $revisionPath
       $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
