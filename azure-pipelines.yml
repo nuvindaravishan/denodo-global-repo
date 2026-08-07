@@ -7,14 +7,16 @@ pool:
 variables:
   denodoPath: 'C:/Users/hariharan.d/denodo/denodo-db-tools/bin'
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
+  REVISION_NAME: 'Revision_$(Build.BuildId).vql'
+  vdbName: 'resort360'
   
-  # Machine A Details (Dev VDP)
+  # Dev VDP Host & Port with Target Database
   vdpServer: 'devdenodo-9.iqzsystems.io:9999/resort360'
   
-  # Machine B Details (Solution Manager)
-  smHost: 'denodosm-9.iqzsystems.io'  # Replace with Machine B IP/Hostname
-  smPort: '10090'                  # Replace with Solution Manager REST API Port
-  targetEnvId: 8                   # Replace with Target Environment ID in SM
+  # Solution Manager Details
+  smHost: 'denodosm-9.iqzsystems.io'
+  smPort: '10090'
+  targetEnvId: 8
 
 jobs:
 - job: DenodoCICDJob
@@ -24,45 +26,47 @@ jobs:
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
-  # 2. Extract Incremental VQL Revision for resort360 (Dedicated Repo B)
+
+  # 2. Sync Dev VDP with Main & Extract Incremental Delta
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 2a: Create VQL file to pull Git changes for database resort360
+      # Step 2a: Create VQL file to pull remote 'main' branch changes into Dev VDP
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Sync Dev VDP database 'resort360' with dedicated Repo B (git-automation)
-      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with VCS..."
+      # Step 2b: Execute DVCSPULL on Dev VDP database 'resort360'
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with merged PR on main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision using HEAD~1 and HEAD within git-automation repo
-      Write-Host "Generating incremental VQL revision from Repo B (git-automation)..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P repositoryName=git-automation
-    displayName: 'Extract Incremental VQL Revision from Dev VDP'
+      # Step 2c: Generate Incremental Revision (Diff between HEAD~1 and HEAD on main)
+      Write-Host "Generating incremental VQL revision for the merged PR..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+    displayName: 'Extract Incremental VQL Revision'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-  # 3. Publish VQL Build Artifact
+
+  # 3. Publish Build Artifacts
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(pipelineTmpPath)/$(REVISION_NAME)'
       ArtifactName: 'VQL_Revision'
       publishLocation: 'Container'
 
-  # 4. Deploy via Solution Manager API (Using Solution Manager Credentials)
+  # 4. Deploy via Solution Manager API
   - powershell: |
       Set-Location "$(pipelineTmpPath)"
-      python base64revision.py -s "$(smHost)" -p "$(smPort)" -v "$(pipelineTmpPath)/$(REVISION_NAME)" -n "Auto_Build_$(Build.BuildId)" -d "Automated deployment from Azure Pipeline" -e $(targetEnvId) -u "$env:SM_USER" -a "$env:SM_PASSWORD"
+      python base64revision.py -s "$(smHost)" -p "$(smPort)" -v "$(pipelineTmpPath)/$(REVISION_NAME)" -n "Auto_Build_$(Build.BuildId)" -d "Automated deployment for PR $(Build.BuildId)" -e $(targetEnvId) -u "$env:SM_USER" -a "$env:SM_PASSWORD"
     displayName: 'Deploy via Solution Manager API'
     env:
       SM_USER: $(SM_USER)
       SM_PASSWORD: $(SM_PASSWORD)
 
-  # 5. Cleanup Temporary Files
+  # 5. Cleanup Temp Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
     displayName: 'Cleanup Temp Files'
