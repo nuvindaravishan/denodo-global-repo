@@ -43,7 +43,7 @@ CREATE OR REPLACE TABLE ai_booking I18N us_est (
         resort_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the specific resort linked to the bookings.') TAGS (resort),
         booking_date:timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23', description = 'Indicates the date and time when the booking was made.') TAGS (booking_date),
         booking_type_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Specifies the type or category of the booking.') TAGS (booking_category),
-        tour_operator_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the tour operator associated with the booking.') TAGS (tour_operator),
+        tour_operator_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the tour operator associated with the bookings.') TAGS (tour_operator),
         tour_operator_contract_id:long (sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Refers to the contract of the tour operator related to the booking.') TAGS (tour_operator),
         customer_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier of the customer making the booking.'),
         arrival_date:localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the scheduled arrival date of the customer at the resort.') TAGS (arrival_details),
