@@ -32,17 +32,13 @@ jobs:
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 2a: Switch VDP to 'main' branch FIRST, then pull the merged PR
-      $vqlScript = @"
-      DVCS CHECKOUT 'main' FOR DATABASE $env:VDB_NAME;
-      DVCSPULL $env:VDB_NAME;
-      "@
-      $vqlScript | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
+      # Step 2a: Create VQL file to pull remote 'main' branch changes into Dev VDP
+      "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Execute Checkout & Pull on Dev VDP
-      Write-Host "Checking out 'main' branch and pulling latest PR changes for database '$env:VDB_NAME'..."
+      # Step 2b: Execute DVCSPULL on Dev VDP database 'resort360'
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with merged PR on main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
       # Step 2c: Generate Incremental Revision strictly between HEAD~1 and HEAD on main
