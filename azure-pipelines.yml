@@ -32,37 +32,45 @@ jobs:
   - powershell: |
       Set-Location "$(Build.SourcesDirectory)"
       
-      Write-Host "Detecting changed VQL files in commit $(Build.SourceVersion)..."
+      Write-Host "Detecting changed files in commit $(Build.SourceVersion)..."
       
-      # Find all .vql files modified or added in the latest commit
-      $changedFiles = git diff --name-only HEAD~1 HEAD | Where-Object { $_ -like "*.vql" }
+      # Step 2a: Get all files modified in the build commit (including PR merge commits)
+      $allChanged = git diff-tree --no-commit-id --name-only -r -m HEAD
       
-      if (-not $changedFiles) {
-          Write-Host "No .vql files changed in HEAD~1..HEAD. Checking HEAD~2..HEAD..."
-          $changedFiles = git diff --name-only HEAD~2 HEAD | Where-Object { $_ -like "*.vql" }
+      if (-not $allChanged) {
+          Write-Host "git diff-tree returned empty. Fallback checking HEAD~5..HEAD..."
+          $allChanged = git diff --name-only HEAD~5 HEAD
       }
 
-      Write-Host "Changed VQL Files:"
-      $changedFiles | ForEach-Object { Write-Host " - $_" }
+      Write-Host "All files modified in Git commit:"
+      $allChanged | ForEach-Object { Write-Host "   $_" }
+
+      # Step 2b: Filter specifically for .vql files
+      $changedFiles = $allChanged | Where-Object { $_ -like "*.vql" } | Select-Object -Unique
+
+      Write-Host "Filtered .vql Files:"
+      $changedFiles | ForEach-Object { Write-Host "   $_" }
 
       $revisionPath = "$(pipelineTmpPath)/$(REVISION_NAME)"
-      
       if (Test-Path $revisionPath) { Remove-Item $revisionPath -Force }
 
+      # Step 2c: Append content of modified .vql files
       if ($changedFiles) {
           foreach ($file in $changedFiles) {
               if (Test-Path $file) {
                   Write-Host "Appending content from: $file"
                   Get-Content $file -Raw | Out-File -FilePath $revisionPath -Encoding utf8 -Append
                   Add-Content -Path $revisionPath -Value "`r`n`r`n"
+              } else {
+                  Write-Host "File was deleted or not found on disk: $file"
               }
           }
       } else {
-          Write-Error "No modified .vql files found in the commit range!"
+          Write-Error "No modified .vql files were detected in commit $(Build.SourceVersion)!"
           exit 1
       }
 
-      # Sanitize revision file to remove any unwanted DROP DATABASE statements
+      # Step 2d: Sanitize revision file
       Write-Host "Sanitizing revision VQL file..."
       $fileContent = Get-Content $revisionPath
       $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
