@@ -40,13 +40,17 @@ jobs:
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Verify credentials exist
-      if ([string]::IsNullOrWhiteSpace($env:VDP_USER) -or [string]::IsNullOrWhiteSpace($env:VDP_PASSWORD)) {
-          Write-Error "VDP_USER or VDP_PASSWORD pipeline environment variables are empty! Check Azure Pipeline Secrets."
+      # 1. Assert Pipeline Secret Variables
+      if ([string]::IsNullOrWhiteSpace($env:VDP_USER)) {
+          Write-Error "ERROR: Environment variable VDP_USER is empty! Verify your pipeline variables."
+          exit 1
+      }
+      if ([string]::IsNullOrWhiteSpace($env:VDP_PASSWORD)) {
+          Write-Error "ERROR: Environment variable VDP_PASSWORD is empty! Verify your pipeline variables in Azure DevOps."
           exit 1
       }
 
-      # Step 2a: Resolve exact Git Commit SHAs
+      # 2. Resolve exact Git Commit SHAs
       $toCommit = (git rev-parse HEAD).Trim()
       $fromCommit = (git rev-parse HEAD~1).Trim()
       
@@ -54,12 +58,12 @@ jobs:
       Write-Host "From Commit (fc): $fromCommit"
       Write-Host "To Commit   (tc): $toCommit"
 
-      # Step 2b: Create VQL script to pull remote 'main' branch into Dev VDP
+      # 3. Create VQL script to pull remote 'main' branch into Dev VDP
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
       Set-Location "$(denodoPath)"
       
-      # Step 2c: Safely URL-encode password and construct import URI
+      # 4. Construct import URI safely with password encoding
       $encodedPassword = [System.Uri]::EscapeDataString($env:VDP_PASSWORD)
       $cleanImportServer = $env:VDP_IMPORT_SERVER.TrimStart('/')
       $importUri = "${cleanImportServer}?${env:VDP_USER}@${encodedPassword}"
@@ -67,13 +71,23 @@ jobs:
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$importUri"
       
-      # Step 2d: Generate Incremental Revision
+      if ($LASTEXITCODE -ne 0) {
+          Write-Error "import.bat failed with exit code $LASTEXITCODE. Check VDP user/password or connection."
+          exit 1
+      }
+      
+      # 5. Generate Incremental Revision
       Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME'..."
       $vqlFile = "$(pipelineTmpPath)/$(REVISION_NAME)".Replace('/', '\')
       
       .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_EXPORT_SERVER" -P repositoryName="$env:REPO_NAME" -P databaseName="$env:VDB_NAME" -f "$vqlFile" -fc "$fromCommit" -tc "$toCommit" -P includeprivileges=yes
       
-      # Step 2e: Sanitize revision VQL
+      if ($LASTEXITCODE -ne 0) {
+          Write-Error "export.bat failed with exit code $LASTEXITCODE."
+          exit 1
+      }
+
+      # 6. Sanitize revision VQL
       if (Test-Path "$vqlFile") {
           Write-Host "Sanitizing revision VQL file..."
           $fileContent = Get-Content "$vqlFile"
