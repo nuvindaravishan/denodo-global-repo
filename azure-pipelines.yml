@@ -32,31 +32,29 @@ jobs:
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
 
-      # Step 2a: Debug check
-      Write-Host "Checking variables: User='$env:VDP_USER', Password length=$($env:VDP_PASSWORD.Length)"
-      
       if ([string]::IsNullOrWhiteSpace($env:VDP_USER) -or [string]::IsNullOrWhiteSpace($env:VDP_PASSWORD)) {
           Write-Error "VDP_USER or VDP_PASSWORD pipeline secret is missing or empty!"
           exit 1
       }
 
-      # Step 2b: Write DVCSPULL VQL file WITHOUT UTF-8 BOM
+      # Step 2a: Write DVCSPULL VQL file WITHOUT UTF-8 BOM
       $pullVqlPath = "$(pipelineTmpPath)/pull.vql"
       [System.IO.File]::WriteAllText($pullVqlPath, "DVCSPULL $env:VDB_NAME;")
 
       Set-Location "$(denodoPath)"
 
-      # Step 2c: Construct URI using raw unencoded credentials
-      # Denodo URI format: //host:port/database?user@password
+      # Step 2b: Construct URI using raw credentials
       $serverUri = "//" + $env:VDP_HOST + "/" + $env:VDB_NAME + "?" + $env:VDP_USER + "@" + $env:VDP_PASSWORD
 
-      # Step 2d: Execute DVCSPULL with --singleuser flag
+      # Step 2c: Execute DVCSPULL to sync Dev VDP with GitHub main branch
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
-      $importOutput = .\import.bat --singleuser --file "$pullVqlPath" --server "$serverUri" 2>&1
+      $importOutput = .\import.bat --singleuser --file "$pullVqlPath" --server "$serverUri" 2>&1 | Out-String
       Write-Host $importOutput
 
-      if ($importOutput -like "*authentication error*" -or $importOutput -like "*Invalid URI*" -or $importOutput -like "*Error*") {
-          Write-Error "DVCSPULL failed due to authentication or connection issues. Resolve the import error above before exporting revision."
+      # Step 2d: Robust error validation (only fail if error count > 0 or explicit auth error)
+      $hasErrors = ($importOutput -match "#Errors:\s*[1-9]") -or ($importOutput -like "*authentication error*") -or ($importOutput -like "*BATCH EXECUTION FAILED*")
+      if ($hasErrors -or $LASTEXITCODE -ne 0) {
+          Write-Error "DVCSPULL failed! Resolve the import error above before exporting revision."
           exit 1
       }
 
