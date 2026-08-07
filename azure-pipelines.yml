@@ -28,7 +28,7 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental VQL Revision for resort360
+# 2. Extract Incremental VQL Revision for resort360
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
@@ -42,16 +42,22 @@ jobs:
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$env:VDP_SERVER_WITH_DB?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision strictly scoped to resort360 (Try HEAD~1)
-      Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME' from repository '$env:REPO_NAME'..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+      # Step 2c: Generate Incremental Revision excluding Server Elements (includeServerElements=no)
+      Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME'..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
       
       # Step 2d: Auto-fallback to HEAD~2 if HEAD~1 returns no diffs
       $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
       if ($content -like "*No diff elements between commits*") {
-          Write-Host "HEAD~1 returned no diffs. Retrying with HEAD~2 strictly for database '$env:VDB_NAME'..."
-          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes
+          Write-Host "HEAD~1 returned no diffs. Retrying with HEAD~2..."
+          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
       }
+      
+      # Step 2e: Sanitize revision file to remove any unwanted DROP DATABASE statements
+      Write-Host "Sanitizing revision VQL file..."
+      $fileContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+      $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
+      $cleanContent | Set-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
