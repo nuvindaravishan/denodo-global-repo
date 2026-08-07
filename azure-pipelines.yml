@@ -9,15 +9,11 @@ variables:
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
   vdbName: 'resort360'
-  repositoryName: 'denodo-global-repo'
   
-  # Host for import.bat (MUST start with //)
-  vdpImportServer: 'devdenodo-9.iqzsystems.io:9999/resort360'
+  # Dev VDP Details (Separated Host and Database)
+  vdpHost: 'devdenodo-9.iqzsystems.io:9999'
   
-  # Host for export.bat (MUST NOT start with //)
-  vdpExportServer: 'devdenodo-9.iqzsystems.io:9999/resort360'
-  
-  # Solution Manager Details
+  # Machine B Details (Solution Manager)
   smHost: 'denodosm-9.iqzsystems.io'
   smPort: '10090'
   targetEnvId: 8
@@ -26,88 +22,50 @@ jobs:
 - job: DenodoCICDJob
   steps:
   
-  # 0. Fetch Full Git History (Required to resolve HEAD~1)
-  - checkout: self
-    fetchDepth: 0
-
   # 1. Initialize Pipeline Folder
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental Revision for resort360
+  # 2. Sync Dev VDP with GitHub & Extract Revision
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # 1. Assert Pipeline Secret Variables
-      if ([string]::IsNullOrWhiteSpace($env:VDP_USER)) {
-          Write-Error "ERROR: Environment variable VDP_USER is empty! Verify your pipeline variables."
-          exit 1
-      }
-      if ([string]::IsNullOrWhiteSpace($env:VDP_PASSWORD)) {
-          Write-Error "ERROR: Environment variable VDP_PASSWORD is empty! Verify your pipeline variables in Azure DevOps."
-          exit 1
-      }
-
-      # 2. Resolve exact Git Commit SHAs
-      $toCommit = (git rev-parse HEAD).Trim()
-      $fromCommit = (git rev-parse HEAD~1).Trim()
-      
-      Write-Host "Exporting delta between:"
-      Write-Host "From Commit (fc): $fromCommit"
-      Write-Host "To Commit   (tc): $toCommit"
-
-      # 3. Create VQL script to pull remote 'main' branch into Dev VDP
-      "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
+      # Step 2a: Write DVCSPULL VQL file WITHOUT UTF-8 BOM
+      $pullVqlPath = "$(pipelineTmpPath)/pull.vql"
+      [System.IO.File]::WriteAllText($pullVqlPath, "DVCSPULL $env:VDB_NAME;")
       
       Set-Location "$(denodoPath)"
       
-      # 4. Construct import URI safely with password encoding
-      $encodedPassword = [System.Uri]::EscapeDataString($env:VDP_PASSWORD)
-      $cleanImportServer = $env:VDP_IMPORT_SERVER.TrimStart('/')
-      $importUri = "${cleanImportServer}?${env:VDP_USER}@${encodedPassword}"
-
+      # Step 2b: Execute DVCSPULL to sync Dev VDP with GitHub main branch
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
-      .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$importUri"
+      $importResult = .\import.bat --file "$pullVqlPath" --server "$env:VDP_HOST/$env:VDB_NAME?$env:VDP_USER@$env:VDP_PASSWORD"
+      Write-Host "DVCSPULL Result: $importResult"
       
-      if ($LASTEXITCODE -ne 0) {
-          Write-Error "import.bat failed with exit code $LASTEXITCODE. Check VDP user/password or connection."
-          exit 1
-      }
-      
-      # 5. Generate Incremental Revision
+      # Step 2c: Generate Incremental Revision using exact SourceVersion commit
       Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME'..."
-      $vqlFile = "$(pipelineTmpPath)/$(REVISION_NAME)".Replace('/', '\')
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc "$(Build.SourceVersion)" -P includeprivileges=yes -P includeServerElements=no
       
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_EXPORT_SERVER" -P repositoryName="$env:REPO_NAME" -P databaseName="$env:VDB_NAME" -f "$vqlFile" -fc "$fromCommit" -tc "$toCommit" -P includeprivileges=yes
+      # Step 2d: Auto-fallback to HEAD~2 if HEAD~1 returns no diffs
+      $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
+      if ($content -like "*No diff elements between commits*") {
+          Write-Host "HEAD~1 returned no diffs. Retrying with HEAD~2..."
+          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc "$(Build.SourceVersion)" -P includeprivileges=yes -P includeServerElements=no
+      }
       
-      if ($LASTEXITCODE -ne 0) {
-          Write-Error "export.bat failed with exit code $LASTEXITCODE."
-          exit 1
-      }
-
-      # 6. Sanitize revision VQL
-      if (Test-Path "$vqlFile") {
-          Write-Host "Sanitizing revision VQL file..."
-          $fileContent = Get-Content "$vqlFile"
-          $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
-          $cleanContent | Set-Content "$vqlFile"
-          
-          Write-Host "--- Generated VQL Content ---"
-          Get-Content "$vqlFile"
-      } else {
-          Write-Error "Revision VQL file was not generated!"
-          exit 1
-      }
+      # Step 2e: Sanitize revision file to remove any unwanted DROP DATABASE statements
+      Write-Host "Sanitizing revision VQL file..."
+      $fileContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+      $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
+      $cleanContent | Set-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-      VDP_IMPORT_SERVER: $(vdpImportServer)
-      VDP_EXPORT_SERVER: $(vdpExportServer)
-      REPO_NAME: $(repositoryName)
+      VDP_HOST: $(vdpHost)
+
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
@@ -123,7 +81,6 @@ jobs:
     env:
       SM_USER: $(SM_USER)
       SM_PASSWORD: $(SM_PASSWORD)
-
   # 5. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
