@@ -8,9 +8,12 @@ variables:
   denodoPath: 'C:/Users/hariharan.d/denodo/denodo-db-tools/bin'
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
+  vdbName: 'resort360'
+  repositoryName: 'denodo-global-repo'
   
-  # Dev VDP Host & Port with Target Database
-  vdpServer: '//devdenodo-9.iqzsystems.io:9999/resort360'
+  # Dev VDP Details
+  vdpServerHost: '//devdenodo-9.iqzsystems.io:9999'
+  vdpServerWithDb: 'devdenodo-9.iqzsystems.io:9999/resort360'
   
   # Machine B Details (Solution Manager)
   smHost: 'denodosm-9.iqzsystems.io'
@@ -26,30 +29,32 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-# 2. Extract Incremental VQL Revision from resort360 Custom Repository
+  # 2. Extract Incremental VQL Revision for resort360
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      # Step 2a: Create VQL script to pull remote 'main' branch for resort360
+      # Step 2a: Create VQL script to pull remote 'main' branch from GitHub
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Execute DVCSPULL to sync Dev VDP with nuvindaravishan repo
+      # Step 2b: Execute DVCSPULL to sync Dev VDP with GitHub main branch
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
-      .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServerWithDb)?$env:VDP_USER@$env:VDP_PASSWORD"
+      .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$env:VDP_SERVER_WITH_DB?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision from resort360 custom repository
-      Write-Host "Generating incremental VQL revision for database $env:VDB_NAME from custom repository..."
-      
-      # Replace  below with your exact Repository Name from Step 1 if different
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServerHost)" -P databaseName="$env:VDB_NAME" -P repositoryName="denodo-global-repo" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+      # Step 2c: Generate Incremental Revision targeting databaseName and repositoryName
+      Write-Host "Generating incremental VQL revision for database $env:VDB_NAME..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_HOST" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
+      VDP_SERVER_HOST: $(vdpServerHost)
+      VDP_SERVER_WITH_DB: $(vdpServerWithDb)
+      REPO_NAME: $(repositoryName)
+
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
