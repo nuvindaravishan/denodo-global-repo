@@ -27,7 +27,7 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental VQL Revision from Dev VDP (Workspace Mode)
+  # 2. Extract Incremental VQL Revision from Dev VDP
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
@@ -58,29 +58,26 @@ jobs:
           exit 1
       }
 
-      # Step 2e: Generate Incremental Revision for Workspace Flow (NO -P databaseName)
-      Write-Host "Generating incremental Workspace VQL revision..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
+      # Step 2e: Export revision targeting the database & global repository
+      Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME'..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
 
-      # Step 2f: Auto-fallback to HEAD~2 if HEAD~1 returns no diffs
-      if (Test-Path "$(pipelineTmpPath)/$(REVISION_NAME)") {
-          $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
-          if ($content -like "*No diff elements between commits*" -or $content.Trim() -eq "# #######################################`r`n# DELETED ELEMENTS`r`n# #######################################") {
-              Write-Host "HEAD~1 returned no diffs. Retrying with HEAD~2..."
-              .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
-          }
-      } else {
-          Write-Error "Export failed! Revision file was not created."
-          exit 1
+      # Step 2f: Fallback to HEAD~2 if HEAD~1 returns no view statements
+      $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
+      $trimmedContent = if ($content) { $content.Trim() } else { "" }
+      
+      if ($trimmedContent -like "*No diff elements between commits*" -or $trimmedContent -eq "# #######################################`r`n# DELETED ELEMENTS`r`n# #######################################" -or $trimmedContent -eq "# #######################################`n# DELETED ELEMENTS`n# #######################################") {
+          Write-Host "HEAD~1 returned no view changes. Retrying with HEAD~2..."
+          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
       }
 
-      # Step 2g: Sanitize revision file to remove any unwanted DROP DATABASE statements
+      # Step 2g: Sanitize revision file
       Write-Host "Sanitizing revision VQL file..."
       $fileContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
       $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
       $cleanContent | Set-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
-      
-      Write-Host "=== FINAL GENERATED REVISION FILE ==="
+
+      Write-Host "=== FINAL GENERATED REVISION FILE OUTPUT ==="
       Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
@@ -88,6 +85,7 @@ jobs:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
       VDP_HOST: $(vdpHost)
+      REPO_NAME: $(repositoryName)
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
