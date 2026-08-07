@@ -36,14 +36,14 @@ jobs:
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Execute DVCSPULL (This updates Dev VDP's HEAD pointer to the merged PR commit)
+      # Step 2b: Execute DVCSPULL to fetch remote GitHub changes into Dev VDP
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision from HEAD~1 to HEAD
-      Write-Host "Generating incremental VQL revision from HEAD~1 to HEAD..."
+      # Step 2c: Generate Incremental Revision from HEAD~2 to HEAD
+      Write-Host "Generating incremental VQL revision from HEAD~2 to HEAD..."
       
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
