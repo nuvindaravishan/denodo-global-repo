@@ -24,7 +24,7 @@ jobs:
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
-# 2. Extract Incremental VQL Revision for resort360 (Dedicated Repo B)
+# 2. Extract Incremental VQL Revision for resort360
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
@@ -34,19 +34,24 @@ jobs:
       
       Set-Location "$(denodoPath)"
       
-      # Step 2b: Sync Dev VDP database 'resort360' with dedicated Repo B
-      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with Repo B (git-automation)..."
+      # Step 2b: Sync Dev VDP database 'resort360' with remote main branch
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with VCS..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision strictly from Repo B
-      Write-Host "Generating incremental VQL revision from Repo B..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P repositoryName=git-automation
+      # Step 2c: Get exact commit SHAs from Azure DevOps
+      # $(Build.SourceVersion) is the commit hash of the main branch after PR merge
+      $toCommit = "$(Build.SourceVersion)"
+      $fromCommit = "$(Build.SourceVersion)~1"
+      
+      Write-Host "Generating incremental VQL revision from commit $fromCommit to $toCommit..."
+      
+      # Step 2d: Generate Incremental Revision using exact SHAs
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc $fromCommit -tc $toCommit -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
