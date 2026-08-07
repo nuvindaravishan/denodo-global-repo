@@ -12,7 +12,7 @@ variables:
   repositoryName: 'denodo-global-repo'
   
   # Dev VDP Target Database URL
-  vdpServerWithDb: 'devdenodo-9.iqzsystems.io:9999/resort360'
+  vdpServerWithDb: '//devdenodo-9.iqzsystems.io:9999/resort360'
   
   # Solution Manager Details
   smHost: 'denodosm-9.iqzsystems.io'
