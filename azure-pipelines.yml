@@ -28,23 +28,31 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental VQL Revision for resort360
+  # 2. Extract Incremental Revision for resort360
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
-      Set-Location "$(denodoPath)"
-      
-      # Step 2a: Export Incremental Revision BEFORE running DVCSPULL (Compares local VDP catalog state with new GitHub commit)
-      Write-Host "Extracting incremental VQL revision from Dev VDP for database $env:VDB_NAME..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD -tc origin/main -P includeprivileges=yes -P includeServerElements=no
-      
-      # Step 2b: Create VQL script to pull remote 'main' branch
+      # Step 2a: Create VQL script to pull remote 'main' branch
       "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
       
-      # Step 2c: Execute DVCSPULL to sync Dev VDP catalog
+      Set-Location "$(denodoPath)"
+      
+      # Step 2b: Execute DVCSPULL (Syncs Dev VDP with GitHub main branch)
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$env:VDP_SERVER_WITH_DB?$env:VDP_USER@$env:VDP_PASSWORD"
+      
+      # Step 2c: Generate Incremental Revision including Views (includeNonEnvSpecificElements=yes)
+      Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME'..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P includeEnvSpecificElements=yes -P includeNonEnvSpecificElements=yes -P includeServerElements=no
+      
+      # Step 2d: Sanitize revision file to remove any unwanted DROP DATABASE lines
+      if (Test-Path "$(pipelineTmpPath)/$(REVISION_NAME)") {
+          Write-Host "Sanitizing revision VQL file..."
+          $fileContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+          $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
+          $cleanContent | Set-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+      }
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
       VDB_NAME: $(vdbName)
@@ -52,6 +60,7 @@ jobs:
       VDP_PASSWORD: $(VDP_PASSWORD)
       VDP_SERVER_WITH_DB: $(vdpServerWithDb)
       REPO_NAME: $(repositoryName)
+
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
