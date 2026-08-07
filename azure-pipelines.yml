@@ -27,7 +27,7 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental VQL Revision from Dev VDP (Workspace Mode)
+  # 2. Extract Incremental VQL Revision from Dev VDP
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
@@ -37,25 +37,19 @@ jobs:
           exit 1
       }
 
-      # Step 2a: Resolve repository name
-      $repoToPull = $env:REPO_NAME
-      if ([string]::IsNullOrWhiteSpace($repoToPull) -or $repoToPull -like "*`$(*") {
-          $repoToPull = "denodo-global-repo"
-      }
-
-      # Step 2b: Write DVCSPULL VQL file WITH DOUBLE QUOTES to escape hyphens
+      # Step 2a: Write DVCSPULL for the connected database (resort360)
       $pullVqlPath = "$(pipelineTmpPath)/pull.vql"
-      $vqlCommand = 'DVCSPULL "' + $repoToPull + '";'
+      $vqlCommand = 'DVCSPULL ' + $env:VDB_NAME + ';'
       Write-Host "Creating pull.vql with command: $vqlCommand"
       [System.IO.File]::WriteAllText($pullVqlPath, $vqlCommand)
 
       Set-Location "$(denodoPath)"
 
-      # Step 2c: Construct URI using raw credentials
+      # Step 2b: Construct URI using raw credentials
       $serverUri = "//" + $env:VDP_HOST + "/" + $env:VDB_NAME + "?" + $env:VDP_USER + "@" + $env:VDP_PASSWORD
 
-      # Step 2d: Execute DVCSPULL safely
-      Write-Host "Syncing Dev VDP global repository '$repoToPull' with GitHub main branch..."
+      # Step 2c: Execute DVCSPULL against the connected database
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       
       $oldEap = $ErrorActionPreference
       $ErrorActionPreference = 'Continue'
@@ -66,20 +60,20 @@ jobs:
 
       Write-Host $importOutput
 
-      # Step 2e: Error validation
+      # Step 2d: Error validation
       $hasErrors = ($importOutput -match "#Errors:\s*[1-9]") -or ($importOutput -like "*authentication error*") -or ($importOutput -like "*BATCH EXECUTION FAILED*")
       if ($hasErrors) {
           Write-Error "DVCSPULL failed! Resolve the import error above before exporting revision."
           exit 1
       }
 
-      # Step 2f: Export Workspace Revision using target commit
+      # Step 2e: Export Revision matching official Denodo Azure DevOps specification
       $targetCommit = "$(Build.SourceVersion)"
-      Write-Host "Generating incremental Workspace VQL revision for target commit '$targetCommit'..."
+      Write-Host "Generating incremental VQL revision for commit '$targetCommit'..."
       
       .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc "$targetCommit" -P includeprivileges=yes -P includeServerElements=no
 
-      # Step 2g: Fallback check if HEAD~1 returns empty
+      # Step 2f: Fallback check if HEAD~1 returns empty
       $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
       $trimmedContent = if ($content) { $content.Trim() } else { "" }
       
@@ -88,7 +82,7 @@ jobs:
           .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc "$targetCommit" -P includeprivileges=yes -P includeServerElements=no
       }
 
-      # Step 2h: Sanitize revision file
+      # Step 2g: Sanitize revision file
       Write-Host "Sanitizing revision VQL file..."
       $fileContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
       $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
@@ -102,7 +96,6 @@ jobs:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
       VDP_HOST: $(vdpHost)
-      REPO_NAME: $(repositoryName)
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
