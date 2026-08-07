@@ -9,10 +9,9 @@ variables:
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
   vdbName: 'resort360'
-  repositoryName: 'denodo-global-repo'
+  repositoryName: 'denodo-global-repo'   # Replace with your Repository Name if different
   
   # Dev VDP Details
-  vdpServerHost: '//devdenodo-9.iqzsystems.io:9999'
   vdpServerWithDb: 'devdenodo-9.iqzsystems.io:9999/resort360'
   
   # Machine B Details (Solution Manager)
@@ -43,15 +42,15 @@ jobs:
       Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
       .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$env:VDP_SERVER_WITH_DB?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      # Step 2c: Generate Incremental Revision (Try HEAD~1)
-      Write-Host "Generating incremental VQL revision (HEAD~1 to HEAD)..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
+      # Step 2c: Generate Incremental Revision from Custom Repository (Try HEAD~1)
+      Write-Host "Generating incremental VQL revision from repository '$env:REPO_NAME' (HEAD~1 to HEAD)..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes
       
       # Step 2d: Auto-fallback to HEAD~2 if DVCSPULL created an internal sync commit
       $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
       if ($content -like "*No diff elements between commits*") {
-          Write-Host "HEAD~1 returned no diffs (DVCSPULL sync commit detected). Retrying with HEAD~2 to HEAD..."
-          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes
+          Write-Host "HEAD~1 returned no diffs (DVCSPULL sync commit detected). Retrying with HEAD~2 to HEAD on repository '$env:REPO_NAME'..."
+          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes
       }
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
@@ -59,6 +58,7 @@ jobs:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
       VDP_SERVER_WITH_DB: $(vdpServerWithDb)
+      REPO_NAME: $(repositoryName)
 
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
