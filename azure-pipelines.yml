@@ -26,18 +26,28 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract Incremental Workspace Revision (Denodo Option A Flow)
+  # 2. Sync Dev VDP & Extract Incremental VQL Revision
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       
+      # Step 2a: Create VQL script to pull remote 'main' branch from GitHub into Dev VDP
+      "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
+      
       Set-Location "$(denodoPath)"
       
-      Write-Host "Generating Incremental Workspace Revision from HEAD~1 to commit $(Build.SourceVersion)..."
+      # Step 2b: Execute DVCSPULL so Dev VDP fetches commit $(Build.SourceVersion) from GitHub
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
+      .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$(vdpServer)?$env:VDP_USER@$env:VDP_PASSWORD"
       
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc $(Build.SourceVersion) -P includeprivileges=yes
+      # Step 2c: Generate Incremental Revision from HEAD~1 to commit $(Build.SourceVersion)
+      $toCommit = "$(Build.SourceVersion)"
+      Write-Host "Generating incremental VQL revision from HEAD~1 to commit $toCommit..."
+      
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc $toCommit -P includeprivileges=yes
     displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
+      VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
 
