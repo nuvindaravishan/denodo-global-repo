@@ -27,7 +27,7 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-# 2. Extract Incremental VQL Revision from Dev VDP
+  # 2. Extract Incremental VQL Revision from Dev VDP (Workspace Mode)
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
@@ -37,42 +37,41 @@ jobs:
           exit 1
       }
 
-      # Step 2a: Write DVCSPULL VQL file WITHOUT UTF-8 BOM
+      # Step 2a: Write DVCSPULL for the GLOBAL WORKSPACE REPOSITORY (denodo-global-repo)
       $pullVqlPath = "$(pipelineTmpPath)/pull.vql"
-      [System.IO.File]::WriteAllText($pullVqlPath, "DVCSPULL $env:VDB_NAME;")
+      Write-Host "Creating pull.vql for repository '$env:REPO_NAME'..."
+      [System.IO.File]::WriteAllText($pullVqlPath, "DVCSPULL $env:REPO_NAME;")
 
       Set-Location "$(denodoPath)"
 
       # Step 2b: Construct URI using raw credentials
       $serverUri = "//" + $env:VDP_HOST + "/" + $env:VDB_NAME + "?" + $env:VDP_USER + "@" + $env:VDP_PASSWORD
 
-      # Step 2c: Execute DVCSPULL to sync Dev VDP with GitHub main branch
-      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
+      # Step 2c: Execute DVCSPULL on the global workspace repository
+      Write-Host "Syncing Dev VDP global repository '$env:REPO_NAME' with GitHub main branch..."
       $importOutput = .\import.bat --singleuser --file "$pullVqlPath" --server "$serverUri" 2>&1 | Out-String
       Write-Host $importOutput
 
-      # Step 2d: Robust error validation
+      # Step 2d: Error validation
       $hasErrors = ($importOutput -match "#Errors:\s*[1-9]") -or ($importOutput -like "*authentication error*") -or ($importOutput -like "*BATCH EXECUTION FAILED*")
       if ($hasErrors -or $LASTEXITCODE -ne 0) {
           Write-Error "DVCSPULL failed! Resolve the import error above before exporting revision."
           exit 1
       }
 
-      # Step 2e: Export revision using exact Azure DevOps commit range
+      # Step 2e: Export Workspace Revision using official Denodo 9 syntax
       $targetCommit = "$(Build.SourceVersion)"
-      $parentCommit = "$(Build.SourceVersion)~1"
+      Write-Host "Generating incremental Workspace VQL revision for target commit '$targetCommit'..."
+      
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc "$targetCommit" -P includeprivileges=yes -P includeServerElements=no
 
-      Write-Host "Generating incremental VQL revision between '$parentCommit' and '$targetCommit'..."
-      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc "$parentCommit" -tc "$targetCommit" -P includeprivileges=yes -P includeServerElements=no
-
-      # Step 2f: Fallback check
+      # Step 2f: Fallback check if HEAD~1 returns empty
       $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
       $trimmedContent = if ($content) { $content.Trim() } else { "" }
       
       if ($trimmedContent -like "*No diff elements between commits*" -or $trimmedContent -eq "# #######################################`r`n# DELETED ELEMENTS`r`n# #######################################" -or $trimmedContent -eq "# #######################################`n# DELETED ELEMENTS`n# #######################################") {
-          Write-Host "Target commit parent returned no diffs. Retrying with Build.SourceVersion~2..."
-          $parentCommit2 = "$(Build.SourceVersion)~2"
-          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc "$parentCommit2" -tc "$targetCommit" -P includeprivileges=yes -P includeServerElements=no
+          Write-Host "HEAD~1 returned no diffs. Retrying with HEAD~2..."
+          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_HOST" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc "$targetCommit" -P includeprivileges=yes -P includeServerElements=no
       }
 
       # Step 2g: Sanitize revision file
