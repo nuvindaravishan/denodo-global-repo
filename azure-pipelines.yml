@@ -7,14 +7,17 @@ pool:
 variables:
   denodoPath: 'C:/Users/hariharan.d/denodo/denodo-db-tools/bin'
   pipelineTmpPath: 'C:/Users/hariharan.d/Denodo/pipeline_files'
+  REVISION_NAME: 'Revision_$(Build.BuildId).vql'
+  vdbName: 'resort360'
+  repositoryName: 'denodo-global-repo'   # Replace with your Repository Name if different
   
-  # Machine A Details (Dev VDP)
-  vdpServer: 'devdenodo-9.iqzsystems.io:9999/resort360'
+  # Dev VDP Details
+  vdpServerWithDb: 'devdenodo-9.iqzsystems.io:9999/resort360'
   
   # Machine B Details (Solution Manager)
-  smHost: 'denodosm-9.iqzsystems.io'  # Replace with Machine B IP/Hostname
-  smPort: '10090'                  # Replace with Solution Manager REST API Port
-  targetEnvId: 8                   # Replace with Target Environment ID in SM
+  smHost: 'denodosm-9.iqzsystems.io'
+  smPort: '10090'
+  targetEnvId: 8
 
 jobs:
 - job: DenodoCICDJob
@@ -25,17 +28,43 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Extract VQL Revision from Dev VDP (Using VDP Credentials)
+# 2. Extract Incremental VQL Revision for resort360
   - powershell: |
       $env:JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
       $env:DENODO_JAVA_OPTS="-Dcom.denodo.vdp.vdb.vdbinterface.server.ssl.trustAll=true"
+      
+      # Step 2a: Create VQL script to pull remote 'main' branch from GitHub
+      "DVCSPULL $env:VDB_NAME;" | Out-File -FilePath "$(pipelineTmpPath)/pull.vql" -Encoding utf8
+      
       Set-Location "$(denodoPath)"
-      .\export.bat -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$(vdpServer)" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -P replaceExistingElements=yes -P includejars=yes
-    displayName: 'Extract VQL Revision from Dev VDP'
+      
+      # Step 2b: Execute DVCSPULL to sync Dev VDP with GitHub
+      Write-Host "Syncing Dev VDP database '$env:VDB_NAME' with GitHub main branch..."
+      .\import.bat --file "$(pipelineTmpPath)/pull.vql" --server "$env:VDP_SERVER_WITH_DB?$env:VDP_USER@$env:VDP_PASSWORD"
+      
+      # Step 2c: Generate Incremental Revision excluding Server Elements (includeServerElements=no)
+      Write-Host "Generating incremental VQL revision for database '$env:VDB_NAME'..."
+      .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~1 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
+      
+      # Step 2d: Auto-fallback to HEAD~2 if HEAD~1 returns no diffs
+      $content = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)" -Raw
+      if ($content -like "*No diff elements between commits*") {
+          Write-Host "HEAD~1 returned no diffs. Retrying with HEAD~2..."
+          .\export.bat --revision -l "$env:VDP_USER" -p "$env:VDP_PASSWORD" -h "$env:VDP_SERVER_WITH_DB" -P databaseName="$env:VDB_NAME" -P repositoryName="$env:REPO_NAME" -f "$(pipelineTmpPath)/$(REVISION_NAME)" -fc HEAD~2 -tc HEAD -P includeprivileges=yes -P includeServerElements=no
+      }
+      
+      # Step 2e: Sanitize revision file to remove any unwanted DROP DATABASE statements
+      Write-Host "Sanitizing revision VQL file..."
+      $fileContent = Get-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+      $cleanContent = $fileContent | Where-Object { $_ -notlike "*DROP DATABASE*" }
+      $cleanContent | Set-Content "$(pipelineTmpPath)/$(REVISION_NAME)"
+    displayName: 'Extract Incremental VQL Revision from Dev VDP'
     env:
+      VDB_NAME: $(vdbName)
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-
+      VDP_SERVER_WITH_DB: $(vdpServerWithDb)
+      REPO_NAME: $(repositoryName)
   # 3. Publish VQL Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
@@ -43,7 +72,7 @@ jobs:
       ArtifactName: 'VQL_Revision'
       publishLocation: 'Container'
 
-  # 4. Deploy via Solution Manager API (Using Solution Manager Credentials)
+  # 4. Deploy via Solution Manager API
   - powershell: |
       Set-Location "$(pipelineTmpPath)"
       python base64revision.py -s "$(smHost)" -p "$(smPort)" -v "$(pipelineTmpPath)/$(REVISION_NAME)" -n "Auto_Build_$(Build.BuildId)" -d "Automated deployment from Azure Pipeline" -e $(targetEnvId) -u "$env:SM_USER" -a "$env:SM_PASSWORD"
