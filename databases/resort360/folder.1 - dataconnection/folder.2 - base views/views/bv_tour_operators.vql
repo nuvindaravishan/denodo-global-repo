@@ -23,7 +23,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_tour_operators
     INDEX 'UQ_Tour_Operator_Email' OTHER UNIQUE ( 'Email' );
 
 CREATE OR REPLACE TABLE bv_tour_operators I18N au_cst (
-        tour_operator_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each tour operator.') TAGS (tour_operator),
+        tour_operator_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each tour operators.') TAGS (tour_operator),
         name:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Denotes the official name of the tour operator.') TAGS (tour_operator),
         state:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Indicates the administrative region or state associated with the tour operator.'),
         contact_address:text (notnull, sourcetypeid = '-9', sourcetypesize = '255', description = 'Provides the physical address or location used for communication with the tour operator.') TAGS (address),
