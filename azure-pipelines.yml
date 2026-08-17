@@ -20,7 +20,7 @@ variables:
   
   # Solution Manager Details
   smHost: 'denodosm-9.iqzsystems.io'
-  smPort: '19443'
+  smPort: '10090'
   targetEnvId: 8
 
 jobs:
