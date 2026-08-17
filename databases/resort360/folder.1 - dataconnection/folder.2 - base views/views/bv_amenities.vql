@@ -24,7 +24,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_amenities
 
 CREATE OR REPLACE TABLE bv_amenities I18N us_est (
         amenity_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
-        resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the resort associated with each amenity, enabling a linkage between amenities and their respective resort.') TAGS (resort),
+        resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the resort associated with each amenity, enabling a linkage between amenities and their respective resorts.') TAGS (resort),
         amenity_name:text (notnull, sourcetypeid = '12', sourcetypesize = '100'),
         category:text (sourcetypeid = '12', sourcetypesize = '50') TAGS (amenity_category),
         rate:decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19', description = 'Specifies the cost or price associated with the amenity, allowing for financial assessment and comparison.'),
