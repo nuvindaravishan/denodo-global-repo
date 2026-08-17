@@ -19,7 +19,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_states
     INDEX 'UQ_State_Code' OTHER UNIQUE ( 'State_Code' );
 
 CREATE OR REPLACE TABLE bv_states I18N au_cst (
-        state_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each state.'),
+        state_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the unique identifier for each states.'),
         state_name:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Provides the official name of the state.'),
         state_code:text (sourcetypeid = '-9', sourcetypesize = '10', description = 'Indicates the abbreviated code or designation for the state.'),
         country_name:text (notnull, sourcetypeid = '-9', sourcetypesize = '100', description = 'Specifies the name of the country to which the state belongs.') TAGS (country),
@@ -29,7 +29,6 @@ CREATE OR REPLACE TABLE bv_states I18N au_cst (
     )
     FOLDER = '/1 - dataconnection/2 - base views'
     CONSTRAINT 'PK_State' PRIMARY KEY ( 'state_id' )
-    TAGS (state)
     CACHE OFF
     TIMETOLIVEINCACHE DEFAULT
     ADD SEARCHMETHOD bv_states(
