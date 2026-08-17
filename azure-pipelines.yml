@@ -152,22 +152,63 @@ jobs:
       publishLocation: 'Container'
     displayName: 'Publish Revision Artifact'
 
-  #6 Deploy via Solution Manager API
+  # Deploy via Solution Manager API
   - powershell: |
+      $ErrorActionPreference = 'Stop'
+      Set-Location "$(Build.SourcesDirectory)"
+
+      # 1. Extract Git Commit Subject and Body
+      $commitSubject = (git log -1 --pretty=%s).Trim()
+      $commitBody = (git log -1 --pretty=%b).Trim()
+
+      Write-Host "Raw Commit Subject: $commitSubject"
+
+      # 2. Parse GitHub PR Title
+      if ($commitSubject -match "^(.*?)\s*\(\#\d+\)$") {
+          # Squash & Merge: "Feature Name (#123)" -> "Feature Name"
+          $prTitle = $Matches[1].Trim()
+      }
+      elseif ($commitSubject -match "^Merge pull request") {
+          # Standard 3-Way Merge: PR Title is in the body
+          $firstBodyLine = ($commitBody -split "`r?`n")[0].Trim()
+          if (![string]::IsNullOrWhiteSpace($firstBodyLine)) {
+              $prTitle = $firstBodyLine
+          } else {
+              $prTitle = $commitSubject
+          }
+      }
+      else {
+          # Direct push or other commit message
+          $prTitle = $commitSubject
+      }
+
+      # 3. Sanitize name for Denodo Solution Manager (replaces spaces/special chars with _)
+      $revisionName = $prTitle -replace '[^a-zA-Z0-9_\-]', '_'
+      
+      # Fallback if empty
+      if ([string]::IsNullOrWhiteSpace($revisionName)) {
+          $revisionName = "Revision_$(Build.BuildId)"
+      }
+
+      Write-Host "========================================="
+      Write-Host "Detected PR Title : $prTitle"
+      Write-Host "SM Revision Name  : $revisionName"
+      Write-Host "========================================="
+
+      # 4. Deploy to Solution Manager
       Set-Location "$(pipelineTmpPath)"
       python base64revision.py `
         -s "$(smHost)" `
         -p "$(smPort)" `
         -v "$(pipelineTmpPath)/$(REVISION_NAME)" `
-        -n "Auto_Build_$(Build.BuildId)" `
-        -d "Automated deployment from Azure Pipeline" `
+        -n "$revisionName" `
+        -d "$prTitle (Build $(Build.BuildId))" `
         -e $(targetEnvId) `
         --protocol https
     displayName: 'Deploy via Solution Manager API'
     env:
       SM_USER: $(SM_USER)
       SM_PASSWORD: $(SM_PASSWORD)
-
   # 7. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
