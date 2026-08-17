@@ -6,12 +6,12 @@ pool:
 
 variables:
   # Path to Denodo Platform bin folder containing export.bat
-  denodoPath: 'C:/Users/hariharan.d/denodo/denodo-db-tools/bin'
+  denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
   
   # VDP Server Details (where Git workspace/main is connected)
-  vdpServer: '//localhost:9999/admin'
+  vdpServer: '//devdenodo-9.iqzsystems.io:9999/admin'
   
   # Solution Manager Details
   smHost: 'denodosm-9.iqzsystems.io'
