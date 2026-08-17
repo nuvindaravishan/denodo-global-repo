@@ -33,51 +33,48 @@ jobs:
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Synchronize VDP Server with Git (DVCSPULL)
+  # 2. Synchronize resort360 VDB and Generate Incremental Revision
   - powershell: |
-      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
-      
-      # Create VQL command file to trigger DVCSPULL
-      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      Write-Host "Created pull command file at: $pullVqlPath"
+      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
+      $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
+      # --- Step A: Write DVCSPULL for the specific database with quotes ---
+      "DVCSPULL '$(vdbName)';" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      Write-Host "Created VCS pull file for database $(vdbName): $pullVqlPath"
+
+      # Navigate into Denodo bin directory to load Java classpaths
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
-      
+
       try {
-          Write-Host "Triggering DVCSPULL on VDP server $(vdpHost)..."
+          # --- Step B: Trigger DVCSPULL on /resort360 ---
+          Write-Host "========================================="
+          Write-Host "Step 1: Pulling Git changes into database $(vdbName)..."
+          Write-Host "========================================="
+          
+          # Notice we connect directly to /$(vdbName), NOT /admin
           $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
           .\import.bat --singleuser --file "$pullVqlPath" --server "$serverParam"
 
           if ($LASTEXITCODE -ne 0) {
-              Write-Error "Failed to pull VCS changes to VDP server. Exit code: $LASTEXITCODE"
+              Write-Error "DVCSPULL failed with exit code $LASTEXITCODE. Verify VDP credentials and Git remote access for $(vdbName)."
               exit $LASTEXITCODE
           }
-          Write-Host "VDP server synchronized successfully with remote Git."
-      }
-      finally {
-          Pop-Location
-      }
-    displayName: 'Pull Latest VCS Changes to VDP Server'
-    env:
-      VDP_USER: $(VDP_USER)
-      VDP_PASSWORD: $(VDP_PASSWORD)
+          Write-Host "Database $(vdbName) successfully synchronized with Git repository."
 
-  # 3. Generate Incremental Workspace Revision via Denodo export.bat
-  - powershell: |
-      $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
-      
-      Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
-      Push-Location "$(denodoPath)"
-      
-      try {
-          Write-Host "Generating incremental revision from HEAD~1 to $(Build.SourceVersion)..."
-          
+          # --- Step C: Run export.bat pointing to /resort360 ---
+          Write-Host "========================================="
+          Write-Host "Step 2: Generating incremental revision for $(vdbName)..."
+          Write-Host "From: HEAD~1"
+          Write-Host "To:   $(Build.SourceVersion)"
+          Write-Host "========================================="
+
+          # Notice -h points to /$(vdbName), NOT /admin
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//$($env:vdpHost):$($env:vdpPort)/admin" `
+            -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
             -f "$outputVql" `
             -fc "HEAD~1" `
             -tc "$(Build.SourceVersion)" `
@@ -87,17 +84,17 @@ jobs:
               Write-Error "export.bat failed with exit code $LASTEXITCODE"
               exit $LASTEXITCODE
           }
+          Write-Host "Incremental revision VQL created successfully at: $outputVql"
       }
       finally {
           Pop-Location
       }
-    displayName: 'Generate Incremental Workspace Revision'
+    displayName: 'Sync resort360 with Git and Generate Incremental Revision'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
       vdpHost: $(vdpHost)
       vdpPort: $(vdpPort)
-
   # 4. Verify Generated VQL
   - powershell: |
       $revisionFile = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
