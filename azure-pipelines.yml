@@ -39,7 +39,7 @@ jobs:
   - powershell: |
       Set-Location "$(Build.SourcesDirectory)"
       
-      # Determine the exact commit hashes from Git history
+      # Determine exact commit hashes from Git history
       $toCommit = (git rev-parse HEAD).Trim()
       $fromCommit = (git rev-parse HEAD~1).Trim()
       
@@ -47,10 +47,6 @@ jobs:
       Write-Host "Triggered by Commit: $toCommit"
       Write-Host "Comparing from:      $fromCommit"
       Write-Host "======================================================"
-
-      # Check which files changed in this merge commit
-      Write-Host "Modified files detected in Git:"
-      git diff --name-only $fromCommit $toCommit
 
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
@@ -64,11 +60,12 @@ jobs:
       Push-Location "$(denodoPath)"
 
       try {
-          # --- Step B: Trigger DVCSPULL on /resort360 ---
-          Write-Host "Pulling latest Git commits to VDP database $(vdbName)..."
+          # --- Step B: Trigger DVCSPULL (WITHOUT --singleuser) ---
+          Write-Host "Pulling latest Git commits into VDP database $(vdbName)..."
           $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
-          .\import.bat --singleuser --file "$pullVqlPath" --server "$serverParam"
+          # Notice: --singleuser is REMOVED so it executes even with active sessions
+          .\import.bat --file "$pullVqlPath" --server "$serverParam"
 
           if ($LASTEXITCODE -ne 0) {
               Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
@@ -92,6 +89,7 @@ jobs:
               Write-Error "export.bat failed with exit code $LASTEXITCODE"
               exit $LASTEXITCODE
           }
+          Write-Host "Incremental revision created successfully at: $outputVql"
       }
       finally {
           Pop-Location
