@@ -1,5 +1,9 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+
+pr: none
 
 pool:
   name: 'denodo_git'
@@ -8,10 +12,9 @@ variables:
   denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
-  vqlPullFile: 'vcs_pull.vql'
   vdbName: 'resort360'
   
-  # VDP Server Details
+  # Server Connection Details
   vdpHost: 'devdenodo-9.iqzsystems.io'
   vdpPort: '9999'
   
@@ -21,67 +24,106 @@ variables:
   targetEnvId: 8
 
 jobs:
-- job: DenodoCICDJob
+- job: DenodoGitHubWorkspaceCI
+  displayName: 'Denodo 9 GitHub Workspace CI/CD'
   steps:
   
-  # 1. Checkout repository with full commit history for git diff
+  # 1. Full Git checkout from GitHub
   - checkout: self
     fetchDepth: 0
+    persistCredentials: true
 
-  # 2. Initialize Pipeline Folder
+  # 2. Initialize Directory
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { 
           New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force 
+          Write-Host "Created temporary folder at: $(pipelineTmpPath)"
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 3. Synchronize resort360 and Export Database VQL
+  # 3. Resolve GitHub Commits and Generate Incremental Revision
   - powershell: |
-      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
-      $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
+      $ErrorActionPreference = 'Stop'
+      Set-Location "$(Build.SourcesDirectory)"
 
-      # Step 1: Create and execute DVCSPULL
-      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      # Get Trigger Commit SHA from GitHub
+      $toCommit = "$(Build.SourceVersion)"
+      if ([string]::IsNullOrWhiteSpace($toCommit)) {
+          $toCommit = (git rev-parse HEAD).Trim()
+      }
+
+      # Inspect commit parents to determine GitHub PR merge type
+      $parents = (git rev-list --parents -n 1 $toCommit).Trim() -split '\s+'
       
+      if ($parents.Count -gt 2) {
+          # GitHub 'Create a merge commit' -> Parent 1 is main before merge
+          $fromCommit = $parents[1].Trim()
+          Write-Host "Detected GitHub PR 3-Way Merge Commit."
+      } else {
+          # GitHub 'Squash and merge' or direct push -> Compare with HEAD~1
+          $fromCommit = (git rev-parse "$toCommit~1").Trim()
+          Write-Host "Detected GitHub Squash Merge or Direct Push."
+      }
+
+      Write-Host "================= GITHUB COMMIT RANGE ================="
+      Write-Host "GitHub SHA To   (-tc): $toCommit"
+      Write-Host "GitHub SHA From (-fc): $fromCommit"
+      Write-Host "======================================================="
+
+      # Print files changed in GitHub
+      Write-Host "=== FILES CHANGED IN GITHUB REPO ==="
+      git diff --name-status $fromCommit $toCommit
+      Write-Host "===================================="
+
+      if ($fromCommit -eq $toCommit) {
+          Write-Error "From-commit and To-commit are identical ($fromCommit). No changes to export."
+          exit 1
+      }
+
+      $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
+
       Push-Location "$(denodoPath)"
       try {
-          Write-Host "Pulling latest Git changes into $(vdbName)..."
-          $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
-          .\import.bat --file "$pullVqlPath" --server "$serverParam"
+          # Primary Attempt: Connect to database endpoint //devdenodo-9:9999/resort360
+          $targetUrl = "//$(vdpHost):$(vdpPort)/$(vdbName)"
+          Write-Host "Connecting export.bat to: $targetUrl"
 
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
-              exit $LASTEXITCODE
-          }
-          Write-Host "VDP server $(vdbName) synchronized successfully."
-
-          # Step 2: Export Database VQL with Replace Semantics
-          Write-Host "Exporting $(vdbName) database VQL..."
-          .\export.bat `
+          .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
+            -h "$targetUrl" `
             -f "$outputVql" `
-            -P "includejars=yes" `
-            -P "includescanners=yes" `
-            -P "includeCustomComponents=yes" `
-            -P "replaceExistingElements=yes"
+            -fc "$fromCommit" `
+            -tc "$toCommit" `
+            -P "includeprivileges=yes"
+
+          # Fallback Check: If database level returned empty, retry connecting to /admin
+          $vqlContent = Get-Content "$outputVql" -Raw -ErrorAction SilentlyContinue
+          if ($vqlContent -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($vqlContent)) {
+              Write-Warning "Database scope returned empty. Retrying with /admin endpoint..."
+              
+              $adminUrl = "//$(vdpHost):$(vdpPort)/admin"
+              .\export.bat --revision `
+                -l "$env:VDP_USER" `
+                -p "$env:VDP_PASSWORD" `
+                -h "$adminUrl" `
+                -f "$outputVql" `
+                -fc "$fromCommit" `
+                -tc "$toCommit" `
+                -P "includeprivileges=yes"
+          }
 
           if ($LASTEXITCODE -ne 0) {
-              Write-Error "export.bat failed with exit code $LASTEXITCODE"
-              exit $LASTEXITCODE
+              throw "export.bat failed with exit code $LASTEXITCODE"
           }
-          Write-Host "Exported VQL successfully created at: $outputVql"
       }
       finally {
           Pop-Location
       }
-    displayName: 'Sync and Export Database VQL for resort360'
+    displayName: 'Generate Incremental Workspace Revision'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-      vdpHost: $(vdpHost)
-      vdpPort: $(vdpPort)
 
   # 4. Verify Generated VQL Output
   - powershell: |
@@ -96,22 +138,22 @@ jobs:
       Write-Host "=== INCREMENTAL REVISION VQL OUTPUT ==="
       Write-Host $content
 
-      # Guard against empty diffs
       if ($content -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($content)) {
-          Write-Warning "No VQL differences found between commits. Check if changes were committed to the correct branch/database."
+          Write-Error "Denodo returned '# No diff elements between commits'. Verify that the VDP Server can connect to GitHub and fetch the latest commits."
+          exit 1
       }
     displayName: 'Verify Generated VQL Output'
 
-  # 5. Publish VQL Build Artifact
+  # 5. Publish Build Artifact
   - task: PublishBuildArtifacts@1
     inputs:
       PathtoPublish: '$(pipelineTmpPath)/$(REVISION_NAME)'
       ArtifactName: 'VQL_Revision'
       publishLocation: 'Container'
+    displayName: 'Publish Revision Artifact'
 
   # 6. Deploy via Solution Manager API
   - powershell: |
-      # Locate base64revision.py (check Sources Directory first, then pipelineTmpPath)
       $scriptPath = Join-Path "$(Build.SourcesDirectory)" "base64revision.py"
       if (!(Test-Path $scriptPath)) {
           $scriptPath = Join-Path "$(pipelineTmpPath)" "base64revision.py"
@@ -119,13 +161,13 @@ jobs:
 
       $revisionVqlPath = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      Write-Host "Running deployment script: $scriptPath"
+      Write-Host "Executing deployment script: $scriptPath"
       python "$scriptPath" `
         -s "$(smHost)" `
         -p "$(smPort)" `
         -v "$revisionVqlPath" `
         -n "Auto_Build_$(Build.BuildId)" `
-        -d "Automated deployment from commit $(Build.SourceVersion)" `
+        -d "Automated deployment from GitHub commit $(Build.SourceVersion)" `
         -e $(targetEnvId) `
         -u "$env:SM_USER" `
         -a "$env:SM_PASSWORD" `
@@ -138,6 +180,5 @@ jobs:
   # 7. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
-      if exist "$(pipelineTmpPath)\$(vqlPullFile)" del /f /q "$(pipelineTmpPath)\$(vqlPullFile)"
     displayName: 'Cleanup Temp Files'
     condition: always()
