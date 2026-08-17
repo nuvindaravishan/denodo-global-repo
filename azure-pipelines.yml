@@ -33,7 +33,7 @@ jobs:
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 3. Generate Incremental Workspace Revision (Global VCS / Admin)
+  # 3. Synchronize VDP Server and Generate Incremental Workspace Revision
   - powershell: |
       Set-Location "$(Build.SourcesDirectory)"
       
@@ -46,16 +46,33 @@ jobs:
       Write-Host "Comparing from      (-fc): $fromCommit"
       Write-Host "======================================================"
 
-      $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
+      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
+      $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # Navigate into Denodo bin folder
+      # --- Step A: Write DVCSPULL for Global VCS ---
+      "DVCSPULL resort360;" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      Write-Host "Created VCS pull file: $pullVqlPath"
+
+      # Navigate into Denodo bin folder to load Java classpath
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
 
       try {
-          Write-Host "Executing export.bat --revision against /admin..."
+          # --- Step B: Pull latest commits into VDP Global VCS ---
+          Write-Host "Step 1: Pulling latest Git commits to VDP Server..."
+          $serverParam = "//$(vdpHost):$(vdpPort)/admin?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
-          # Notice: Connects to /admin for Global Workspace VCS diffing
+          .\import.bat --file "$pullVqlPath" --server "$serverParam"
+
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
+              exit $LASTEXITCODE
+          }
+          Write-Host "VDP server successfully synchronized with Global Git repository."
+
+          # --- Step C: Run export.bat --revision against /admin ---
+          Write-Host "Step 2: Generating incremental revision..."
+          
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
@@ -74,7 +91,7 @@ jobs:
       finally {
           Pop-Location
       }
-    displayName: 'Generate Incremental Workspace Revision'
+    displayName: 'Sync VDP with Git and Generate Incremental Revision'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
