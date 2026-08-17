@@ -35,48 +35,30 @@ jobs:
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 3. Synchronize resort360 and Export Database VQL
+  # Step for Option A: True Workspace Incremental Export
   - powershell: |
-      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
-      $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
+      Set-Location "$(Build.SourcesDirectory)"
+      $toCommit = (git rev-parse HEAD).Trim()
+      $fromCommit = (git rev-parse HEAD~1).Trim()
+      $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # Step 1: Create and execute DVCSPULL
-      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      
       Push-Location "$(denodoPath)"
       try {
-          Write-Host "Pulling latest Git changes into $(vdbName)..."
-          $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
-          .\import.bat --file "$pullVqlPath" --server "$serverParam"
-
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
-              exit $LASTEXITCODE
-          }
-          Write-Host "VDP server $(vdbName) synchronized successfully."
-
-          # Step 2: Export Database VQL with Replace Semantics
-          Write-Host "Exporting $(vdbName) database VQL..."
-          .\export.bat `
+          .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
+            -h "//$($env:vdpHost):$($env:vdpPort)/admin" `
             -f "$outputVql" `
-            -P "includejars=yes" `
-            -P "includescanners=yes" `
-            -P "includeCustomComponents=yes" `
-            -P "replaceExistingElements=yes"
+            -fc "$fromCommit" `
+            -tc "$toCommit" `
+            -P "includeprivileges=yes"
 
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "export.bat failed with exit code $LASTEXITCODE"
-              exit $LASTEXITCODE
-          }
-          Write-Host "Exported VQL successfully created at: $outputVql"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       }
       finally {
           Pop-Location
       }
-    displayName: 'Sync and Export Database VQL for resort360'
+    displayName: 'Generate Incremental Workspace Revision'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
