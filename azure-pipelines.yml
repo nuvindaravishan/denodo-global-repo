@@ -8,8 +8,10 @@ variables:
   denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
+  vqlPullFile: 'vcs_pull.vql'
+  vdbName: 'resort360'
   
-  # VDP Server Details (Global Workspace connects to /admin)
+  # VDP Server Details
   vdpHost: 'devdenodo-9.iqzsystems.io'
   vdpPort: '9999'
   
@@ -22,7 +24,7 @@ jobs:
 - job: DenodoCICDJob
   steps:
   
-  # 1. Checkout repository with full commit history for commit comparison
+  # 1. Checkout repository with full commit history
   - checkout: self
     fetchDepth: 0
 
@@ -33,7 +35,7 @@ jobs:
       }
     displayName: 'Initialize Pipeline Folder'
 
-# 3. Synchronize VDP Server and Generate Incremental Workspace Revision
+  # 3. Synchronize resort360 and Generate Incremental Revision
   - powershell: |
       Set-Location "$(Build.SourcesDirectory)"
       
@@ -44,24 +46,24 @@ jobs:
       Write-Host "======================================================"
       Write-Host "Triggered by Commit (-tc): $toCommit"
       Write-Host "Comparing from      (-fc): $fromCommit"
-      Write-Host "Target Database:           $env:vdbName"
+      Write-Host "Target Database:           $(vdbName)"
       Write-Host "======================================================"
 
-      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
+      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
       # --- Step A: Write DVCSPULL command ---
-      "DVCSPULL $env:vdbName;" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      Write-Host "Created VCS pull file for $env:vdbName: $pullVqlPath"
+      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      Write-Host "Created VCS pull file for $(vdbName): $pullVqlPath"
 
-      # Navigate into Denodo bin folder
+      # Navigate to Denodo bin folder
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
 
       try {
           # --- Step B: Pull latest commits into resort360 ---
-          Write-Host "Step 1: Pulling latest Git commits to $env:vdbName..."
-          $serverParam = "//${env:vdpHost}:${env:vdpPort}/${env:vdbName}?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
+          Write-Host "Step 1: Pulling latest Git commits to $(vdbName)..."
+          $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
           .\import.bat --file "$pullVqlPath" --server "$serverParam"
 
@@ -69,16 +71,16 @@ jobs:
               Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
               exit $LASTEXITCODE
           }
-          Write-Host "Database $env:vdbName synchronized successfully."
+          Write-Host "Database $(vdbName) synchronized successfully."
 
           # --- Step C: Run export.bat --revision against resort360 ---
-          Write-Host "Step 2: Generating incremental revision for $env:vdbName..."
+          Write-Host "Step 2: Generating incremental revision for $(vdbName)..."
           
-          # Target /resort360 so export finds the commit just pulled
+          # Notice: Connects to /$(vdbName) (resort360) so export matches the pulled repository
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//${env:vdpHost}:${env:vdpPort}/${env:vdbName}" `
+            -h "//$(vdpHost):$(vdpPort)/$(vdbName)" `
             -f "$outputVql" `
             -fc "$fromCommit" `
             -tc "$toCommit" `
@@ -93,15 +95,12 @@ jobs:
       finally {
           Pop-Location
       }
-    displayName: 'Sync VDP with Git and Generate Incremental Revision'
+    displayName: 'Sync resort360 with Git and Generate Incremental Revision'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
-      vdpHost: $(vdpHost)
-      vdpPort: $(vdpPort)
-      vdbName: $(vdbName)
 
-  # 4. Verify Generated VQL Output in Build Logs
+  # 4. Verify Generated VQL Output
   - powershell: |
       $revisionFile = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
       
@@ -115,7 +114,7 @@ jobs:
       Write-Host $content
 
       if ($content -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($content)) {
-          Write-Warning "No VQL differences found between commits. Verify that changes were saved, staged, and committed."
+          Write-Warning "No VQL differences found between commits."
       }
     displayName: 'Verify Generated VQL Output'
 
@@ -126,9 +125,8 @@ jobs:
       ArtifactName: 'VQL_Revision'
       publishLocation: 'Container'
 
-  # 6. Deploy Revision via Solution Manager API
+  # 6. Deploy via Solution Manager API
   - powershell: |
-      # Check Sources directory first, fallback to pipelineTmpPath
       $scriptPath = Join-Path "$(Build.SourcesDirectory)" "base64revision.py"
       if (!(Test-Path $scriptPath)) {
           $scriptPath = Join-Path "$(pipelineTmpPath)" "base64revision.py"
@@ -155,5 +153,6 @@ jobs:
   # 7. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
+      if exist "$(pipelineTmpPath)\$(vqlPullFile)" del /f /q "$(pipelineTmpPath)\$(vqlPullFile)"
     displayName: 'Cleanup Temp Files'
     condition: always()
