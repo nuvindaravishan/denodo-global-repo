@@ -21,7 +21,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_tour_operator_transaction
     INDEX 'PK__Tour_Ope__E62843654B2ED9F6' CLUSTER UNIQUE PRIMARY ( 'Tour_Operator_Transaction_ID' );
 
 CREATE OR REPLACE TABLE bv_tour_operator_transaction I18N us_est (
-        resort_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Serves as a unique identifier representing a specific resort in the database. It includes values like "4", "6", "1", and "9".'),
+        resort_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Serves as a unique identifier representing a specific resort in the database. It includes values like "4", "6", "1", and "9"'),
         tour_operator_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the identifier for a tour operator associated with transactions. It includes values like "2", "12", "19", and "20".'),
         tour_operator_contract_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Denotes the identifier of a contract between the tour operator and the resort. It includes values like "2", "12", "19", and "20".'),
         booking_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the unique identifier for a customer booking. This field does not currently have sample data available.'),
