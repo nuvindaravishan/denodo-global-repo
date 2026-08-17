@@ -35,25 +35,30 @@ jobs:
 
   # 2. Synchronize VDP Server with Git (DVCSPULL)
   - powershell: |
-      $importBat = Join-Path "$(denodoPath)" "import.bat"
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
       
       # Create VQL command file to trigger DVCSPULL
       "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
       Write-Host "Created pull command file at: $pullVqlPath"
 
-      Write-Host "Triggering DVCSPULL on VDP server $(vdpHost)..."
+      Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
+      Push-Location "$(denodoPath)"
       
-      # Execute import.bat to pull remote commits into VDP
-      $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
-      
-      & "$importBat" --singleuser --file "$pullVqlPath" --server "$serverParam"
+      try {
+          Write-Host "Triggering DVCSPULL on VDP server $(vdpHost)..."
+          $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
+          
+          .\import.bat --singleuser --file "$pullVqlPath" --server "$serverParam"
 
-      if ($LASTEXITCODE -ne 0) {
-          Write-Error "Failed to pull VCS changes to VDP server. Exit code: $LASTEXITCODE"
-          exit $LASTEXITCODE
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "Failed to pull VCS changes to VDP server. Exit code: $LASTEXITCODE"
+              exit $LASTEXITCODE
+          }
+          Write-Host "VDP server synchronized successfully with remote Git."
       }
-      Write-Host "VDP server synchronized successfully with remote Git."
+      finally {
+          Pop-Location
+      }
     displayName: 'Pull Latest VCS Changes to VDP Server'
     env:
       VDP_USER: $(VDP_USER)
@@ -61,23 +66,30 @@ jobs:
 
   # 3. Generate Incremental Workspace Revision via Denodo export.bat
   - powershell: |
-      $exportBat = Join-Path "$(denodoPath)" "export.bat"
       $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
       
-      Write-Host "Generating incremental revision from HEAD~1 to $(Build.SourceVersion)..."
+      Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
+      Push-Location "$(denodoPath)"
       
-      & "$exportBat" --revision `
-        -l "$env:VDP_USER" `
-        -p "$env:VDP_PASSWORD" `
-        -h "//$($env:vdpHost):$($env:vdpPort)/admin" `
-        -f "$outputVql" `
-        -fc "HEAD~1" `
-        -tc "$(Build.SourceVersion)" `
-        -P "includeprivileges=yes"
+      try {
+          Write-Host "Generating incremental revision from HEAD~1 to $(Build.SourceVersion)..."
+          
+          .\export.bat --revision `
+            -l "$env:VDP_USER" `
+            -p "$env:VDP_PASSWORD" `
+            -h "//$($env:vdpHost):$($env:vdpPort)/admin" `
+            -f "$outputVql" `
+            -fc "HEAD~1" `
+            -tc "$(Build.SourceVersion)" `
+            -P "includeprivileges=yes"
 
-      if ($LASTEXITCODE -ne 0) {
-          Write-Error "export.bat failed with exit code $LASTEXITCODE"
-          exit $LASTEXITCODE
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "export.bat failed with exit code $LASTEXITCODE"
+              exit $LASTEXITCODE
+          }
+      }
+      finally {
+          Pop-Location
       }
     displayName: 'Generate Incremental Workspace Revision'
     env:
