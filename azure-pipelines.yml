@@ -5,13 +5,15 @@ pool:
   name: 'denodo_git'
 
 variables:
-  # Path to Denodo Platform bin folder containing export.bat
   denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
+  vqlPullFile: 'vcs_pull.vql'
+  vdbName: 'resort360'
   
-  # VDP Server Details (where Git workspace/main is connected)
-  vdpServer: '//devdenodo-9.iqzsystems.io:9999/admin'
+  # VDP Server Details
+  vdpHost: 'devdenodo-9.iqzsystems.io'
+  vdpPort: '9999'
   
   # Solution Manager Details
   smHost: 'denodosm-9.iqzsystems.io'
@@ -21,44 +23,77 @@ variables:
 jobs:
 - job: DenodoCICDJob
   steps:
-  
-  # 1. Checkout repository with full commit history for commit comparison
   - checkout: self
     fetchDepth: 0
 
-  # 2. Initialize Pipeline Folder
+  # 1. Initialize Pipeline Folder
   - powershell: |
-      if (!(Test-Path "$(pipelineTmpPath)")) {
-          New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force
+      if (!(Test-Path "$(pipelineTmpPath)")) { 
+          New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force 
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 3. Generate Incremental VQL Revision via Denodo export.bat
-  - script: |
-      echo Generating incremental revision from HEAD~1 to $(Build.SourceVersion)...
-      cd /d $(denodoPath)
+  # 2. Synchronize VDP Server with Git (DVCSPULL)
+  - powershell: |
+      $importBat = Join-Path "$(denodoPath)" "import.bat"
+      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
       
-      export.bat --revision ^
-        -l $(VDP_USER) ^
-        -p $(VDP_PASSWORD) ^
-        -h $(vdpServer) ^
-        -f "$(pipelineTmpPath)\$(REVISION_NAME)" ^
-        -fc HEAD~1 ^
-        -tc $(Build.SourceVersion) ^
-        -P includeprivileges=yes
-    displayName: 'Generate Incremental Workspace Revision'
+      # Create VQL command file to trigger DVCSPULL
+      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      Write-Host "Created pull command file at: $pullVqlPath"
+
+      Write-Host "Triggering DVCSPULL on VDP server $(vdpHost)..."
+      
+      # Execute import.bat to pull remote commits into VDP
+      $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
+      
+      & "$importBat" --singleuser --file "$pullVqlPath" --server "$serverParam"
+
+      if ($LASTEXITCODE -ne 0) {
+          Write-Error "Failed to pull VCS changes to VDP server. Exit code: $LASTEXITCODE"
+          exit $LASTEXITCODE
+      }
+      Write-Host "VDP server synchronized successfully with remote Git."
+    displayName: 'Pull Latest VCS Changes to VDP Server'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
 
-  # 4. Display the Generated Incremental VQL (For verification in build logs)
+  # 3. Generate Incremental Workspace Revision via Denodo export.bat
   - powershell: |
-      $revisionFile = "$(pipelineTmpPath)\$(REVISION_NAME)"
+      $exportBat = Join-Path "$(denodoPath)" "export.bat"
+      $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
+      
+      Write-Host "Generating incremental revision from HEAD~1 to $(Build.SourceVersion)..."
+      
+      & "$exportBat" --revision `
+        -l "$env:VDP_USER" `
+        -p "$env:VDP_PASSWORD" `
+        -h "//$($env:vdpHost):$($env:vdpPort)/admin" `
+        -f "$outputVql" `
+        -fc "HEAD~1" `
+        -tc "$(Build.SourceVersion)" `
+        -P "includeprivileges=yes"
+
+      if ($LASTEXITCODE -ne 0) {
+          Write-Error "export.bat failed with exit code $LASTEXITCODE"
+          exit $LASTEXITCODE
+      }
+    displayName: 'Generate Incremental Workspace Revision'
+    env:
+      VDP_USER: $(VDP_USER)
+      VDP_PASSWORD: $(VDP_PASSWORD)
+      vdpHost: $(vdpHost)
+      vdpPort: $(vdpPort)
+
+  # 4. Verify Generated VQL
+  - powershell: |
+      $revisionFile = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
       if (Test-Path $revisionFile) {
           Write-Host "=== INCREMENTAL REVISION VQL OUTPUT ==="
           Get-Content $revisionFile
       } else {
-          Write-Error "Revision file was not generated!"
+          Write-Error "Revision file $revisionFile was not generated."
           exit 1
       }
     displayName: 'Verify Generated VQL Output'
@@ -72,7 +107,15 @@ jobs:
 
   # 6. Deploy via Solution Manager API
   - powershell: |
-      python "$(pipelineTmpPath)\base64revision.py" -s "$(smHost)" -p "$(smPort)" -v "$(pipelineTmpPath)\$(REVISION_NAME)" -n "Auto_Build_$(Build.BuildId)" -d "Automated deployment from Azure Pipeline commit $(Build.SourceVersion)" -e $(targetEnvId) -u "$env:SM_USER" -a "$env:SM_PASSWORD"
+      python "$(pipelineTmpPath)\base64revision.py" `
+        -s "$(smHost)" `
+        -p "$(smPort)" `
+        -v "$(pipelineTmpPath)\$(REVISION_NAME)" `
+        -n "Auto_Build_$(Build.BuildId)" `
+        -d "Automated deployment from Azure Pipeline commit $(Build.SourceVersion)" `
+        -e $(targetEnvId) `
+        -u "$env:SM_USER" `
+        -a "$env:SM_PASSWORD"
     displayName: 'Deploy via Solution Manager API'
     env:
       SM_USER: $(SM_USER)
@@ -81,5 +124,6 @@ jobs:
   # 7. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
+      if exist "$(pipelineTmpPath)\$(vqlPullFile)" del /f /q "$(pipelineTmpPath)\$(vqlPullFile)"
     displayName: 'Cleanup Temp Files'
     condition: always()
