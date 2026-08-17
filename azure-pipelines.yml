@@ -1,5 +1,10 @@
 trigger:
-  - main
+  branches:
+    include:
+      - main
+
+# Explicitly disable PR validation triggers so the pipeline only runs AFTER the PR is merged
+pr: none
 
 pool:
   name: 'denodo_git'
@@ -9,7 +14,9 @@ variables:
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
   
-  # In Workspace model (Option A), always connect to /admin
+  # VDP Server Details (Option A connects to /admin)
+  vdpHost: 'devdenodo-9.iqzsystems.io'
+  vdpPort: '9999'
   server: '//devdenodo-9.iqzsystems.io:9999/admin'
   
   # Solution Manager Details
@@ -19,9 +26,10 @@ variables:
 
 jobs:
 - job: DenodoWorkspaceCICD
+  displayName: 'Denodo Workspace Incremental CI/CD'
   steps:
   
-  # 1. Checkout Git repository with full history
+  # 1. Checkout repository with full commit history
   - checkout: self
     fetchDepth: 0
 
@@ -29,31 +37,58 @@ jobs:
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { 
           New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force 
+          Write-Host "Created pipeline folder at: $(pipelineTmpPath)"
+      } else {
+          Write-Host "Pipeline folder already exists at: $(pipelineTmpPath)"
       }
-    displayName: 'Initialize Workspace Folder'
+    displayName: 'Initialize Pipeline Folder'
 
-  # 3. Generate Incremental Workspace Revision
+  # 3. Calculate Commit Delta & Generate Incremental Workspace Revision
   - powershell: |
+      $ErrorActionPreference = 'Stop'
       Set-Location "$(Build.SourcesDirectory)"
       
-      # Target commit is the commit that triggered the build (merged commit on main)
+      # 1. Target commit is the merge commit on main
       $toCommit = "$(Build.SourceVersion)"
-      # Base commit is the previous commit on the main branch
-      $fromCommit = (git rev-parse HEAD~1).Trim()
+      if ([string]::IsNullOrWhiteSpace($toCommit)) {
+          $toCommit = (git rev-parse HEAD).Trim()
+      }
+
+      # 2. Determine base commit depending on merge strategy (3-way merge vs squash)
+      $parents = (git rev-list --parents -n 1 $toCommit).Trim().Split(" ")
       
+      if ($parents.Count -gt 2) {
+          # 3-Way Merge: Parent 1 is the previous tip of main before the PR
+          $fromCommit = $parents[1].Trim()
+          Write-Host "Detected 3-way merge commit with $($parents.Count - 1) parents."
+      } else {
+          # Squash Merge or Direct Commit: Base is the previous commit HEAD~1
+          $fromCommit = (git rev-parse "$toCommit~1").Trim()
+          Write-Host "Detected Squash Merge / Single Commit."
+      }
+
+      Write-Host "======================================================"
+      Write-Host "Triggered by Commit (-tc): $toCommit"
+      Write-Host "Comparing from      (-fc): $fromCommit"
+      Write-Host "Target Server:             $(server)"
+      Write-Host "======================================================"
+
+      # 3. Print modified files in Git
+      Write-Host "=== FILES MODIFIED IN THIS MERGE ==="
+      git diff --name-status $fromCommit $toCommit
+
+      if ($fromCommit -eq $toCommit) {
+          Write-Error "From-commit and To-commit are identical ($fromCommit). No changes detected."
+          exit 1
+      }
+
       $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      Write-Host "======================================================"
-      Write-Host "Workspace Model: Generating Incremental Revision"
-      Write-Host "From Commit (-fc): $fromCommit"
-      Write-Host "To Commit   (-tc): $toCommit"
-      Write-Host "Target Server:     $(server)"
-      Write-Host "Output File:       $outputVql"
-      Write-Host "======================================================"
-
+      # 4. Run export.bat --revision against /admin
       Push-Location "$(denodoPath)"
       try {
-          # Call export.bat --revision connecting to /admin
+          Write-Host "Running export.bat to generate incremental revision..."
+          
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
@@ -64,8 +99,11 @@ jobs:
             -P "includeprivileges=yes"
 
           if ($LASTEXITCODE -ne 0) {
-              throw "export.bat failed with exit code $LASTEXITCODE"
+              Write-Error "export.bat failed with exit code $LASTEXITCODE"
+              exit $LASTEXITCODE
           }
+          
+          Write-Host "Incremental revision successfully generated at: $outputVql"
       }
       finally {
           Pop-Location
@@ -89,7 +127,8 @@ jobs:
       Write-Host $content
 
       if ($content -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($content)) {
-          Write-Warning "No VQL differences found between commits $fromCommit and $toCommit."
+          Write-Error "Denodo found NO VQL differences between the specified commits. Aborting deployment."
+          exit 1
       }
     displayName: 'Verify Generated VQL Output'
 
@@ -99,6 +138,7 @@ jobs:
       PathtoPublish: '$(pipelineTmpPath)/$(REVISION_NAME)'
       ArtifactName: 'VQL_Revision'
       publishLocation: 'Container'
+    displayName: 'Publish Revision Artifact'
 
   # 6. Deploy via Solution Manager API
   - powershell: |
