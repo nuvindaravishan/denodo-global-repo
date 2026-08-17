@@ -8,10 +8,8 @@ variables:
   denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
-  vqlPullFile: 'vcs_pull.vql'
-  vdbName: 'resort360'
   
-  # VDP Server Details
+  # VDP Server Details (Global Workspace connects to /admin)
   vdpHost: 'devdenodo-9.iqzsystems.io'
   vdpPort: '9999'
   
@@ -24,7 +22,7 @@ jobs:
 - job: DenodoCICDJob
   steps:
   
-  # 1. Checkout repository with full commit history for git diff
+  # 1. Checkout repository with full commit history for commit comparison
   - checkout: self
     fetchDepth: 0
 
@@ -35,15 +33,29 @@ jobs:
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # Step for Option A: True Workspace Incremental Export
+  # 3. Generate Incremental Workspace Revision (Global VCS / Admin)
   - powershell: |
       Set-Location "$(Build.SourcesDirectory)"
+      
+      # Extract exact commit range from Git merge
       $toCommit = (git rev-parse HEAD).Trim()
       $fromCommit = (git rev-parse HEAD~1).Trim()
+      
+      Write-Host "======================================================"
+      Write-Host "Triggered by Commit (-tc): $toCommit"
+      Write-Host "Comparing from      (-fc): $fromCommit"
+      Write-Host "======================================================"
+
       $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
+      # Navigate into Denodo bin folder
+      Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
+
       try {
+          Write-Host "Executing export.bat --revision against /admin..."
+          
+          # Notice: Connects to /admin for Global Workspace VCS diffing
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
@@ -53,7 +65,11 @@ jobs:
             -tc "$toCommit" `
             -P "includeprivileges=yes"
 
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "export.bat failed with exit code $LASTEXITCODE"
+              exit $LASTEXITCODE
+          }
+          Write-Host "Incremental revision successfully generated at: $outputVql"
       }
       finally {
           Pop-Location
@@ -65,7 +81,7 @@ jobs:
       vdpHost: $(vdpHost)
       vdpPort: $(vdpPort)
 
-  # 4. Verify Generated VQL Output
+  # 4. Verify Generated VQL Output in Build Logs
   - powershell: |
       $revisionFile = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
       
@@ -78,9 +94,8 @@ jobs:
       Write-Host "=== INCREMENTAL REVISION VQL OUTPUT ==="
       Write-Host $content
 
-      # Guard against empty diffs
       if ($content -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($content)) {
-          Write-Warning "No VQL differences found between commits. Check if changes were committed to the correct branch/database."
+          Write-Warning "No VQL differences found between commits. Verify that changes were saved, staged, and committed."
       }
     displayName: 'Verify Generated VQL Output'
 
@@ -91,9 +106,9 @@ jobs:
       ArtifactName: 'VQL_Revision'
       publishLocation: 'Container'
 
-  # 6. Deploy via Solution Manager API
+  # 6. Deploy Revision via Solution Manager API
   - powershell: |
-      # Locate base64revision.py (check Sources Directory first, then pipelineTmpPath)
+      # Check Sources directory first, fallback to pipelineTmpPath
       $scriptPath = Join-Path "$(Build.SourcesDirectory)" "base64revision.py"
       if (!(Test-Path $scriptPath)) {
           $scriptPath = Join-Path "$(pipelineTmpPath)" "base64revision.py"
@@ -101,13 +116,13 @@ jobs:
 
       $revisionVqlPath = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      Write-Host "Running deployment script: $scriptPath"
+      Write-Host "Executing deployment script: $scriptPath"
       python "$scriptPath" `
         -s "$(smHost)" `
         -p "$(smPort)" `
         -v "$revisionVqlPath" `
         -n "Auto_Build_$(Build.BuildId)" `
-        -d "Automated deployment from commit $(Build.SourceVersion)" `
+        -d "Automated deployment from Azure Pipeline commit $(Build.SourceVersion)" `
         -e $(targetEnvId) `
         -u "$env:SM_USER" `
         -a "$env:SM_PASSWORD" `
@@ -120,6 +135,5 @@ jobs:
   # 7. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
-      if exist "$(pipelineTmpPath)\$(vqlPullFile)" del /f /q "$(pipelineTmpPath)\$(vqlPullFile)"
     displayName: 'Cleanup Temp Files'
     condition: always()
