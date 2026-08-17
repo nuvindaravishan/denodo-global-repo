@@ -6,7 +6,7 @@ pool:
 
 variables:
   # Path to Denodo Platform bin folder containing export.bat
-  denodoPath: 'C:\Denodo\DenodoPlatform9.0\bin'
+  denodoPath: 'C:/Users/hariharan.d/denodo/denodo-db-tools/bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
   
