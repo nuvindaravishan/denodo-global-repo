@@ -33,7 +33,7 @@ jobs:
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 3. Synchronize VDP Server and Generate Incremental Workspace Revision
+# 3. Synchronize VDP Server and Generate Incremental Workspace Revision
   - powershell: |
       Set-Location "$(Build.SourcesDirectory)"
       
@@ -49,19 +49,17 @@ jobs:
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # --- Step A: Write DVCSPULL command ---
+      # --- Step A: Write DVCSPULL for resort360 ---
       "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
       Write-Host "Created VCS pull file for $(vdbName): $pullVqlPath"
 
-      # Navigate to Denodo bin folder
+      # Navigate into Denodo bin folder
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
 
       try {
-          # --- Step B: Trigger DVCSPULL on /resort360 ---
+          # --- Step B: Pull latest commits into resort360 ---
           Write-Host "Step 1: Pulling latest Git commits to $(vdbName)..."
-          
-          # Notice: Connects to /$(vdbName) where VCS is activated
           $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
           .\import.bat --file "$pullVqlPath" --server "$serverParam"
@@ -72,14 +70,14 @@ jobs:
           }
           Write-Host "Database $(vdbName) synchronized successfully."
 
-          # --- Step C: Run export.bat --revision against /admin ---
-          Write-Host "Step 2: Generating incremental revision..."
+          # --- Step C: Run export.bat --revision against resort360 ---
+          Write-Host "Step 2: Generating incremental revision for $(vdbName)..."
           
-          # Notice: Connects to /admin for Global Workspace Revision diffing
+          # Notice: -h connects directly to /$(vdbName) where commits were pulled
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//$($env:vdpHost):$($env:vdpPort)/admin" `
+            -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
             -f "$outputVql" `
             -fc "$fromCommit" `
             -tc "$toCommit" `
