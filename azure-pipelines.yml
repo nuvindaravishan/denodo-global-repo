@@ -3,7 +3,6 @@ trigger:
     include:
       - main
 
-# Disables PR validation triggers so the pipeline runs ONLY after the PR is merged into main
 pr: none
 
 pool:
@@ -13,9 +12,11 @@ variables:
   denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
+  vdbName: 'resort360'
   
-  # Workspace revision connects to /admin
-  server: '//devdenodo-9.iqzsystems.io:9999/admin'
+  # Server Connection Details
+  vdpHost: 'devdenodo-9.iqzsystems.io'
+  vdpPort: '9999'
   
   # Solution Manager Details
   smHost: 'denodosm-9.iqzsystems.io'
@@ -23,87 +24,98 @@ variables:
   targetEnvId: 8
 
 jobs:
-- job: DenodoWorkspaceCI
-  displayName: 'Denodo 9 Workspace Incremental CI/CD'
+- job: DenodoGitHubWorkspaceCI
+  displayName: 'Denodo 9 GitHub Workspace CI/CD'
   steps:
   
-  # 1. Full checkout to retrieve complete commit history
+  # 1. Full Git checkout from GitHub
   - checkout: self
     fetchDepth: 0
+    persistCredentials: true
 
   # 2. Initialize Directory
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { 
           New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force 
-          Write-Host "Created pipeline directory at: $(pipelineTmpPath)"
+          Write-Host "Created temporary folder at: $(pipelineTmpPath)"
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 3. Resolve Commits & Generate Incremental Revision
+  # 3. Resolve GitHub Commits and Generate Incremental Revision
   - powershell: |
       $ErrorActionPreference = 'Stop'
       Set-Location "$(Build.SourcesDirectory)"
 
-      Write-Host "================= RECENT GIT HISTORY ================="
-      git log --oneline -n 5
-      Write-Host "======================================================"
-
-      # 1. Target Commit (Current HEAD on main)
+      # Get Trigger Commit SHA from GitHub
       $toCommit = "$(Build.SourceVersion)"
       if ([string]::IsNullOrWhiteSpace($toCommit)) {
           $toCommit = (git rev-parse HEAD).Trim()
       }
 
-      # 2. Identify Parents of the Commit
+      # Inspect commit parents to determine GitHub PR merge type
       $parents = (git rev-list --parents -n 1 $toCommit).Trim() -split '\s+'
       
       if ($parents.Count -gt 2) {
-          # 3-Way Merge Commit: Parent 1 is the state of main before the merge
+          # GitHub 'Create a merge commit' -> Parent 1 is main before merge
           $fromCommit = $parents[1].Trim()
-          Write-Host "Detected 3-Way Merge Commit (Parents: $($parents.Count - 1))"
+          Write-Host "Detected GitHub PR 3-Way Merge Commit."
       } else {
-          # Squash Merge or Direct Push: Base is HEAD~1
+          # GitHub 'Squash and merge' or direct push -> Compare with HEAD~1
           $fromCommit = (git rev-parse "$toCommit~1").Trim()
-          Write-Host "Detected Squash Merge / Single Commit"
+          Write-Host "Detected GitHub Squash Merge or Direct Push."
       }
 
-      Write-Host "================= COMMIT RANGE ================="
-      Write-Host "From Commit (-fc): $fromCommit"
-      Write-Host "To Commit   (-tc): $toCommit"
-      Write-Host "Target Server:     $(server)"
-      Write-Host "================================================"
+      Write-Host "================= GITHUB COMMIT RANGE ================="
+      Write-Host "GitHub SHA To   (-tc): $toCommit"
+      Write-Host "GitHub SHA From (-fc): $fromCommit"
+      Write-Host "======================================================="
 
-      # 3. Print Modified Files for Confirmation
-      Write-Host "=== FILES CHANGED IN GIT ==="
+      # Print files changed in GitHub
+      Write-Host "=== FILES CHANGED IN GITHUB REPO ==="
       git diff --name-status $fromCommit $toCommit
-      Write-Host "============================"
+      Write-Host "===================================="
 
       if ($fromCommit -eq $toCommit) {
-          Write-Error "From-commit and To-commit are identical ($fromCommit). No changes detected."
+          Write-Error "From-commit and To-commit are identical ($fromCommit). No changes to export."
           exit 1
       }
 
       $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # 4. Execute export.bat --revision
       Push-Location "$(denodoPath)"
       try {
-          Write-Host "Running export.bat --revision..."
-          
+          # Primary Attempt: Connect to database endpoint //devdenodo-9:9999/resort360
+          $targetUrl = "//$(vdpHost):$(vdpPort)/$(vdbName)"
+          Write-Host "Connecting export.bat to: $targetUrl"
+
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "$(server)" `
+            -h "$targetUrl" `
             -f "$outputVql" `
             -fc "$fromCommit" `
             -tc "$toCommit" `
             -P "includeprivileges=yes"
 
+          # Fallback Check: If database level returned empty, retry connecting to /admin
+          $vqlContent = Get-Content "$outputVql" -Raw -ErrorAction SilentlyContinue
+          if ($vqlContent -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($vqlContent)) {
+              Write-Warning "Database scope returned empty. Retrying with /admin endpoint..."
+              
+              $adminUrl = "//$(vdpHost):$(vdpPort)/admin"
+              .\export.bat --revision `
+                -l "$env:VDP_USER" `
+                -p "$env:VDP_PASSWORD" `
+                -h "$adminUrl" `
+                -f "$outputVql" `
+                -fc "$fromCommit" `
+                -tc "$toCommit" `
+                -P "includeprivileges=yes"
+          }
+
           if ($LASTEXITCODE -ne 0) {
               throw "export.bat failed with exit code $LASTEXITCODE"
           }
-          
-          Write-Host "Revision successfully generated at: $outputVql"
       }
       finally {
           Pop-Location
@@ -127,7 +139,7 @@ jobs:
       Write-Host $content
 
       if ($content -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($content)) {
-          Write-Error "Denodo generated an empty revision (# No diff elements between commits). Aborting deployment."
+          Write-Error "Denodo returned '# No diff elements between commits'. Verify that the VDP Server can connect to GitHub and fetch the latest commits."
           exit 1
       }
     displayName: 'Verify Generated VQL Output'
@@ -155,7 +167,7 @@ jobs:
         -p "$(smPort)" `
         -v "$revisionVqlPath" `
         -n "Auto_Build_$(Build.BuildId)" `
-        -d "Automated deployment from commit $(Build.SourceVersion)" `
+        -d "Automated deployment from GitHub commit $(Build.SourceVersion)" `
         -e $(targetEnvId) `
         -u "$env:SM_USER" `
         -a "$env:SM_PASSWORD" `
