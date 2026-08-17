@@ -38,8 +38,8 @@ jobs:
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # --- Step A: Write DVCSPULL for the specific database with quotes ---
-      "DVCSPULL '$(vdbName)';" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      # --- Step A: Write DVCSPULL without quotes ---
+      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
       Write-Host "Created VCS pull file for database $(vdbName): $pullVqlPath"
 
       # Navigate into Denodo bin directory to load Java classpaths
@@ -52,7 +52,6 @@ jobs:
           Write-Host "Step 1: Pulling Git changes into database $(vdbName)..."
           Write-Host "========================================="
           
-          # Notice we connect directly to /$(vdbName), NOT /admin
           $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
           .\import.bat --singleuser --file "$pullVqlPath" --server "$serverParam"
@@ -70,7 +69,6 @@ jobs:
           Write-Host "To:   $(Build.SourceVersion)"
           Write-Host "========================================="
 
-          # Notice -h points to /$(vdbName), NOT /admin
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
