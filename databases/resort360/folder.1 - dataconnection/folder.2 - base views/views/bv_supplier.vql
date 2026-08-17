@@ -25,7 +25,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_supplier
     INDEX 'PK_Supplier' CLUSTER UNIQUE PRIMARY ( 'Supplier_ID' );
 
 CREATE OR REPLACE TABLE bv_supplier I18N us_est (
-        supplier_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each supplier, ensuring distinctness and traceability.') TAGS (supplier),
+        supplier_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each supplier, ensuring the distinctness and traceability.') TAGS (supplier),
         supplier_name:text (notnull, sourcetypeid = '12', sourcetypesize = '30', description = 'Captures the name of the supplier, enabling clear identification and reference.') TAGS (supplier),
         registered_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the date when the supplier was officially registered or onboarded.'),
         registration_no:text (sourcetypeid = '12', sourcetypesize = '25', description = 'Holds the official registration number of the supplier, used for compliance and recordkeeping.'),
