@@ -8,12 +8,9 @@ variables:
   denodoPath: 'C:\Users\hariharan.d\denodo\denodo-db-tools\bin'
   pipelineTmpPath: 'C:\Users\hariharan.d\Denodo\pipeline_files'
   REVISION_NAME: 'Revision_$(Build.BuildId).vql'
-  vqlPullFile: 'vcs_pull.vql'
-  vdbName: 'resort360'
   
-  # VDP Server Details
-  vdpHost: 'devdenodo-9.iqzsystems.io'
-  vdpPort: '9999'
+  # In Workspace model (Option A), always connect to /admin
+  server: '//devdenodo-9.iqzsystems.io:9999/admin'
   
   # Solution Manager Details
   smHost: 'denodosm-9.iqzsystems.io'
@@ -21,10 +18,10 @@ variables:
   targetEnvId: 8
 
 jobs:
-- job: DenodoCICDJob
+- job: DenodoWorkspaceCICD
   steps:
   
-  # 1. Checkout repository with full commit history
+  # 1. Checkout Git repository with full history
   - checkout: self
     fetchDepth: 0
 
@@ -33,69 +30,47 @@ jobs:
       if (!(Test-Path "$(pipelineTmpPath)")) { 
           New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force 
       }
-    displayName: 'Initialize Pipeline Folder'
+    displayName: 'Initialize Workspace Folder'
 
-  # 3. Synchronize resort360 and Generate Incremental Revision
+  # 3. Generate Incremental Workspace Revision
   - powershell: |
       Set-Location "$(Build.SourcesDirectory)"
       
-      # Extract exact commit range from Git merge
-      $toCommit = (git rev-parse HEAD).Trim()
+      # Target commit is the commit that triggered the build (merged commit on main)
+      $toCommit = "$(Build.SourceVersion)"
+      # Base commit is the previous commit on the main branch
       $fromCommit = (git rev-parse HEAD~1).Trim()
       
+      $outputVql = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
+
       Write-Host "======================================================"
-      Write-Host "Triggered by Commit (-tc): $toCommit"
-      Write-Host "Comparing from      (-fc): $fromCommit"
-      Write-Host "Target Database:           $(vdbName)"
+      Write-Host "Workspace Model: Generating Incremental Revision"
+      Write-Host "From Commit (-fc): $fromCommit"
+      Write-Host "To Commit   (-tc): $toCommit"
+      Write-Host "Target Server:     $(server)"
+      Write-Host "Output File:       $outputVql"
       Write-Host "======================================================"
 
-      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
-      $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
-
-      # --- Step A: Write DVCSPULL command ---
-      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      Write-Host "Created VCS pull file for $(vdbName): $pullVqlPath"
-
-      # Navigate to Denodo bin folder
-      Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
-
       try {
-          # --- Step B: Pull latest commits into resort360 ---
-          Write-Host "Step 1: Pulling latest Git commits to $(vdbName)..."
-          $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
-          
-          .\import.bat --file "$pullVqlPath" --server "$serverParam"
-
-          if ($LASTEXITCODE -ne 0) {
-              Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
-              exit $LASTEXITCODE
-          }
-          Write-Host "Database $(vdbName) synchronized successfully."
-
-          # --- Step C: Run export.bat --revision against resort360 ---
-          Write-Host "Step 2: Generating incremental revision for $(vdbName)..."
-          
-          # Notice: Connects to /$(vdbName) (resort360) so export matches the pulled repository
+          # Call export.bat --revision connecting to /admin
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//$(vdpHost):$(vdpPort)/$(vdbName)" `
+            -h "$(server)" `
             -f "$outputVql" `
             -fc "$fromCommit" `
             -tc "$toCommit" `
             -P "includeprivileges=yes"
 
           if ($LASTEXITCODE -ne 0) {
-              Write-Error "export.bat failed with exit code $LASTEXITCODE"
-              exit $LASTEXITCODE
+              throw "export.bat failed with exit code $LASTEXITCODE"
           }
-          Write-Host "Incremental revision successfully generated at: $outputVql"
       }
       finally {
           Pop-Location
       }
-    displayName: 'Sync resort360 with Git and Generate Incremental Revision'
+    displayName: 'Generate Incremental Workspace Revision'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
@@ -114,7 +89,7 @@ jobs:
       Write-Host $content
 
       if ($content -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($content)) {
-          Write-Warning "No VQL differences found between commits."
+          Write-Warning "No VQL differences found between commits $fromCommit and $toCommit."
       }
     displayName: 'Verify Generated VQL Output'
 
@@ -140,7 +115,7 @@ jobs:
         -p "$(smPort)" `
         -v "$revisionVqlPath" `
         -n "Auto_Build_$(Build.BuildId)" `
-        -d "Automated deployment from Azure Pipeline commit $(Build.SourceVersion)" `
+        -d "Automated deployment from commit $(Build.SourceVersion)" `
         -e $(targetEnvId) `
         -u "$env:SM_USER" `
         -a "$env:SM_PASSWORD" `
@@ -153,6 +128,5 @@ jobs:
   # 7. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
-      if exist "$(pipelineTmpPath)\$(vqlPullFile)" del /f /q "$(pipelineTmpPath)\$(vqlPullFile)"
     displayName: 'Cleanup Temp Files'
     condition: always()
