@@ -23,87 +23,102 @@ variables:
 jobs:
 - job: DenodoCICDJob
   steps:
+  
+  # 1. Checkout repository with full commit history for git diff
   - checkout: self
     fetchDepth: 0
 
-  # 1. Initialize Pipeline Folder
+  # 2. Initialize Pipeline Folder
   - powershell: |
       if (!(Test-Path "$(pipelineTmpPath)")) { 
           New-Item -ItemType Directory -Path "$(pipelineTmpPath)" -Force 
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 2. Synchronize resort360 VDB and Generate Incremental Revision
+  # 3. Synchronize VDP and Generate Incremental VQL Revision
   - powershell: |
-      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
+      Set-Location "$(Build.SourcesDirectory)"
+      
+      # Determine the exact commit hashes from Git history
+      $toCommit = (git rev-parse HEAD).Trim()
+      $fromCommit = (git rev-parse HEAD~1).Trim()
+      
+      Write-Host "======================================================"
+      Write-Host "Triggered by Commit: $toCommit"
+      Write-Host "Comparing from:      $fromCommit"
+      Write-Host "======================================================"
+
+      # Check which files changed in this merge commit
+      Write-Host "Modified files detected in Git:"
+      git diff --name-only $fromCommit $toCommit
+
+      $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # --- Step A: Write DVCSPULL for resort360 ---
+      # --- Step A: Write DVCSPULL command ---
       "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      Write-Host "Created VCS pull file for database $(vdbName): $pullVqlPath"
+      Write-Host "Created VCS pull file at: $pullVqlPath"
 
       # Navigate to Denodo bin directory
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
 
       try {
-          # --- Step B: Trigger DVCSPULL on resort360 ---
-          Write-Host "========================================="
-          Write-Host "Step 1: Pulling Git changes into $(vdbName)..."
-          Write-Host "========================================="
-          
+          # --- Step B: Trigger DVCSPULL on /resort360 ---
+          Write-Host "Pulling latest Git commits to VDP database $(vdbName)..."
           $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
-          # Run import.bat and display full output
           .\import.bat --singleuser --file "$pullVqlPath" --server "$serverParam"
 
           if ($LASTEXITCODE -ne 0) {
               Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
               exit $LASTEXITCODE
           }
-          Write-Host "Database $(vdbName) successfully synchronized with Git."
+          Write-Host "VDP server synchronized successfully."
 
-          # --- Step C: Run export.bat using HEAD~1 to HEAD ---
-          Write-Host "========================================="
-          Write-Host "Step 2: Generating incremental revision for $(vdbName)..."
-          Write-Host "From: HEAD~1"
-          Write-Host "To:   HEAD"
-          Write-Host "========================================="
-
-          # Using -tc HEAD ensures export compares against the commit just pulled by VDP
+          # --- Step C: Run export.bat to extract incremental revision ---
+          Write-Host "Executing export.bat --revision from $fromCommit to $toCommit..."
+          
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
             -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
             -f "$outputVql" `
-            -fc "HEAD~1" `
-            -tc "HEAD" `
+            -fc "$fromCommit" `
+            -tc "$toCommit" `
             -P "includeprivileges=yes"
 
           if ($LASTEXITCODE -ne 0) {
               Write-Error "export.bat failed with exit code $LASTEXITCODE"
               exit $LASTEXITCODE
           }
-          Write-Host "Incremental revision VQL created successfully at: $outputVql"
       }
       finally {
           Pop-Location
       }
-    displayName: 'Sync resort360 with Git and Generate Incremental Revision'
+    displayName: 'Sync VDP with Git and Generate Incremental Revision'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
       vdpHost: $(vdpHost)
       vdpPort: $(vdpPort)
-  # 4. Verify Generated VQL
+
+  # 4. Verify Generated VQL Output
   - powershell: |
       $revisionFile = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
-      if (Test-Path $revisionFile) {
-          Write-Host "=== INCREMENTAL REVISION VQL OUTPUT ==="
-          Get-Content $revisionFile
-      } else {
-          Write-Error "Revision file $revisionFile was not generated."
+      
+      if (!(Test-Path $revisionFile)) {
+          Write-Error "Revision file $revisionFile was not created."
           exit 1
+      }
+
+      $content = Get-Content $revisionFile -Raw
+      Write-Host "=== INCREMENTAL REVISION VQL OUTPUT ==="
+      Write-Host $content
+
+      # Guard against empty diffs
+      if ($content -match "No diff elements between commits" -or [string]::IsNullOrWhiteSpace($content)) {
+          Write-Warning "No VQL differences found between commits. Check if changes were committed to the correct branch/database."
       }
     displayName: 'Verify Generated VQL Output'
 
@@ -116,15 +131,25 @@ jobs:
 
   # 6. Deploy via Solution Manager API
   - powershell: |
-      python "$(pipelineTmpPath)\base64revision.py" `
+      # Locate base64revision.py (check Sources Directory first, then pipelineTmpPath)
+      $scriptPath = Join-Path "$(Build.SourcesDirectory)" "base64revision.py"
+      if (!(Test-Path $scriptPath)) {
+          $scriptPath = Join-Path "$(pipelineTmpPath)" "base64revision.py"
+      }
+
+      $revisionVqlPath = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
+
+      Write-Host "Running deployment script: $scriptPath"
+      python "$scriptPath" `
         -s "$(smHost)" `
         -p "$(smPort)" `
-        -v "$(pipelineTmpPath)\$(REVISION_NAME)" `
+        -v "$revisionVqlPath" `
         -n "Auto_Build_$(Build.BuildId)" `
-        -d "Automated deployment from Azure Pipeline commit $(Build.SourceVersion)" `
+        -d "Automated deployment from commit $(Build.SourceVersion)" `
         -e $(targetEnvId) `
         -u "$env:SM_USER" `
-        -a "$env:SM_PASSWORD"
+        -a "$env:SM_PASSWORD" `
+        --protocol "http"
     displayName: 'Deploy via Solution Manager API'
     env:
       SM_USER: $(SM_USER)
