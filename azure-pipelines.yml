@@ -35,66 +35,48 @@ jobs:
       }
     displayName: 'Initialize Pipeline Folder'
 
-  # 3. Synchronize VDP and Generate Incremental VQL Revision
+  # 3. Synchronize resort360 and Export Database VQL
   - powershell: |
-      Set-Location "$(Build.SourcesDirectory)"
-      
-      # Determine exact commit hashes from Git history
-      $toCommit = (git rev-parse HEAD).Trim()
-      $fromCommit = (git rev-parse HEAD~1).Trim()
-      
-      Write-Host "======================================================"
-      Write-Host "Triggered by Commit: $toCommit"
-      Write-Host "Comparing from:      $fromCommit"
-      Write-Host "======================================================"
-
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "$(vqlPullFile)"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # --- Step A: Write DVCSPULL command ---
+      # Step 1: Create and execute DVCSPULL
       "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      Write-Host "Created VCS pull file at: $pullVqlPath"
-
-      # Navigate to Denodo bin directory
-      Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
+      
       Push-Location "$(denodoPath)"
-
       try {
-          # --- Step B: Trigger DVCSPULL on /resort360 ---
-          Write-Host "Pulling latest Git commits into VDP database $(vdbName)..."
+          Write-Host "Pulling latest Git changes into $(vdbName)..."
           $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
-          
           .\import.bat --file "$pullVqlPath" --server "$serverParam"
 
           if ($LASTEXITCODE -ne 0) {
               Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
               exit $LASTEXITCODE
           }
-          Write-Host "VDP server synchronized successfully."
+          Write-Host "VDP server $(vdbName) synchronized successfully."
 
-          # --- Step C: Run export.bat pointing to /admin ---
-          Write-Host "Executing export.bat --revision from $fromCommit to $toCommit..."
-          
-          # Notice: -h connects to /admin (Required for --revision)
-          .\export.bat --revision `
+          # Step 2: Export Database VQL with Replace Semantics
+          Write-Host "Exporting $(vdbName) database VQL..."
+          .\export.bat `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//$($env:vdpHost):$($env:vdpPort)/admin" `
+            -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
             -f "$outputVql" `
-            -fc "$fromCommit" `
-            -tc "$toCommit" `
-            -P "includeprivileges=yes"
+            -P "includejars=yes" `
+            -P "includescanners=yes" `
+            -P "includeCustomComponents=yes" `
+            -P "replaceExistingElements=yes"
 
           if ($LASTEXITCODE -ne 0) {
               Write-Error "export.bat failed with exit code $LASTEXITCODE"
               exit $LASTEXITCODE
           }
-          Write-Host "Incremental revision created successfully at: $outputVql"
+          Write-Host "Exported VQL successfully created at: $outputVql"
       }
       finally {
           Pop-Location
       }
-    displayName: 'Sync VDP with Git and Generate Incremental Revision'
+    displayName: 'Sync and Export Database VQL for resort360'
     env:
       VDP_USER: $(VDP_USER)
       VDP_PASSWORD: $(VDP_PASSWORD)
