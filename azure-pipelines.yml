@@ -171,12 +171,11 @@ jobs:
         -e $(targetEnvId) `
         -u "$env:SM_USER" `
         -a "$env:SM_PASSWORD" `
-        --protocol "http"
+        --protocol "https"
     displayName: 'Deploy via Solution Manager API'
     env:
       SM_USER: $(SM_USER)
       SM_PASSWORD: $(SM_PASSWORD)
-
   # 7. Cleanup Temporary Files
   - script: |
       if exist "$(pipelineTmpPath)\$(REVISION_NAME)" del /f /q "$(pipelineTmpPath)\$(REVISION_NAME)"
