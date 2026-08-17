@@ -1,5 +1,7 @@
 ﻿CREATE OR REPLACE DATABASE resort360 'This VDB is to manage
+
 bookings, inventory, and sales operations within the
+
 hospitality sector';
 
 ALTER DATABASE resort360
