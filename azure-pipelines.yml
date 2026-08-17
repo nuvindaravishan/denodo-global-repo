@@ -49,18 +49,20 @@ jobs:
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # --- Step A: Write DVCSPULL for Global VCS ---
-      "DVCSPULL resort360;" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      Write-Host "Created VCS pull file: $pullVqlPath"
+      # --- Step A: Write DVCSPULL command ---
+      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      Write-Host "Created VCS pull file for $(vdbName): $pullVqlPath"
 
-      # Navigate into Denodo bin folder to load Java classpath
+      # Navigate to Denodo bin folder
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
 
       try {
-          # --- Step B: Pull latest commits into VDP Global VCS ---
-          Write-Host "Step 1: Pulling latest Git commits to VDP Server..."
-          $serverParam = "//$(vdpHost):$(vdpPort)/admin?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
+          # --- Step B: Trigger DVCSPULL on /resort360 ---
+          Write-Host "Step 1: Pulling latest Git commits to $(vdbName)..."
+          
+          # Notice: Connects to /$(vdbName) where VCS is activated
+          $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
           .\import.bat --file "$pullVqlPath" --server "$serverParam"
 
@@ -68,11 +70,12 @@ jobs:
               Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
               exit $LASTEXITCODE
           }
-          Write-Host "VDP server successfully synchronized with Global Git repository."
+          Write-Host "Database $(vdbName) synchronized successfully."
 
           # --- Step C: Run export.bat --revision against /admin ---
           Write-Host "Step 2: Generating incremental revision..."
           
+          # Notice: Connects to /admin for Global Workspace Revision diffing
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
