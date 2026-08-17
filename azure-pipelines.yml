@@ -44,14 +44,15 @@ jobs:
       Write-Host "======================================================"
       Write-Host "Triggered by Commit (-tc): $toCommit"
       Write-Host "Comparing from      (-fc): $fromCommit"
+      Write-Host "Target Database:           $env:vdbName"
       Write-Host "======================================================"
 
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # --- Step A: Write DVCSPULL for resort360 ---
-      "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
-      Write-Host "Created VCS pull file for $(vdbName): $pullVqlPath"
+      # --- Step A: Write DVCSPULL command ---
+      "DVCSPULL $env:vdbName;" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
+      Write-Host "Created VCS pull file for $env:vdbName: $pullVqlPath"
 
       # Navigate into Denodo bin folder
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
@@ -59,8 +60,8 @@ jobs:
 
       try {
           # --- Step B: Pull latest commits into resort360 ---
-          Write-Host "Step 1: Pulling latest Git commits to $(vdbName)..."
-          $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
+          Write-Host "Step 1: Pulling latest Git commits to $env:vdbName..."
+          $serverParam = "//${env:vdpHost}:${env:vdpPort}/${env:vdbName}?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
           .\import.bat --file "$pullVqlPath" --server "$serverParam"
 
@@ -68,16 +69,16 @@ jobs:
               Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
               exit $LASTEXITCODE
           }
-          Write-Host "Database $(vdbName) synchronized successfully."
+          Write-Host "Database $env:vdbName synchronized successfully."
 
           # --- Step C: Run export.bat --revision against resort360 ---
-          Write-Host "Step 2: Generating incremental revision for $(vdbName)..."
+          Write-Host "Step 2: Generating incremental revision for $env:vdbName..."
           
-          # Notice: -h connects directly to /$(vdbName) where commits were pulled
+          # Target /resort360 so export finds the commit just pulled
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
-            -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
+            -h "//${env:vdpHost}:${env:vdpPort}/${env:vdbName}" `
             -f "$outputVql" `
             -fc "$fromCommit" `
             -tc "$toCommit" `
@@ -98,6 +99,7 @@ jobs:
       VDP_PASSWORD: $(VDP_PASSWORD)
       vdpHost: $(vdpHost)
       vdpPort: $(vdpPort)
+      vdbName: $(vdbName)
 
   # 4. Verify Generated VQL Output in Build Logs
   - powershell: |
