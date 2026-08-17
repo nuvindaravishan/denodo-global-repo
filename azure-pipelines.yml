@@ -38,44 +38,46 @@ jobs:
       $pullVqlPath = Join-Path "$(pipelineTmpPath)" "vcs_pull.vql"
       $outputVql   = Join-Path "$(pipelineTmpPath)" "$(REVISION_NAME)"
 
-      # --- Step A: Write DVCSPULL without quotes ---
+      # --- Step A: Write DVCSPULL for resort360 ---
       "DVCSPULL $(vdbName);" | Out-File -FilePath $pullVqlPath -Encoding ascii -Force
       Write-Host "Created VCS pull file for database $(vdbName): $pullVqlPath"
 
-      # Navigate into Denodo bin directory to load Java classpaths
+      # Navigate to Denodo bin directory
       Write-Host "Navigating to Denodo bin directory: $(denodoPath)"
       Push-Location "$(denodoPath)"
 
       try {
-          # --- Step B: Trigger DVCSPULL on /resort360 ---
+          # --- Step B: Trigger DVCSPULL on resort360 ---
           Write-Host "========================================="
-          Write-Host "Step 1: Pulling Git changes into database $(vdbName)..."
+          Write-Host "Step 1: Pulling Git changes into $(vdbName)..."
           Write-Host "========================================="
           
           $serverParam = "//$(vdpHost):$(vdpPort)/$(vdbName)?$($env:VDP_USER)@$($env:VDP_PASSWORD)"
           
+          # Run import.bat and display full output
           .\import.bat --singleuser --file "$pullVqlPath" --server "$serverParam"
 
           if ($LASTEXITCODE -ne 0) {
-              Write-Error "DVCSPULL failed with exit code $LASTEXITCODE. Verify VDP credentials and Git remote access for $(vdbName)."
+              Write-Error "DVCSPULL failed with exit code $LASTEXITCODE."
               exit $LASTEXITCODE
           }
-          Write-Host "Database $(vdbName) successfully synchronized with Git repository."
+          Write-Host "Database $(vdbName) successfully synchronized with Git."
 
-          # --- Step C: Run export.bat pointing to /resort360 ---
+          # --- Step C: Run export.bat using HEAD~1 to HEAD ---
           Write-Host "========================================="
           Write-Host "Step 2: Generating incremental revision for $(vdbName)..."
           Write-Host "From: HEAD~1"
-          Write-Host "To:   $(Build.SourceVersion)"
+          Write-Host "To:   HEAD"
           Write-Host "========================================="
 
+          # Using -tc HEAD ensures export compares against the commit just pulled by VDP
           .\export.bat --revision `
             -l "$env:VDP_USER" `
             -p "$env:VDP_PASSWORD" `
             -h "//$($env:vdpHost):$($env:vdpPort)/$(vdbName)" `
             -f "$outputVql" `
             -fc "HEAD~1" `
-            -tc "$(Build.SourceVersion)" `
+            -tc "HEAD" `
             -P "includeprivileges=yes"
 
           if ($LASTEXITCODE -ne 0) {
