@@ -16,7 +16,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_tour_operator_contract
     );
 
 CREATE OR REPLACE TABLE bv_tour_operator_contract I18N us_est (
-        resort_id:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Represents the unique identifier of a resort, essential for tracking and associating contracts with specific resorts. It includes values like "5", "7", "9", and "1".') TAGS (resort),
+        resort_id:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Represents the unique identifier of a resort, essential for tracking and associating contracts with specific resorts. It includes values like "5", "7", "9", "1".') TAGS (resort),
         tour_operator_contract_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Provides a distinct identifier for each contract between a tour operator and a resort, facilitating contract management and tracking.') TAGS (tour_operator),
         tour_operator_id:text (sourcetypeid = '12', sourcetypesize = '50', description = 'Serves as the unique identifier for tour operators, enabling efficient organization and referencing of operators tied to specific contracts. It includes values like "16", "6", "29", and "22".') TAGS (tour_operator),
         contract_start_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Indicates the starting date of a contractual agreement between a resort and a tour operator, establishing the commencement of rights and obligations.'),
