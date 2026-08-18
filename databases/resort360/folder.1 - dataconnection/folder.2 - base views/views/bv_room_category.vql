@@ -23,7 +23,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_room_category
     INDEX 'PK_Room_Category' CLUSTER UNIQUE PRIMARY ( 'Room_Category_ID' );
 
 CREATE OR REPLACE TABLE bv_room_category I18N au_cst (
-        room_category_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each room category within the view.') TAGS (room_category),
+        room_category_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each room category within the views.') TAGS (room_category),
         resort_id:long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents the identifier of the resort associated with the room category.') TAGS (resort),
         room_category_description:text (notnull, sourcetypeid = '12', sourcetypesize = '200', description = 'Provides a textual description of the room category.') TAGS (room_category),
         room_type:text (notnull, sourcetypeid = '12', sourcetypesize = '100', description = 'Specifies the type or classification of the room, such as suite or double.') TAGS (room_category),
