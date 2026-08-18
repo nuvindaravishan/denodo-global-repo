@@ -29,7 +29,7 @@
 
 CREATE OR REPLACE TABLE ai_customer I18N us_est (
         customer_id:long (notnull, sourcetypeid = '-5', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each customer in the systems.') TAGS (customer_domain),
-        first_name:text (notnull, sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Stores the first name of the customer.') TAGS (customer_domain),
+        first_name:text (notnull, sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Stores the first name of the customers.') TAGS (customer_domain),
         last_name:text (notnull, sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Stores the last name of the customer.') TAGS (customer_domain),
         dob:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Represents the date of birth of the customer.') TAGS (restricted),
         gender:text (sourcetypeid = '12', sourcetypedecimals = '0', sourcetypesize = '50', description = 'Indicates the gender of the customer.'),
