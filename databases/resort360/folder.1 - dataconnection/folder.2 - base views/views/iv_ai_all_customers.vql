@@ -1,0 +1,5 @@
+﻿CREATE OR REPLACE VIEW iv_ai_all_customers FOLDER = '/1 - dataconnection/2 - base views' AS SELECT ai_customer.customer_id AS customer_id FROM ai_customer AS ai_customer INNER JOIN bv_customer AS bv_customer ON ai_customer.customer_id = bv_customer.customer_id  GROUP BY ai_customer.customer_id;
+
+ALTER VIEW iv_ai_all_customers
+ LAYOUT (ai_customer = [20, 20, 200, 200], bv_customer = [335, 46, 200, 200]);
+
