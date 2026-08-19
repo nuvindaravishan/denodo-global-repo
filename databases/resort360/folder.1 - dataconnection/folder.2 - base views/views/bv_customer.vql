@@ -44,7 +44,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_customer
     INDEX 'IX_Customer_Mobile' OTHER ( 'Mobile' );
 
 CREATE OR REPLACE TABLE bv_customer I18N us_est (
-        customer_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each customer, ensuring distinct identification within the dataset
+        customer_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each customer, ensuring distinct identification within the datasets.
 .') TAGS (customer_domain),
         first_name:text (notnull, sourcetypeid = '12', sourcetypesize = '50', description = 'Contains the customer''s first name. It includes values like "Francie", "Brent", "Grisel", and "Timmy".') TAGS (customer_domain),
         last_name:text (notnull, sourcetypeid = '12', sourcetypesize = '50', description = 'Captures the customer''s last name. It includes values like "Brewer", "Strickland", "Johnston", and "Sellers".') TAGS (customer_domain),
