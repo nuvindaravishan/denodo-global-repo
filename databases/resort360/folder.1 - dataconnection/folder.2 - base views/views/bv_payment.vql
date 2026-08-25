@@ -28,7 +28,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_payment
     INDEX 'PK__Payment__DA6C7FC1A5630434' CLUSTER UNIQUE PRIMARY ( 'Payment_Id' );
 
 CREATE OR REPLACE TABLE bv_payment I18N us_est (
-        payment_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each payment record, serving as a reference point for tracking transactions.') TAGS (payment),
+        payment_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Uniquely identifies each payment record, serving as a reference point for tracking transaction.') TAGS (payment),
         resort_id:long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Identifies the resort associated with the payment, enabling the linkage of financial data to specific resorts.') TAGS (resort),
         payment_date:localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10', description = 'Specifies the date on which the payment was made, aiding in chronological tracking of transactions.') TAGS (payment),
         payment_time:time (sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16', description = 'Records the precise time when the payment occurred, ensuring accurate timestamping of transactions.'),
