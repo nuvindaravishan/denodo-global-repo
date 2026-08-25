@@ -95,7 +95,8 @@ jobs:
             -f "$outputVql" `
             -fc "$fromCommit" `
             -tc "$toCommit" `
-            -P "includeprivileges=yes"
+            -P "includeprivileges=yes" `
+            -P "includeProperties=yes"
 
           # Fallback Check: If database level returned empty, retry connecting to /admin
           $vqlContent = Get-Content "$outputVql" -Raw -ErrorAction SilentlyContinue
