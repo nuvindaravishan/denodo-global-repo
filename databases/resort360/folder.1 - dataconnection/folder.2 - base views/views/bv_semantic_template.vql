@@ -1,0 +1,42 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC semantic_template
+    FOLDER = '/1 - dataconnection/2 - base views'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.semantic_template.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.2 - base views.views.jdbc.semantic_template.SCHEMANAME}' 
+    RELATIONNAME='semantic_template' 
+    OUTPUTSCHEMA (
+        tag_id = 'tag_id' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        database_name = 'database_name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        view_name = 'view_name' :'java.lang.String' (OPT) (sourcetypesize='250', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        column_name = 'column_name' :'java.lang.String' (OPT) (sourcetypesize='250', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        tag_name = 'tag_name' :'java.lang.String' (OPT) (sourcetypesize='250', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        is_created = 'is_created' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  SORTABLE
+    );
+
+CREATE OR REPLACE TABLE bv_semantic_template I18N us_est (
+        tag_id:int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        database_name:text (sourcetypeid = '12', sourcetypesize = '100'),
+        view_name:text (sourcetypeid = '12', sourcetypesize = '250'),
+        column_name:text (sourcetypeid = '12', sourcetypesize = '250'),
+        tag_name:text (sourcetypeid = '12', sourcetypesize = '250'),
+        is_created:boolean (sourcetypeid = '-7', sourcetypesize = '1')
+    )
+    FOLDER = '/1 - dataconnection/2 - base views'
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD semantic_template(
+        I18N us_est
+        CONSTRAINTS (
+             ADD tag_id (any) OPT ANY
+             ADD database_name (any) OPT ANY
+             ADD view_name (any) OPT ANY
+             ADD column_name (any) OPT ANY
+             ADD tag_name (any) OPT ANY
+             ADD is_created (any) OPT ANY
+        )
+        OUTPUTLIST (column_name, database_name, is_created, tag_id, tag_name, view_name
+        )
+        WRAPPER (jdbc semantic_template)
+    );
+
