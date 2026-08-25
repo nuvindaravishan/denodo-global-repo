@@ -13,7 +13,7 @@ CREATE OR REPLACE WRAPPER JDBC bv_booking_type
     INDEX 'PK__Booking___14A0097A1EBB9C89' CLUSTER UNIQUE PRIMARY ( 'Booking_Type_ID' );
 
 CREATE OR REPLACE TABLE bv_booking_type I18N us_est (
-        booking_type_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each booking type in the system, ensuring clarity and distinction between different types of bookings.'),
+        booking_type_id:long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19', description = 'Represents a unique identifier for each booking type in the system, ensuring clarity and distinction between different types of booking'),
         booking_type_description:text (sourcetypeid = '12', sourcetypesize = '30', description = 'Provides a textual description of the booking type, offering insight into the purpose or nature of each type. It includes values like "Tour Operator Booking" and "Direct Booking".')
     )
     FOLDER = '/1 - dataconnection/2 - base views'
