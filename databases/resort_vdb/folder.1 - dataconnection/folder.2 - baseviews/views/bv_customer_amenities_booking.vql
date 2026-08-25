@@ -1,0 +1,71 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_customer_amenities_booking
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_customer_amenities_booking.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_customer_amenities_booking.SCHEMANAME}' 
+    RELATIONNAME='Customer_Amenities_Booking' 
+    OUTPUTSCHEMA (
+        "Customer_Amenities_Booking_ID" = 'Customer_Amenities_Booking_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Resort_ID" = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Booking_ID" = 'Booking_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Amenities_ID" = 'Amenities_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Customer_ID" = 'Customer_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Booking_Date" = 'Booking_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  NOT NULL SORTABLE,
+        "Booking_Time" = 'Booking_Time' :'java.time.LocalTime' (OPT) (sourcetypedecimals='7', sourcetypesize='16', sourcetypeid='92', sourcetypename='time')  NOT NULL SORTABLE,
+        "Slot_Booked" = 'Slot_Booked' :'java.lang.String' (OPT) (sourcetypesize='9', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "No_of_Hours" = 'No_of_Hours' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Amount" = 'Amount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        "Status" = 'Status' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "CreatedDate" = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Customer_Amenities_Booking' PRIMARY KEY ( 'Customer_Amenities_Booking_ID' )
+    CONSTRAINT 'FK_Customer_Amenities_Booking_Amenities' FOREIGN KEY ( 'Amenities_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Amenities'( 'Amenity_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Customer_Amenities_Booking_Booking' FOREIGN KEY ( 'Booking_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Booking'( 'Booking_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Customer_Amenities_Booking_Customer' FOREIGN KEY ( 'Customer_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Customer'( 'Customer_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Customer_Amenities_Booking_Resort' FOREIGN KEY ( 'Resort_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Customer_Amenities_Booking' CLUSTER UNIQUE PRIMARY ( 'Customer_Amenities_Booking_ID' );
+
+CREATE OR REPLACE TABLE bv_customer_amenities_booking I18N us_est (
+        "Customer_Amenities_Booking_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Resort_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Booking_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Amenities_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Customer_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Booking_Date":localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Booking_Time":time (notnull, sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16'),
+        "Slot_Booked":text (sourcetypeid = '12', sourcetypesize = '9'),
+        "No_of_Hours":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Amount":decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Status":text (sourcetypeid = '12', sourcetypesize = '20'),
+        "CreatedDate":timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Customer_Amenities_Booking' PRIMARY KEY ( 'Customer_Amenities_Booking_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_customer_amenities_booking(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Customer_Amenities_Booking_ID" (any) OPT ANY
+             ADD "Resort_ID" (any) OPT ANY
+             ADD "Booking_ID" (any) OPT ANY
+             ADD "Amenities_ID" (any) OPT ANY
+             ADD "Customer_ID" (any) OPT ANY
+             ADD "Booking_Date" (any) OPT ANY
+             ADD "Booking_Time" (any) OPT ANY
+             ADD "Slot_Booked" (any) OPT ANY
+             ADD "No_of_Hours" (any) OPT ANY
+             ADD "Amount" (any) OPT ANY
+             ADD "Status" (any) OPT ANY
+             ADD "CreatedDate" (any) OPT ANY
+        )
+        OUTPUTLIST ("Amenities_ID", "Amount", "Booking_Date", "Booking_ID", "Booking_Time", "CreatedDate", "Customer_Amenities_Booking_ID", "Customer_ID", "No_of_Hours", "Resort_ID", "Slot_Booked", "Status"
+        )
+        WRAPPER (jdbc bv_customer_amenities_booking)
+    );
+

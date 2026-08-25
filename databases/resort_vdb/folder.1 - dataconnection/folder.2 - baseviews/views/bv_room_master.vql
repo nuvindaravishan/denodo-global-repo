@@ -1,0 +1,61 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_room_master
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_room_master.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_room_master.SCHEMANAME}' 
+    RELATIONNAME='Room_Master' 
+    OUTPUTSCHEMA (
+        "Room_Master_ID" = 'Room_Master_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Room_Category_ID" = 'Room_Category_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Resort_id" = 'Resort_id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Room_No" = 'Room_No' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        "Room_Category" = 'Room_Category' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Per_Night_Charges" = 'Per_Night_Charges' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        "Floor_Number" = 'Floor_Number' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        "Is_Active" = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        "Status" = 'Status' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE
+    )
+    CONSTRAINT 'PK_Room_Master' PRIMARY KEY ( 'Room_Master_ID' )
+    CONSTRAINT 'FK_Room_Master_Resort' FOREIGN KEY ( 'Resort_id' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Room_Master_Room_Category' FOREIGN KEY ( 'Room_Category_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Room_Category'( 'Room_Category_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Room_Master' CLUSTER UNIQUE PRIMARY ( 'Room_Master_ID' )
+    INDEX 'UQ_Room_Master_Resort_RoomNo' OTHER UNIQUE ( 'Resort_id' , 'Room_No' )
+    INDEX 'IX_Room_Master_Resort_Category' OTHER ( 'Resort_id' , 'Room_Category_ID' )
+    INDEX 'IX_Room_Master_Status' OTHER ( 'Status' );
+
+CREATE OR REPLACE TABLE bv_room_master I18N us_est (
+        "Room_Master_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Room_Category_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Resort_id":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Room_No":text (notnull, sourcetypeid = '12', sourcetypesize = '10'),
+        "Room_Category":text (sourcetypeid = '12', sourcetypesize = '100'),
+        "Per_Night_Charges":decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Floor_Number":int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Is_Active":boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1'),
+        "Status":text (sourcetypeid = '12', sourcetypesize = '20')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Room_Master' PRIMARY KEY ( 'Room_Master_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_room_master(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Room_Master_ID" (any) OPT ANY
+             ADD "Room_Category_ID" (any) OPT ANY
+             ADD "Resort_id" (any) OPT ANY
+             ADD "Room_No" (any) OPT ANY
+             ADD "Room_Category" (any) OPT ANY
+             ADD "Per_Night_Charges" (any) OPT ANY
+             ADD "Floor_Number" (any) OPT ANY
+             ADD "Is_Active" (any) OPT ANY
+             ADD "Status" (any) OPT ANY
+        )
+        OUTPUTLIST ("Floor_Number", "Is_Active", "Per_Night_Charges", "Resort_id", "Room_Category", "Room_Category_ID", "Room_Master_ID", "Room_No", "Status"
+        )
+        WRAPPER (jdbc bv_room_master)
+    );
+

@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE VIEW rpt_customer_booking_summary FOLDER = '/6 - report views' AS SELECT * FROM dp_customer_booking_summary;
+

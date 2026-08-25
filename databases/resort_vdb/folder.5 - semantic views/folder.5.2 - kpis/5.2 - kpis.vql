@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE FOLDER '/5 - semantic views/5.2 - KPIs' DESCRIPTION 'KPI views' ;
+

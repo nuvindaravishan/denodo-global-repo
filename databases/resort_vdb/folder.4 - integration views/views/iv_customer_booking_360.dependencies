@@ -1,0 +1,19 @@
+﻿1/databases/resort_vdb/folder.4 - integration views/4 - integration views.vql
+*/databases/resort_vdb/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/2 - baseviews.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_server.vql
+1/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_booking.vql
+1/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_customer.vql
+1/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_resorts.vql
+1/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_room_master.vql
+1/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_room_category.vql
+1/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_booking_type.vql
+1/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_payment.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_room_category.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_room_master.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_booking.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_payment.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_resorts.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_booking_type.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_customer.vql

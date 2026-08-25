@@ -1,0 +1,105 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_customer
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_customer.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_customer.SCHEMANAME}' 
+    RELATIONNAME='Customer' 
+    OUTPUTSCHEMA (
+        "Customer_ID" = 'Customer_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "First_Name" = 'First_Name' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        "Last_Name" = 'Last_Name' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        "DOB" = 'DOB' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        "Gender" = 'Gender' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Email" = 'Email' :'java.lang.String' (OPT) (sourcetypesize='255', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Nationality" = 'Nationality' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Mobile" = 'Mobile' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Address" = 'Address' :'java.lang.String' (OPT) (sourcetypesize='500', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "PassportNo" = 'PassportNo' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "State_ID" = 'State_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Tier_ID" = 'Tier_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Is_Active" = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        "CreatedDate" = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE,
+        "ModifiedDate" = 'ModifiedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        "ModifiedBy" = 'ModifiedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "DeletedDate" = 'DeletedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        "DeletedBy" = 'DeletedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Last_Booking_Date" = 'Last_Booking_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        "Last_Login_Date" = 'Last_Login_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        "Total_Spent" = 'Total_Spent' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        "Total_Bookings" = 'Total_Bookings' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE
+    )
+    CONSTRAINT 'PK_Customer' PRIMARY KEY ( 'Customer_ID' )
+    CONSTRAINT 'FK_Customer_Tier' FOREIGN KEY ( 'Tier_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Customer_Tiers'( 'Tier_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Customer_State' FOREIGN KEY ( 'State_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'State'( 'State_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Customer_DeletedBy' FOREIGN KEY ( 'DeletedBy' ) 
+    REFERENCES 'resort360'.'dbo'.'Users'( 'User_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Customer_ModifiedBy' FOREIGN KEY ( 'ModifiedBy' ) 
+    REFERENCES 'resort360'.'dbo'.'Users'( 'User_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Customer' CLUSTER UNIQUE PRIMARY ( 'Customer_ID' )
+    INDEX 'UQ_Customer_Email' OTHER UNIQUE ( 'Email' )
+    INDEX 'IX_Customer_Email' OTHER ( 'Email' )
+    INDEX 'IX_Customer_Email_Active' OTHER ( 'Email' , 'Is_Active' )
+    INDEX 'IX_Customer_Mobile' OTHER ( 'Mobile' );
+
+CREATE OR REPLACE TABLE bv_customer I18N us_est (
+        "Customer_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "First_Name":text (notnull, sourcetypeid = '12', sourcetypesize = '50'),
+        "Last_Name":text (notnull, sourcetypeid = '12', sourcetypesize = '50'),
+        "DOB":localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Gender":text (sourcetypeid = '12', sourcetypesize = '50'),
+        "Email":text (sourcetypeid = '12', sourcetypesize = '255'),
+        "Nationality":text (sourcetypeid = '12', sourcetypesize = '100'),
+        "Mobile":text (sourcetypeid = '12', sourcetypesize = '50'),
+        "Address":text (sourcetypeid = '12', sourcetypesize = '500'),
+        "PassportNo":text (sourcetypeid = '12', sourcetypesize = '50'),
+        "State_ID":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Tier_ID":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Is_Active":boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1'),
+        "CreatedDate":timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23'),
+        "ModifiedDate":timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27'),
+        "ModifiedBy":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "DeletedDate":timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27'),
+        "DeletedBy":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Last_Booking_Date":localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Last_Login_Date":timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27'),
+        "Total_Spent":decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Total_Bookings":int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Customer' PRIMARY KEY ( 'Customer_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_customer(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Customer_ID" (any) OPT ANY
+             ADD "First_Name" (any) OPT ANY
+             ADD "Last_Name" (any) OPT ANY
+             ADD "DOB" (any) OPT ANY
+             ADD "Gender" (any) OPT ANY
+             ADD "Email" (any) OPT ANY
+             ADD "Nationality" (any) OPT ANY
+             ADD "Mobile" (any) OPT ANY
+             ADD "Address" (any) OPT ANY
+             ADD "PassportNo" (any) OPT ANY
+             ADD "State_ID" (any) OPT ANY
+             ADD "Tier_ID" (any) OPT ANY
+             ADD "Is_Active" (any) OPT ANY
+             ADD "CreatedDate" (any) OPT ANY
+             ADD "ModifiedDate" (any) OPT ANY
+             ADD "ModifiedBy" (any) OPT ANY
+             ADD "DeletedDate" (any) OPT ANY
+             ADD "DeletedBy" (any) OPT ANY
+             ADD "Last_Booking_Date" (any) OPT ANY
+             ADD "Last_Login_Date" (any) OPT ANY
+             ADD "Total_Spent" (any) OPT ANY
+             ADD "Total_Bookings" (any) OPT ANY
+        )
+        OUTPUTLIST ("Address", "CreatedDate", "Customer_ID", "DOB", "DeletedBy", "DeletedDate", "Email", "First_Name", "Gender", "Is_Active", "Last_Booking_Date", "Last_Login_Date", "Last_Name", "Mobile", "ModifiedBy", "ModifiedDate", "Nationality", "PassportNo", "State_ID", "Tier_ID", "Total_Bookings", "Total_Spent"
+        )
+        WRAPPER (jdbc bv_customer)
+    );
+

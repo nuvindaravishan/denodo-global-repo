@@ -1,0 +1,37 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_booking_type
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_booking_type.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_booking_type.SCHEMANAME}' 
+    RELATIONNAME='Booking_Type' 
+    OUTPUTSCHEMA (
+        "Booking_Type_ID" = 'Booking_Type_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Booking_Type_Description" = 'Booking_Type_Description' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        "Is_Active" = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Booking_Type' PRIMARY KEY ( 'Booking_Type_ID' )
+    INDEX 'PK_Booking_Type' CLUSTER UNIQUE PRIMARY ( 'Booking_Type_ID' )
+    INDEX 'UQ_Booking_Type_Description' OTHER UNIQUE ( 'Booking_Type_Description' );
+
+CREATE OR REPLACE TABLE bv_booking_type I18N us_est (
+        "Booking_Type_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Booking_Type_Description":text (notnull, sourcetypeid = '12', sourcetypesize = '30'),
+        "Is_Active":boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Booking_Type' PRIMARY KEY ( 'Booking_Type_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_booking_type(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Booking_Type_ID" (any) OPT ANY
+             ADD "Booking_Type_Description" (any) OPT ANY
+             ADD "Is_Active" (any) OPT ANY
+        )
+        OUTPUTLIST ("Booking_Type_Description", "Booking_Type_ID", "Is_Active"
+        )
+        WRAPPER (jdbc bv_booking_type)
+    );
+

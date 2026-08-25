@@ -1,0 +1,2 @@
+﻿CREATE OR REPLACE FOLDER '/6 - report views/6.1 - associations' DESCRIPTION 'Associations and relationships' ;
+

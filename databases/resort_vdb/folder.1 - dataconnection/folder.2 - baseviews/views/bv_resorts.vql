@@ -1,0 +1,90 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_resorts
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_resorts.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_resorts.SCHEMANAME}' 
+    RELATIONNAME='Resort' 
+    OUTPUTSCHEMA (
+        "Resort_ID" = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Resort_Name" = 'Resort_Name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "Resort_Type" = 'Resort_Type' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "State_ID" = 'State_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Address" = 'Address' :'java.lang.String' (OPT) (sourcetypesize='200', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "City" = 'City' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "Phone" = 'Phone' :'java.lang.String' (OPT) (sourcetypesize='30', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "Email" = 'Email' :'java.lang.String' (OPT) (sourcetypesize='150', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "Star_Rating" = 'Star_Rating' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        "Description" = 'Description' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "Amenities" = 'Amenities' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "Check_In_Time" = 'Check_In_Time' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Check_Out_Time" = 'Check_Out_Time' :'java.lang.String' (OPT) (sourcetypesize='10', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Default_Currency_ID" = 'Default_Currency_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Timezone" = 'Timezone' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "Is_Active" = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        "Created_Date" = 'Created_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE,
+        "ModifiedDate" = 'ModifiedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        "ModifiedBy" = 'ModifiedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE
+    )
+    CONSTRAINT 'PK_Resort' PRIMARY KEY ( 'Resort_ID' )
+    CONSTRAINT 'FK_Resort_Currency' FOREIGN KEY ( 'Default_Currency_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Currency'( 'Currency_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Resort_State' FOREIGN KEY ( 'State_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'State'( 'State_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Resort_ModifiedBy' FOREIGN KEY ( 'ModifiedBy' ) 
+    REFERENCES 'resort360'.'dbo'.'Users'( 'User_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Resort' CLUSTER UNIQUE PRIMARY ( 'Resort_ID' );
+
+CREATE OR REPLACE TABLE bv_resorts I18N us_est (
+        "Resort_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Resort_Name":text (notnull, sourcetypeid = '-9', sourcetypesize = '100'),
+        "Resort_Type":text (sourcetypeid = '-9', sourcetypesize = '50'),
+        "State_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Address":text (notnull, sourcetypeid = '-9', sourcetypesize = '200'),
+        "City":text (notnull, sourcetypeid = '-9', sourcetypesize = '100'),
+        "Phone":text (sourcetypeid = '-9', sourcetypesize = '30'),
+        "Email":text (sourcetypeid = '-9', sourcetypesize = '150'),
+        "Star_Rating":int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Description":text (sourcetypeid = '-9', sourcetypesize = '2147483647'),
+        "Amenities":text (sourcetypeid = '-9', sourcetypesize = '2147483647'),
+        "Check_In_Time":text (sourcetypeid = '12', sourcetypesize = '10'),
+        "Check_Out_Time":text (sourcetypeid = '12', sourcetypesize = '10'),
+        "Default_Currency_ID":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Timezone":text (sourcetypeid = '-9', sourcetypesize = '50'),
+        "Is_Active":boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1'),
+        "Created_Date":timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23'),
+        "ModifiedDate":timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27'),
+        "ModifiedBy":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Resort' PRIMARY KEY ( 'Resort_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_resorts(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Resort_ID" (any) OPT ANY
+             ADD "Resort_Name" (any) OPT ANY
+             ADD "Resort_Type" (any) OPT ANY
+             ADD "State_ID" (any) OPT ANY
+             ADD "Address" (any) OPT ANY
+             ADD "City" (any) OPT ANY
+             ADD "Phone" (any) OPT ANY
+             ADD "Email" (any) OPT ANY
+             ADD "Star_Rating" (any) OPT ANY
+             ADD "Description" (any) OPT ANY
+             ADD "Amenities" (any) OPT ANY
+             ADD "Check_In_Time" (any) OPT ANY
+             ADD "Check_Out_Time" (any) OPT ANY
+             ADD "Default_Currency_ID" (any) OPT ANY
+             ADD "Timezone" (any) OPT ANY
+             ADD "Is_Active" (any) OPT ANY
+             ADD "Created_Date" (any) OPT ANY
+             ADD "ModifiedDate" (any) OPT ANY
+             ADD "ModifiedBy" (any) OPT ANY
+        )
+        OUTPUTLIST ("Address", "Amenities", "Check_In_Time", "Check_Out_Time", "City", "Created_Date", "Default_Currency_ID", "Description", "Email", "Is_Active", "ModifiedBy", "ModifiedDate", "Phone", "Resort_ID", "Resort_Name", "Resort_Type", "Star_Rating", "State_ID", "Timezone"
+        )
+        WRAPPER (jdbc bv_resorts)
+    );
+

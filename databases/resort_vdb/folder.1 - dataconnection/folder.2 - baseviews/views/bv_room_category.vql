@@ -1,0 +1,59 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_room_category
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_room_category.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_room_category.SCHEMANAME}' 
+    RELATIONNAME='Room_Category' 
+    OUTPUTSCHEMA (
+        "Room_Category_ID" = 'Room_Category_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Resort_ID" = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Room_Category_Description" = 'Room_Category_Description' :'java.lang.String' (OPT) (sourcetypesize='200', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        "Room_Type" = 'Room_Type' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        "Capacity" = 'Capacity' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  NOT NULL SORTABLE,
+        "Base_Rate_Min" = 'Base_Rate_Min' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        "Base_Rate_Max" = 'Base_Rate_Max' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        "Amenities" = 'Amenities' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Description" = 'Description' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Is_Active" = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Room_Category' PRIMARY KEY ( 'Room_Category_ID' )
+    CONSTRAINT 'FK_Room_Category_Resort' FOREIGN KEY ( 'Resort_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Room_Category' CLUSTER UNIQUE PRIMARY ( 'Room_Category_ID' );
+
+CREATE OR REPLACE TABLE bv_room_category I18N us_est (
+        "Room_Category_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Resort_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Room_Category_Description":text (notnull, sourcetypeid = '12', sourcetypesize = '200'),
+        "Room_Type":text (notnull, sourcetypeid = '12', sourcetypesize = '100'),
+        "Capacity":int (notnull, sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Base_Rate_Min":decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Base_Rate_Max":decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Amenities":text (sourcetypeid = '12', sourcetypesize = '2147483647'),
+        "Description":text (sourcetypeid = '12', sourcetypesize = '2147483647'),
+        "Is_Active":boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Room_Category' PRIMARY KEY ( 'Room_Category_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_room_category(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Room_Category_ID" (any) OPT ANY
+             ADD "Resort_ID" (any) OPT ANY
+             ADD "Room_Category_Description" (any) OPT ANY
+             ADD "Room_Type" (any) OPT ANY
+             ADD "Capacity" (any) OPT ANY
+             ADD "Base_Rate_Min" (any) OPT ANY
+             ADD "Base_Rate_Max" (any) OPT ANY
+             ADD "Amenities" (any) OPT ANY
+             ADD "Description" (any) OPT ANY
+             ADD "Is_Active" (any) OPT ANY
+        )
+        OUTPUTLIST ("Amenities", "Base_Rate_Max", "Base_Rate_Min", "Capacity", "Description", "Is_Active", "Resort_ID", "Room_Category_Description", "Room_Category_ID", "Room_Type"
+        )
+        WRAPPER (jdbc bv_room_category)
+    );
+

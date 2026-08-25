@@ -1,0 +1,5 @@
+﻿CREATE OR REPLACE DATABASE resort_vdb '';
+
+ALTER DATABASE resort_vdb
+  CHARSET DEFAULT;
+
