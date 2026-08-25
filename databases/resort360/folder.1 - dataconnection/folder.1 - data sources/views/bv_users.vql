@@ -1,0 +1,70 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC "bv_Users"
+    FOLDER = '/1 - dataconnection/1 - data sources'
+    DATASOURCENAME=ds_sql_resort360db
+    CATALOGNAME='${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.views.jdbc.bv_users.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort360.folder.1 - dataconnection.folder.1 - data sources.views.jdbc.bv_users.SCHEMANAME}' 
+    RELATIONNAME='Users' 
+    OUTPUTSCHEMA (
+        "User_ID" = 'User_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Resort_ID" = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Username" = 'Username' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "Email" = 'Email' :'java.lang.String' (OPT) (sourcetypesize='255', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "Password_Hash" = 'Password_Hash' :'java.lang.String' (OPT) (sourcetypesize='255', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "First_Name" = 'First_Name' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "Last_Name" = 'Last_Name' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  NOT NULL SORTABLE,
+        "Department" = 'Department' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "Position" = 'Position' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='-9', sourcetypename='nvarchar')  ESCAPE SORTABLE,
+        "Is_Active" = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE,
+        "Last_Login_Date" = 'Last_Login_Date' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        "CreatedDate" = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  NOT NULL SORTABLE,
+        "ModifiedDate" = 'ModifiedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE
+    )
+    CONSTRAINT 'PK_Users' PRIMARY KEY ( 'User_ID' )
+    CONSTRAINT 'FK_Users_Resort' FOREIGN KEY ( 'Resort_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Users' CLUSTER UNIQUE PRIMARY ( 'User_ID' )
+    INDEX 'UQ_Users_Email' OTHER UNIQUE ( 'Email' )
+    INDEX 'UQ_Users_Username' OTHER UNIQUE ( 'Username' );
+
+CREATE OR REPLACE TABLE "bv_Users" I18N us_est (
+        "User_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Resort_ID":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Username":text (notnull, sourcetypeid = '-9', sourcetypesize = '100'),
+        "Email":text (notnull, sourcetypeid = '-9', sourcetypesize = '255'),
+        "Password_Hash":text (notnull, sourcetypeid = '-9', sourcetypesize = '255'),
+        "First_Name":text (notnull, sourcetypeid = '-9', sourcetypesize = '50'),
+        "Last_Name":text (notnull, sourcetypeid = '-9', sourcetypesize = '50'),
+        "Department":text (sourcetypeid = '-9', sourcetypesize = '50'),
+        "Position":text (sourcetypeid = '-9', sourcetypesize = '50'),
+        "Is_Active":boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1'),
+        "Last_Login_Date":timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27'),
+        "CreatedDate":timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27'),
+        "ModifiedDate":timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27')
+    )
+    FOLDER = '/1 - dataconnection/1 - data sources'
+    CONSTRAINT 'PK_Users' PRIMARY KEY ( 'User_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD "bv_Users"(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "User_ID" (any) OPT ANY
+             ADD "Resort_ID" (any) OPT ANY
+             ADD "Username" (any) OPT ANY
+             ADD "Email" (any) OPT ANY
+             ADD "Password_Hash" (any) OPT ANY
+             ADD "First_Name" (any) OPT ANY
+             ADD "Last_Name" (any) OPT ANY
+             ADD "Department" (any) OPT ANY
+             ADD "Position" (any) OPT ANY
+             ADD "Is_Active" (any) OPT ANY
+             ADD "Last_Login_Date" (any) OPT ANY
+             ADD "CreatedDate" (any) OPT ANY
+             ADD "ModifiedDate" (any) OPT ANY
+        )
+        OUTPUTLIST ("CreatedDate", "Department", "Email", "First_Name", "Is_Active", "Last_Login_Date", "Last_Name", "ModifiedDate", "Password_Hash", "Position", "Resort_ID", "User_ID", "Username"
+        )
+        WRAPPER (jdbc "bv_Users")
+    );
+
