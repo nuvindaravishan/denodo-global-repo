@@ -1,0 +1,15 @@
+﻿1/databases/resort_vdb/folder.6 - report views/6 - report views.vql
+*/databases/resort_vdb/folder.5 - semantic views/5 - semantic views.vql
+*/databases/resort_vdb/folder.5 - semantic views/folder.5.1 - data products/5.1 - data products.vql
+*/databases/resort_vdb/folder.4 - integration views/4 - integration views.vql
+*/databases/resort_vdb/folder.1 - dataconnection/1 - dataconnection.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/2 - baseviews.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.1 - data sources/1 - data sources.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.1 - data sources/datasources/jdbc/ds_sql_server.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_customer_amenities_booking.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_amenities.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_customer.vql
+*/databases/resort_vdb/folder.1 - dataconnection/folder.2 - baseviews/views/bv_resorts.vql
+*/databases/resort_vdb/folder.4 - integration views/views/iv_customer_amenity_360.vql
+1/databases/resort_vdb/folder.5 - semantic views/folder.5.1 - data products/views/dp_customer_amenity_summary.vql
+*/databases/resort_vdb/folder.5 - semantic views/folder.5.1 - data products/views/dp_customer_amenity_summary.vql

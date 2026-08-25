@@ -1,0 +1,116 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_payment
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_payment.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_payment.SCHEMANAME}' 
+    RELATIONNAME='Payment' 
+    OUTPUTSCHEMA (
+        "Payment_Id" = 'Payment_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Booking_Id" = 'Booking_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Resort_Id" = 'Resort_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Payment_Date" = 'Payment_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  NOT NULL SORTABLE,
+        "Payment_Time" = 'Payment_Time' :'java.time.LocalTime' (OPT) (sourcetypedecimals='7', sourcetypesize='16', sourcetypeid='92', sourcetypename='time')  NOT NULL SORTABLE,
+        "Booking_Type_Id" = 'Booking_Type_Id' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Transaction_Id" = 'Transaction_Id' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Payment_Method_ID" = 'Payment_Method_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Mode_Of_Payment" = 'Mode_Of_Payment' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Cheque_N" = 'Cheque_N' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Cheque_Date" = 'Cheque_Date' :'java.time.LocalDate' (OPT) (sourcetypedecimals='0', sourcetypesize='10', sourcetypeid='91', sourcetypename='date')  SORTABLE,
+        "Bank" = 'Bank' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Ifsc" = 'Ifsc' :'java.lang.String' (OPT) (sourcetypesize='15', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Amount" = 'Amount' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        "Paid" = 'Paid' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        "Balance" = 'Balance' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT NULL NOT SORTABLE,
+        "Paid_By" = 'Paid_By' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Received_By" = 'Received_By' :'java.lang.String' (OPT) (sourcetypesize='25', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Payment_Status" = 'Payment_Status' :'java.lang.String' (OPT) (sourcetypesize='20', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "CreatedDate" = 'CreatedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='3', sourcetypesize='23', sourcetypeid='93', sourcetypename='datetime')  NOT NULL SORTABLE,
+        "Currency_ID" = 'Currency_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "ModifiedDate" = 'ModifiedDate' :'java.time.LocalDateTime' (OPT) (sourcetypedecimals='7', sourcetypesize='27', sourcetypeid='93', sourcetypename='datetime2')  SORTABLE,
+        "ModifiedBy" = 'ModifiedBy' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  SORTABLE,
+        "Payment_Gateway_Transaction_ID" = 'Payment_Gateway_Transaction_ID' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE,
+        "Payment_Gateway_Response" = 'Payment_Gateway_Response' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='-9', sourcetypename='nvarchar')  SORTABLE
+    )
+    CONSTRAINT 'PK_Payment' PRIMARY KEY ( 'Payment_Id' )
+    CONSTRAINT 'FK_Payment_Booking' FOREIGN KEY ( 'Booking_Id' ) 
+    REFERENCES 'resort360'.'dbo'.'Booking'( 'Booking_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Payment_Booking_Type' FOREIGN KEY ( 'Booking_Type_Id' ) 
+    REFERENCES 'resort360'.'dbo'.'Booking_Type'( 'Booking_Type_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Payment_Currency' FOREIGN KEY ( 'Currency_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Currency'( 'Currency_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Payment_Payment_Method' FOREIGN KEY ( 'Payment_Method_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Payment_Methods'( 'Payment_Method_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Payment_Resort' FOREIGN KEY ( 'Resort_Id' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    CONSTRAINT 'FK_Payment_ModifiedBy' FOREIGN KEY ( 'ModifiedBy' ) 
+    REFERENCES 'resort360'.'dbo'.'Users'( 'User_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Payment' CLUSTER UNIQUE PRIMARY ( 'Payment_Id' )
+    INDEX 'IX_Payment_Booking' OTHER ( 'Booking_Id' )
+    INDEX 'IX_Payment_Date' OTHER ( 'Payment_Date' );
+
+CREATE OR REPLACE TABLE bv_payment I18N us_est (
+        "Payment_Id":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Booking_Id":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Resort_Id":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Payment_Date":localdate (notnull, sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Payment_Time":time (notnull, sourcetypeid = '92', sourcetypedecimals = '7', sourcetypesize = '16'),
+        "Booking_Type_Id":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Transaction_Id":text (sourcetypeid = '12', sourcetypesize = '50'),
+        "Payment_Method_ID":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Mode_Of_Payment":text (sourcetypeid = '12', sourcetypesize = '20'),
+        "Cheque_N":text (sourcetypeid = '12', sourcetypesize = '20'),
+        "Cheque_Date":localdate (sourcetypeid = '91', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Bank":text (sourcetypeid = '12', sourcetypesize = '50'),
+        "Ifsc":text (sourcetypeid = '12', sourcetypesize = '15'),
+        "Amount":decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Paid":decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Balance":decimal (notnull, sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Paid_By":text (sourcetypeid = '12', sourcetypesize = '25'),
+        "Received_By":text (sourcetypeid = '12', sourcetypesize = '25'),
+        "Payment_Status":text (sourcetypeid = '12', sourcetypesize = '20'),
+        "CreatedDate":timestamp (notnull, sourcetypeid = '93', sourcetypedecimals = '3', sourcetypesize = '23'),
+        "Currency_ID":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "ModifiedDate":timestamp (sourcetypeid = '93', sourcetypedecimals = '7', sourcetypesize = '27'),
+        "ModifiedBy":long (sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Payment_Gateway_Transaction_ID":text (sourcetypeid = '-9', sourcetypesize = '100'),
+        "Payment_Gateway_Response":text (sourcetypeid = '-9', sourcetypesize = '2147483647')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Payment' PRIMARY KEY ( 'Payment_Id' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_payment(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Payment_Id" (any) OPT ANY
+             ADD "Booking_Id" (any) OPT ANY
+             ADD "Resort_Id" (any) OPT ANY
+             ADD "Payment_Date" (any) OPT ANY
+             ADD "Payment_Time" (any) OPT ANY
+             ADD "Booking_Type_Id" (any) OPT ANY
+             ADD "Transaction_Id" (any) OPT ANY
+             ADD "Payment_Method_ID" (any) OPT ANY
+             ADD "Mode_Of_Payment" (any) OPT ANY
+             ADD "Cheque_N" (any) OPT ANY
+             ADD "Cheque_Date" (any) OPT ANY
+             ADD "Bank" (any) OPT ANY
+             ADD "Ifsc" (any) OPT ANY
+             ADD "Amount" (any) OPT ANY
+             ADD "Paid" (any) OPT ANY
+             ADD "Balance" (any) OPT ANY
+             ADD "Paid_By" (any) OPT ANY
+             ADD "Received_By" (any) OPT ANY
+             ADD "Payment_Status" (any) OPT ANY
+             ADD "CreatedDate" (any) OPT ANY
+             ADD "Currency_ID" (any) OPT ANY
+             ADD "ModifiedDate" (any) OPT ANY
+             ADD "ModifiedBy" (any) OPT ANY
+             ADD "Payment_Gateway_Transaction_ID" (any) OPT ANY
+             ADD "Payment_Gateway_Response" (any) OPT ANY
+        )
+        OUTPUTLIST ("Amount", "Balance", "Bank", "Booking_Id", "Booking_Type_Id", "Cheque_Date", "Cheque_N", "CreatedDate", "Currency_ID", "Ifsc", "Mode_Of_Payment", "ModifiedBy", "ModifiedDate", "Paid", "Paid_By", "Payment_Date", "Payment_Gateway_Response", "Payment_Gateway_Transaction_ID", "Payment_Id", "Payment_Method_ID", "Payment_Status", "Payment_Time", "Received_By", "Resort_Id", "Transaction_Id"
+        )
+        WRAPPER (jdbc bv_payment)
+    );
+

@@ -1,0 +1,59 @@
+﻿# REQUIRES-PROPERTIES-FILE - # Do not remove this comment!
+CREATE OR REPLACE WRAPPER JDBC bv_amenities
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    DATASOURCENAME=ds_sql_server
+    CATALOGNAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_amenities.CATALOGNAME}' 
+    SCHEMANAME='${databases.resort_vdb.folder.1 - dataconnection.folder.2 - baseviews.views.jdbc.bv_amenities.SCHEMANAME}' 
+    RELATIONNAME='Amenities' 
+    OUTPUTSCHEMA (
+        "Amenity_ID" = 'Amenity_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint identity')  NOT NULL SORTABLE IS_AUTOINCREMENT,
+        "Resort_ID" = 'Resort_ID' :'java.lang.Long' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='-5', sourcetypename='bigint')  NOT NULL SORTABLE,
+        "Amenity_Name" = 'Amenity_Name' :'java.lang.String' (OPT) (sourcetypesize='100', sourcetypeid='12', sourcetypename='varchar')  NOT NULL SORTABLE,
+        "Category" = 'Category' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Rate" = 'Rate' :'java.math.BigDecimal' (OPT) (sourcetypedecimals='4', sourcetyperadix='10', sourcetypesize='19', sourcetypeid='3', sourcetypename='money')  NOT SORTABLE,
+        "Duration_Hours" = 'Duration_Hours' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        "Capacity" = 'Capacity' :'java.lang.Integer' (OPT) (sourcetypedecimals='0', sourcetyperadix='10', sourcetypesize='10', sourcetypeid='4', sourcetypename='int')  SORTABLE,
+        "Difficulty_Level" = 'Difficulty_Level' :'java.lang.String' (OPT) (sourcetypesize='50', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Description" = 'Description' :'java.lang.String' (OPT) (sourcetypesize='2147483647', sourcetypeid='12', sourcetypename='varchar')  SORTABLE,
+        "Is_Active" = 'Is_Active' :'java.lang.Boolean' (OPT) (sourcetypesize='1', sourcetypeid='-7', sourcetypename='bit')  NOT NULL SORTABLE
+    )
+    CONSTRAINT 'PK_Amenities' PRIMARY KEY ( 'Amenity_ID' )
+    CONSTRAINT 'FK_Amenities_Resort' FOREIGN KEY ( 'Resort_ID' ) 
+    REFERENCES 'resort360'.'dbo'.'Resort'( 'Resort_ID' )  ON UPDATE NO ACTION  ON DELETE NO ACTION NOT DEFERRABLE 
+    INDEX 'PK_Amenities' CLUSTER UNIQUE PRIMARY ( 'Amenity_ID' );
+
+CREATE OR REPLACE TABLE bv_amenities I18N us_est (
+        "Amenity_ID":long (notnull, autoincrement, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Resort_ID":long (notnull, sourcetypeid = '-5', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '19'),
+        "Amenity_Name":text (notnull, sourcetypeid = '12', sourcetypesize = '100'),
+        "Category":text (sourcetypeid = '12', sourcetypesize = '50'),
+        "Rate":decimal (sourcetypeid = '3', sourcetyperadix = '10', sourcetypedecimals = '4', sourcetypesize = '19'),
+        "Duration_Hours":int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Capacity":int (sourcetypeid = '4', sourcetyperadix = '10', sourcetypedecimals = '0', sourcetypesize = '10'),
+        "Difficulty_Level":text (sourcetypeid = '12', sourcetypesize = '50'),
+        "Description":text (sourcetypeid = '12', sourcetypesize = '2147483647'),
+        "Is_Active":boolean (notnull, sourcetypeid = '-7', sourcetypesize = '1')
+    )
+    FOLDER = '/1 - dataconnection/2 - baseviews'
+    CONSTRAINT 'PK_Amenities' PRIMARY KEY ( 'Amenity_ID' )
+    CACHE OFF
+    TIMETOLIVEINCACHE DEFAULT
+    ADD SEARCHMETHOD bv_amenities(
+        I18N us_est
+        CONSTRAINTS (
+             ADD "Amenity_ID" (any) OPT ANY
+             ADD "Resort_ID" (any) OPT ANY
+             ADD "Amenity_Name" (any) OPT ANY
+             ADD "Category" (any) OPT ANY
+             ADD "Rate" (any) OPT ANY
+             ADD "Duration_Hours" (any) OPT ANY
+             ADD "Capacity" (any) OPT ANY
+             ADD "Difficulty_Level" (any) OPT ANY
+             ADD "Description" (any) OPT ANY
+             ADD "Is_Active" (any) OPT ANY
+        )
+        OUTPUTLIST ("Amenity_ID", "Amenity_Name", "Capacity", "Category", "Description", "Difficulty_Level", "Duration_Hours", "Is_Active", "Rate", "Resort_ID"
+        )
+        WRAPPER (jdbc bv_amenities)
+    );
+
